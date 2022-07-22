@@ -11,8 +11,8 @@ type RegexCache struct {
 	state sync.Map
 }
 
-// MakeCache constructs and returns a pointer to a new RegexCache.
-func MakeCache() *RegexCache {
+// NewCache constructs and returns a pointer to a new RegexCache.
+func NewCache() *RegexCache {
 	cache := &RegexCache{
 		state: sync.Map{},
 	}

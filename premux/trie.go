@@ -33,15 +33,15 @@ type Node struct {
 	actions  map[string]*Action
 }
 
-var rc = MakeCache()
+var rc = NewCache()
 
-// MakeResult constructs and returns a pointer to a new Result.
-func MakeResult() *Result {
+// NewResult constructs and returns a pointer to a new Result.
+func NewResult() *Result {
 	return &Result{}
 }
 
-// MakeTrie constructs and returns a pointer to a new Trie.
-func MakeTrie() *Trie {
+// NewTrie constructs and returns a pointer to a new Trie.
+func NewTrie() *Trie {
 	return &Trie{
 		root: &Node{
 			children: make(map[string]*Node),
@@ -101,7 +101,7 @@ func (t *Trie) Insert(methods []string, path string, handler http.Handler) error
 // Search searches a given path and method in the Trie's routing results.
 func (t *Trie) Search(method string, searchPath string) (*Result, error) {
 	var params []*Parameter
-	result := MakeResult()
+	result := NewResult()
 	curr := t.root
 
 	for _, path := range ExpandPath(searchPath) {

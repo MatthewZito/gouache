@@ -13,8 +13,8 @@ type RouteRecord struct {
 	handler http.Handler
 }
 
-func TestMakeTrie(t *testing.T) {
-	actual := MakeTrie()
+func TestNewTrie(t *testing.T) {
+	actual := NewTrie()
 	expected := &Trie{
 		root: &Node{
 			children: make(map[string]*Node),
@@ -60,9 +60,14 @@ func TestInsert(t *testing.T) {
 			methods: []string{http.MethodGet},
 			handler: testHandler,
 		},
+		{
+			path:    "/foo/bar",
+			methods: []string{http.MethodGet},
+			handler: testHandler,
+		},
 	}
 
-	trie := MakeTrie()
+	trie := NewTrie()
 
 	for i, record := range records {
 		if err := trie.Insert(record.methods, record.path, record.handler); err != nil {
@@ -119,9 +124,16 @@ func TestSearchResults(t *testing.T) {
 			path:    "/test/path/:id[^\\d+$]",
 			methods: []string{http.MethodGet},
 			handler: testHandler,
-		}}
+		},
+		{
+			path:    "/foo",
+			methods: []string{http.MethodOptions},
+			handler: testHandler,
+		},
+	}
 
 	tests := []TestCase{
+		// Test path with params
 		{
 			search: SearchQuery{
 				method: http.MethodGet,
@@ -173,9 +185,34 @@ func TestSearchResults(t *testing.T) {
 				parameters: []*Parameter{},
 			},
 		},
+		{
+			search: SearchQuery{
+				method: http.MethodOptions,
+				path:   "/foo",
+			},
+			expected: Result{
+				actions: &Action{
+					handler: testHandler,
+				},
+				parameters: []*Parameter{},
+			},
+		},
+		// Test trailing path
+		{
+			search: SearchQuery{
+				method: http.MethodOptions,
+				path:   "/foo/",
+			},
+			expected: Result{
+				actions: &Action{
+					handler: testHandler,
+				},
+				parameters: []*Parameter{},
+			},
+		},
 	}
 
-	trie := MakeTrie()
+	trie := NewTrie()
 
 	for _, record := range insert {
 		trie.Insert(record.methods, record.path, record.handler)
@@ -280,7 +317,7 @@ func TestSearchError(t *testing.T) {
 		},
 	}
 
-	trie := MakeTrie()
+	trie := NewTrie()
 
 	for _, record := range insert {
 		trie.Insert(record.methods, record.path, record.handler)

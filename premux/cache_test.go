@@ -5,7 +5,7 @@ import (
 )
 
 func TestCache(t *testing.T) {
-	rc := MakeCache()
+	rc := NewCache()
 
 	pattern1 := "(.*)"
 	pattern2 := "^\\d+$"

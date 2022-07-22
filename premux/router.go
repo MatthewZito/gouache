@@ -29,25 +29,43 @@ var (
 	}
 )
 
-// MakeRouter constructs and returns a pointer to a new Router.
-func MakeRouter() *Router {
+// NewRouter constructs and returns a pointer to a new Router.
+func NewRouter() *Router {
 	return &Router{
-		trie: MakeTrie(),
+		trie: NewTrie(),
 	}
 }
 
+// WithMethods appends user-specified HTTP methods to the current Route record.
 func (r *Router) WithMethods(methods ...string) *Router {
 	cachedRoute.methods = append(cachedRoute.methods, methods...)
+
 	return r
 }
 
-func (r *Router) Handler(path string, handler http.Handler) {
+// Handler adds a path and handler to the current Route record.
+func (r *Router) Handler(path string, handler http.Handler) *Router {
 	cachedRoute.path = path
 	cachedRoute.handler = handler
+
+	return r
+}
+
+// Register registers the current Route record. This method must be invoked to register the Route.
+func (r *Router) Register() {
+	if len(cachedRoute.methods) == 0 {
+		panic("Cannot register a route handler with no specified HTTP methods.")
+	}
+
+	if cachedRoute.path == "" || cachedRoute.handler == nil {
+		panic("Cannot register a route handler with no specified path or handler.")
+	}
+
 	r.trie.Insert(cachedRoute.methods, cachedRoute.path, cachedRoute.handler)
 	cachedRoute = &Route{}
 }
 
+// RouteRequest routes an HTTP request to the appropriate Route record handler.
 func (r *Router) RouteRequest(w http.ResponseWriter, req *http.Request) {
 	method := req.Method
 	path := req.URL.Path
