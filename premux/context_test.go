@@ -6,12 +6,12 @@ import (
 )
 
 func TestContext(t *testing.T) {
-	type TestCase struct {
+	type testCase struct {
 		actual   string
 		expected string
 	}
 
-	params := &[]*Parameter{
+	params := &[]*parameter{
 		{
 			key:   "id",
 			value: "12",
@@ -22,9 +22,9 @@ func TestContext(t *testing.T) {
 		},
 	}
 
-	ctx := context.WithValue(context.Background(), ParameterKey, *params)
+	ctx := context.WithValue(context.Background(), parameterKey, *params)
 
-	tests := []TestCase{
+	tests := []testCase{
 		{
 			expected: "12",
 			actual:   GetParam(ctx, "id"),

@@ -7,18 +7,19 @@ import (
 	"testing"
 )
 
-type RouteRecord struct {
-	path    string
-	methods []string
-	handler http.Handler
+type routeRecord struct {
+	path        string
+	methods     []string
+	handler     http.Handler
+	middlewares middlewares
 }
 
 func TestNewTrie(t *testing.T) {
-	actual := NewTrie()
-	expected := &Trie{
-		root: &Node{
-			children: make(map[string]*Node),
-			actions:  make(map[string]*Action),
+	actual := newTrie()
+	expected := &trie{
+		root: &node{
+			children: make(map[string]*node),
+			actions:  make(map[string]*action),
 		}}
 
 	if !reflect.DeepEqual(actual, expected) {
@@ -29,62 +30,69 @@ func TestNewTrie(t *testing.T) {
 func TestInsert(t *testing.T) {
 	testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
 
-	records := []RouteRecord{
+	records := []routeRecord{
 		{
-			path:    PathRoot,
-			methods: []string{http.MethodGet},
-			handler: testHandler,
+			path:        PathRoot,
+			methods:     []string{http.MethodGet},
+			handler:     testHandler,
+			middlewares: []middleware{first, second, third},
 		},
 		{
-			path:    PathRoot,
-			methods: []string{http.MethodGet, http.MethodPost},
-			handler: testHandler,
+			path:        PathRoot,
+			methods:     []string{http.MethodGet, http.MethodPost},
+			handler:     testHandler,
+			middlewares: []middleware{first, second, third},
 		},
 		{
-			path:    "/test",
-			methods: []string{http.MethodGet},
-			handler: testHandler,
+			path:        "/test",
+			methods:     []string{http.MethodGet},
+			handler:     testHandler,
+			middlewares: []middleware{first, second, third},
 		},
 		{
-			path:    "/test/path",
-			methods: []string{http.MethodGet},
-			handler: testHandler,
+			path:        "/test/path",
+			methods:     []string{http.MethodGet},
+			handler:     testHandler,
+			middlewares: []middleware{first, second, third},
 		},
 		{
-			path:    "/test/path",
-			methods: []string{http.MethodPost},
-			handler: testHandler,
+			path:        "/test/path",
+			methods:     []string{http.MethodPost},
+			handler:     testHandler,
+			middlewares: []middleware{first, second, third},
 		},
 		{
-			path:    "/test/path/paths",
-			methods: []string{http.MethodGet},
-			handler: testHandler,
+			path:        "/test/path/paths",
+			methods:     []string{http.MethodGet},
+			handler:     testHandler,
+			middlewares: []middleware{first, second, third},
 		},
 		{
-			path:    "/foo/bar",
-			methods: []string{http.MethodGet},
-			handler: testHandler,
+			path:        "/foo/bar",
+			methods:     []string{http.MethodGet},
+			handler:     testHandler,
+			middlewares: []middleware{first, second, third},
 		},
 	}
 
-	trie := NewTrie()
+	trie := newTrie()
 
 	for i, record := range records {
-		if err := trie.Insert(record.methods, record.path, record.handler); err != nil {
+		if err := trie.insert(record.methods, record.path, record.handler, record.middlewares); err != nil {
 			t.Errorf("error %v inserting test %d\n", err, i)
 		}
 	}
 }
 
 func TestSearchResults(t *testing.T) {
-	type SearchQuery struct {
+	type searchQuery struct {
 		method string
 		path   string
 	}
 
 	type TestCase struct {
-		search   SearchQuery
-		expected Result
+		search   searchQuery
+		expected result
 	}
 
 	rootHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
@@ -96,167 +104,185 @@ func TestSearchResults(t *testing.T) {
 	barIdHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
 	wildcardHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
 
-	insert := []RouteRecord{
+	insert := []routeRecord{
 		{
-			path:    PathRoot,
-			methods: []string{http.MethodGet},
-			handler: rootHandler,
+			path:        PathRoot,
+			methods:     []string{http.MethodGet},
+			handler:     rootHandler,
+			middlewares: []middleware{first},
 		},
 		{
-			path:    "/test",
-			methods: []string{http.MethodGet},
-			handler: testHandler,
+			path:        "/test",
+			methods:     []string{http.MethodGet},
+			handler:     testHandler,
+			middlewares: []middleware{first},
 		},
 		{
-			path:    "/test/path",
-			methods: []string{http.MethodGet},
-			handler: testPathHandler,
+			path:        "/test/path",
+			methods:     []string{http.MethodGet},
+			handler:     testPathHandler,
+			middlewares: []middleware{first},
 		},
 		{
-			path:    "/test/path",
-			methods: []string{http.MethodPost},
-			handler: testPathHandler,
+			path:        "/test/path",
+			methods:     []string{http.MethodPost},
+			handler:     testPathHandler,
+			middlewares: []middleware{first},
 		},
 		{
-			path:    "/test/path/paths",
-			methods: []string{http.MethodGet},
-			handler: testPathPathsHandler,
+			path:        "/test/path/paths",
+			methods:     []string{http.MethodGet},
+			handler:     testPathPathsHandler,
+			middlewares: []middleware{first},
 		},
 		{
-			path:    "/test/path/:id[^\\d+$]",
-			methods: []string{http.MethodGet},
-			handler: testPathIdHandler,
+			path:        "/test/path/:id[^\\d+$]",
+			methods:     []string{http.MethodGet},
+			handler:     testPathIdHandler,
+			middlewares: []middleware{first},
 		},
 		{
-			path:    "/foo",
-			methods: []string{http.MethodGet},
-			handler: fooHandler,
+			path:        "/foo",
+			methods:     []string{http.MethodGet},
+			handler:     fooHandler,
+			middlewares: []middleware{first},
 		},
 		{
-			path:    "/bar/:id[^\\d+$]/:user[^\\D+$]",
-			methods: []string{http.MethodPost},
-			handler: barIdHandler,
+			path:        "/bar/:id[^\\d+$]/:user[^\\D+$]",
+			methods:     []string{http.MethodPost},
+			handler:     barIdHandler,
+			middlewares: []middleware{first},
 		},
 		{
-			path:    "/:*[(.+)]",
-			methods: []string{http.MethodOptions},
-			handler: wildcardHandler,
+			path:        "/:*[(.+)]",
+			methods:     []string{http.MethodOptions},
+			handler:     wildcardHandler,
+			middlewares: []middleware{first},
 		},
 	}
 
 	tests := []TestCase{
 		{
-			search: SearchQuery{
+			search: searchQuery{
 				method: http.MethodGet,
 				path:   "/",
 			},
-			expected: Result{
-				actions: &Action{
-					handler: rootHandler,
+			expected: result{
+				actions: &action{
+					handler:     rootHandler,
+					middlewares: []middleware{first},
 				},
-				parameters: []*Parameter{},
+				parameters: []*parameter{},
 			},
 		},
 		{
-			search: SearchQuery{
+			search: searchQuery{
 				method: http.MethodGet,
 				path:   "/test/",
 			},
-			expected: Result{
-				actions: &Action{
-					handler: testHandler,
+			expected: result{
+				actions: &action{
+					handler:     testHandler,
+					middlewares: []middleware{first},
 				},
-				parameters: []*Parameter{},
+				parameters: []*parameter{},
 			},
 		},
 		// Test path with params
 		{
-			search: SearchQuery{
+			search: searchQuery{
 				method: http.MethodGet,
 				path:   "/test/path/12",
 			},
-			expected: Result{
-				actions: &Action{
-					handler: testPathIdHandler,
+			expected: result{
+				actions: &action{
+					handler:     testPathIdHandler,
+					middlewares: []middleware{first},
 				},
-				parameters: []*Parameter{{
+				parameters: []*parameter{{
 					key:   "id",
 					value: "12",
 				}},
 			},
 		},
 		{
-			search: SearchQuery{
+			search: searchQuery{
 				method: http.MethodGet,
 				path:   "/test/path/paths",
 			},
-			expected: Result{
-				actions: &Action{
-					handler: testPathPathsHandler,
+			expected: result{
+				actions: &action{
+					handler:     testPathPathsHandler,
+					middlewares: []middleware{first},
 				},
-				parameters: []*Parameter{},
+				parameters: []*parameter{},
 			},
 		},
 		{
-			search: SearchQuery{
+			search: searchQuery{
 				method: http.MethodPost,
 				path:   "/test/path",
 			},
-			expected: Result{
-				actions: &Action{
-					handler: testPathHandler,
+			expected: result{
+				actions: &action{
+					handler:     testPathHandler,
+					middlewares: []middleware{first},
 				},
-				parameters: []*Parameter{},
+				parameters: []*parameter{},
 			},
 		},
 		{
-			search: SearchQuery{
+			search: searchQuery{
 				method: http.MethodGet,
 				path:   "/test/path",
 			},
-			expected: Result{
-				actions: &Action{
-					handler: testPathHandler,
+			expected: result{
+				actions: &action{
+					handler:     testPathHandler,
+					middlewares: []middleware{first},
 				},
-				parameters: []*Parameter{},
+				parameters: []*parameter{},
 			},
 		},
 		{
-			search: SearchQuery{
+			search: searchQuery{
 				method: http.MethodGet,
 				path:   "/foo",
 			},
-			expected: Result{
-				actions: &Action{
-					handler: fooHandler,
+			expected: result{
+				actions: &action{
+					handler:     fooHandler,
+					middlewares: []middleware{first},
 				},
-				parameters: []*Parameter{},
+				parameters: []*parameter{},
 			},
 		},
 		// Test trailing path
 		{
-			search: SearchQuery{
+			search: searchQuery{
 				method: http.MethodGet,
 				path:   "/foo/",
 			},
-			expected: Result{
-				actions: &Action{
-					handler: fooHandler,
+			expected: result{
+				actions: &action{
+					handler:     fooHandler,
+					middlewares: []middleware{first},
 				},
-				parameters: []*Parameter{},
+				parameters: []*parameter{},
 			},
 		},
 		// Test complex regex
 		{
-			search: SearchQuery{
+			search: searchQuery{
 				method: http.MethodPost,
 				path:   "/bar/123/alice",
 			},
-			expected: Result{
-				actions: &Action{
-					handler: barIdHandler,
+			expected: result{
+				actions: &action{
+					handler:     barIdHandler,
+					middlewares: []middleware{first},
 				},
-				parameters: []*Parameter{
+				parameters: []*parameter{
 					{
 						key:   "id",
 						value: "123",
@@ -270,15 +296,16 @@ func TestSearchResults(t *testing.T) {
 		},
 		// Test wildcard regex
 		{
-			search: SearchQuery{
+			search: searchQuery{
 				method: http.MethodOptions,
 				path:   "/wildcard",
 			},
-			expected: Result{
-				actions: &Action{
-					handler: wildcardHandler,
+			expected: result{
+				actions: &action{
+					handler:     wildcardHandler,
+					middlewares: []middleware{first},
 				},
-				parameters: []*Parameter{
+				parameters: []*parameter{
 					{
 						key:   "*",
 						value: "wildcard",
@@ -288,14 +315,14 @@ func TestSearchResults(t *testing.T) {
 		},
 	}
 
-	trie := NewTrie()
+	trie := newTrie()
 
 	for _, record := range insert {
-		trie.Insert(record.methods, record.path, record.handler)
+		trie.insert(record.methods, record.path, record.handler, record.middlewares)
 	}
 
 	for _, test := range tests {
-		actual, err := trie.Search(test.search.method, test.search.path)
+		actual, err := trie.search(test.search.method, test.search.path)
 
 		if err != nil {
 			t.Errorf("expected a result but got error %v", err)
@@ -318,89 +345,96 @@ func TestSearchResults(t *testing.T) {
 }
 
 func TestSearchError(t *testing.T) {
-	type SearchQuery struct {
+	type searchQuery struct {
 		method string
 		path   string
 	}
 
 	type TestCase struct {
-		search SearchQuery
+		search searchQuery
 	}
 
 	testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
 
-	insert := []RouteRecord{
+	insert := []routeRecord{
 		{
-			path:    PathRoot,
-			methods: []string{http.MethodGet},
-			handler: testHandler,
+			path:        PathRoot,
+			methods:     []string{http.MethodGet},
+			handler:     testHandler,
+			middlewares: []middleware{first},
 		},
 		{
-			path:    PathRoot,
-			methods: []string{http.MethodGet, http.MethodPost},
-			handler: testHandler,
+			path:        PathRoot,
+			methods:     []string{http.MethodGet, http.MethodPost},
+			handler:     testHandler,
+			middlewares: []middleware{first},
 		},
 		{
-			path:    "/test",
-			methods: []string{http.MethodGet},
-			handler: testHandler,
+			path:        "/test",
+			methods:     []string{http.MethodGet},
+			handler:     testHandler,
+			middlewares: []middleware{first},
 		},
 		{
-			path:    "/test/path",
-			methods: []string{http.MethodGet},
-			handler: testHandler,
+			path:        "/test/path",
+			methods:     []string{http.MethodGet},
+			handler:     testHandler,
+			middlewares: []middleware{first},
 		},
 		{
-			path:    "/test/path",
-			methods: []string{http.MethodPost},
-			handler: testHandler,
+			path:        "/test/path",
+			methods:     []string{http.MethodPost},
+			handler:     testHandler,
+			middlewares: []middleware{first},
 		},
 		{
-			path:    "/test/path/paths",
-			methods: []string{http.MethodGet},
-			handler: testHandler,
+			path:        "/test/path/paths",
+			methods:     []string{http.MethodGet},
+			handler:     testHandler,
+			middlewares: []middleware{first},
 		},
 		{
-			path:    "/test/path/:id[^\\d+$]",
-			methods: []string{http.MethodGet},
-			handler: testHandler,
+			path:        "/test/path/:id[^\\d+$]",
+			methods:     []string{http.MethodGet},
+			handler:     testHandler,
+			middlewares: []middleware{first},
 		}}
 
 	tests := []TestCase{
 		{
-			search: SearchQuery{
+			search: searchQuery{
 				method: http.MethodGet,
 				path:   "/test/path/12/31",
 			},
 		},
 		{
-			search: SearchQuery{
+			search: searchQuery{
 				method: http.MethodGet,
 				path:   "/test/path/path",
 			},
 		},
 		{
-			search: SearchQuery{
+			search: searchQuery{
 				method: http.MethodPost,
 				path:   "/test/pat h",
 			},
 		},
 		{
-			search: SearchQuery{
+			search: searchQuery{
 				method: http.MethodGet,
 				path:   "/test/path/world",
 			},
 		},
 	}
 
-	trie := NewTrie()
+	trie := newTrie()
 
 	for _, record := range insert {
-		trie.Insert(record.methods, record.path, record.handler)
+		trie.insert(record.methods, record.path, record.handler, record.middlewares)
 	}
 
 	for _, test := range tests {
-		result, err := trie.Search(test.search.method, test.search.path)
+		result, err := trie.search(test.search.method, test.search.path)
 
 		if err == nil {
 			t.Errorf("expected an error but got result %v", result)

@@ -6,22 +6,22 @@ import (
 	"sync"
 )
 
-// RegexCache maintains a thread-safe cache for compiled regular expressions.
-type RegexCache struct {
+// regexCache maintains a thread-safe cache for compiled regular expressions.
+type regexCache struct {
 	state sync.Map
 }
 
-// NewCache constructs and returns a pointer to a new RegexCache.
-func NewCache() *RegexCache {
-	cache := &RegexCache{
+// newCache constructs and returns a pointer to a new regexCache.
+func newCache() *regexCache {
+	cache := &regexCache{
 		state: sync.Map{},
 	}
 
 	return cache
 }
 
-// Get retrieves a compiled regex from the RegexCache, or creates one and caches it if not extant.
-func (rc *RegexCache) Get(pattern string) (*regexp.Regexp, error) {
+// get retrieves a compiled regex from the regexCache, or creates one and caches it if not extant.
+func (rc *regexCache) get(pattern string) (*regexp.Regexp, error) {
 	v, ok := rc.state.Load(pattern)
 	if ok {
 		// Verify the validity of the cached regex.

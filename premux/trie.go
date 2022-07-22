@@ -4,79 +4,81 @@ import (
 	"net/http"
 )
 
-// Action represents an HTTP handler action.
-type Action struct {
-	handler http.Handler
+// action represents an HTTP handler action.
+type action struct {
+	handler     http.Handler
+	middlewares middlewares
 }
 
-// Parameter represents a path parameter.
-type Parameter struct {
+// parameter represents a path parameter.
+type parameter struct {
 	key   string
 	value string
 }
 
-// Result represents a Trie search result.
-type Result struct {
-	actions    *Action
-	parameters []*Parameter
+// result represents a trie search result.
+type result struct {
+	actions    *action
+	parameters []*parameter
 }
 
-// Trie is a trie data structure used to manage multiplexing paths.
-type Trie struct {
-	root *Node
+// trie is a trie data structure used to manage multiplexing paths.
+type trie struct {
+	root *node
 }
 
-// Node is a trie node.
-type Node struct {
+// node is a trie node.
+type node struct {
 	label    string
-	children map[string]*Node
-	actions  map[string]*Action
+	children map[string]*node
+	actions  map[string]*action
 }
 
-var rc = NewCache()
+var rc = newCache()
 
-// NewResult constructs and returns a pointer to a new Result.
-func NewResult() *Result {
-	return &Result{}
+// newResult constructs and returns a pointer to a new result.
+func newResult() *result {
+	return &result{}
 }
 
-// NewTrie constructs and returns a pointer to a new Trie.
-func NewTrie() *Trie {
-	return &Trie{
-		root: &Node{
-			children: make(map[string]*Node),
-			actions:  make(map[string]*Action),
+// newTrie constructs and returns a pointer to a new trie.
+func newTrie() *trie {
+	return &trie{
+		root: &node{
+			children: make(map[string]*node),
+			actions:  make(map[string]*action),
 		},
 	}
 }
 
-// Insert inserts a new routing result into the Trie.
-func (t *Trie) Insert(methods []string, path string, handler http.Handler) error {
+// insert inserts a new routing result into the trie.
+func (t *trie) insert(methods []string, path string, handler http.Handler, mws middlewares) error {
 	curr := t.root
 
 	// Handle root path
 	if path == PathRoot {
 		curr.label = path
 		for _, method := range methods {
-			curr.actions[method] = &Action{
-				handler: handler,
+			curr.actions[method] = &action{
+				handler:     handler,
+				middlewares: mws,
 			}
 		}
 
 		return nil
 	}
 
-	paths := ExpandPath(path)
+	paths := expandPath(path)
 	for i, path := range paths {
 		next, ok := curr.children[path]
 
 		if ok {
 			curr = next
 		} else {
-			curr.children[path] = &Node{
+			curr.children[path] = &node{
 				label:    path,
-				actions:  make(map[string]*Action),
-				children: make(map[string]*Node),
+				actions:  make(map[string]*action),
+				children: make(map[string]*node),
 			}
 			curr = curr.children[path]
 		}
@@ -85,8 +87,9 @@ func (t *Trie) Insert(methods []string, path string, handler http.Handler) error
 		if i == len(paths)-1 {
 			curr.label = path
 			for _, method := range methods {
-				curr.actions[method] = &Action{
-					handler: handler,
+				curr.actions[method] = &action{
+					handler:     handler,
+					middlewares: mws,
 				}
 			}
 
@@ -98,13 +101,13 @@ func (t *Trie) Insert(methods []string, path string, handler http.Handler) error
 	return nil
 }
 
-// Search searches a given path and method in the Trie's routing results.
-func (t *Trie) Search(method string, searchPath string) (*Result, error) {
-	var params []*Parameter
-	result := NewResult()
+// search searches a given path and method in the trie's routing results.
+func (t *trie) search(method string, searchPath string) (*result, error) {
+	var params []*parameter
+	result := newResult()
 	curr := t.root
 
-	for _, path := range ExpandPath(searchPath) {
+	for _, path := range expandPath(searchPath) {
 		next, ok := curr.children[path]
 
 		if ok {
@@ -123,17 +126,17 @@ func (t *Trie) Search(method string, searchPath string) (*Result, error) {
 		isParamMatch := false
 		for child := range curr.children {
 			if string([]rune(child)[0]) == ParameterDelimiter {
-				pattern := DeriveLabelPattern(child)
-				regex, err := rc.Get(pattern)
+				pattern := deriveLabelPattern(child)
+				regex, err := rc.get(pattern)
 
 				if err != nil {
 					return nil, ErrNotFound
 				}
 
 				if regex.Match([]byte(path)) {
-					param := DeriveParameterKey(child)
+					param := deriveParameterKey(child)
 
-					params = append(params, &Parameter{
+					params = append(params, &parameter{
 						key:   param,
 						value: path,
 					})

@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-type TestCase struct {
+type testCase struct {
 	path   string
 	method string
 	code   int
@@ -19,7 +19,7 @@ type TestCase struct {
 func TestNewRouter(t *testing.T) {
 	actual := NewRouter()
 	expected := &Router{
-		trie: NewTrie(),
+		trie: newTrie(),
 	}
 
 	if !reflect.DeepEqual(actual, expected) {
@@ -62,7 +62,7 @@ func TestRouteHandler(t *testing.T) {
 		fmt.Fprintf(w, "/options")
 	})).Register()
 
-	tests := []TestCase{
+	tests := []testCase{
 		{
 			path:   "/",
 			method: http.MethodGet,
@@ -140,7 +140,7 @@ func TestMultiMethodRouteHandler(t *testing.T) {
 		fmt.Fprintf(w, "/foo/%v", id)
 	})).WithMethods(http.MethodPost, http.MethodDelete).Register()
 
-	tests := []TestCase{
+	tests := []testCase{
 		{
 			path:   "/",
 			method: http.MethodGet,
@@ -214,7 +214,7 @@ func TestDefaultErrorHandlers(t *testing.T) {
 	r.WithMethods(http.MethodGet).Handler(`/notfound`, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})).Register()
 	r.WithMethods(http.MethodGet).Handler(`/notallowed`, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})).Register()
 
-	tests := []TestCase{
+	tests := []testCase{
 		{
 			path:   "/",
 			method: http.MethodGet,
@@ -241,7 +241,7 @@ func TestCustomNotFoundHandler(t *testing.T) {
 		fmt.Fprintf(w, "NotFound")
 	})
 
-	tests := []TestCase{
+	tests := []testCase{
 		{
 			path:   "/",
 			method: http.MethodGet,
@@ -272,7 +272,7 @@ func TestCustomMethodNotAllowedHandler(t *testing.T) {
 		fmt.Fprintf(w, "OK")
 	})).Register()
 
-	tests := []TestCase{
+	tests := []testCase{
 		{
 			path:   "/",
 			method: http.MethodGet,
@@ -316,7 +316,7 @@ func TestCustomMethodNotAllowedHandler(t *testing.T) {
 	}
 }
 
-func runHTTPTests(r *Router, tests []TestCase) error {
+func runHTTPTests(r *Router, tests []testCase) error {
 	for _, test := range tests {
 		req := httptest.NewRequest(test.method, test.path, nil)
 		rec := httptest.NewRecorder()

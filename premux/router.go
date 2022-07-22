@@ -7,16 +7,17 @@ import (
 
 // Router represents a multiplexer that routes HTTP requests.
 type Router struct {
-	trie                    *Trie
+	trie                    *trie
 	NotFoundHandler         http.Handler
 	MethodNotAllowedHandler http.Handler
 }
 
 // Route represents a route record to be used by a Router.
 type Route struct {
-	methods []string
-	path    string
-	handler http.Handler
+	methods     []string
+	path        string
+	handler     http.Handler
+	middlewares middlewares
 }
 
 var (
@@ -32,8 +33,15 @@ var (
 // NewRouter constructs and returns a pointer to a new Router.
 func NewRouter() *Router {
 	return &Router{
-		trie: NewTrie(),
+		trie: newTrie(),
 	}
+}
+
+// Use adds middlewares to the current Route record.
+func (r *Router) Use(mws ...middleware) *Router {
+	nm := newMiddlewares(mws)
+	cachedRoute.middlewares = nm
+	return r
 }
 
 // WithMethods appends user-specified HTTP methods to the current Route record.
@@ -61,7 +69,7 @@ func (r *Router) Register() {
 		panic("Cannot register a route handler with no specified path or handler.")
 	}
 
-	r.trie.Insert(cachedRoute.methods, cachedRoute.path, cachedRoute.handler)
+	r.trie.insert(cachedRoute.methods, cachedRoute.path, cachedRoute.handler, cachedRoute.middlewares)
 	cachedRoute = &Route{}
 }
 
@@ -70,7 +78,7 @@ func (r *Router) RouteRequest(w http.ResponseWriter, req *http.Request) {
 	method := req.Method
 	path := req.URL.Path
 
-	result, err := r.trie.Search(method, path)
+	result, err := r.trie.search(method, path)
 	if err == ErrNotFound {
 		if r.NotFoundHandler == nil {
 			DefaultNotFoundHandler().ServeHTTP(w, req)
@@ -90,9 +98,13 @@ func (r *Router) RouteRequest(w http.ResponseWriter, req *http.Request) {
 	}
 
 	handler := result.actions.handler
+	// If extant, apply middlewares.
+	if result.actions.middlewares != nil {
+		handler = result.actions.middlewares.then(result.actions.handler)
+	}
 
 	if result.parameters != nil {
-		ctx := context.WithValue(req.Context(), ParameterKey, result.parameters)
+		ctx := context.WithValue(req.Context(), parameterKey, result.parameters)
 		req = req.WithContext(ctx)
 	}
 

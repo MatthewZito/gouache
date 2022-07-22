@@ -13,8 +13,8 @@ const (
 	PatternWildcard       = "(.+)"
 )
 
-// ExpandPath separates a PathDelimiter-delimited string into a slice of strings.
-func ExpandPath(path string) []string {
+// expandPath separates a PathDelimiter-delimited string into a slice of strings.
+func expandPath(path string) []string {
 	var r []string
 
 	for _, str := range strings.Split(path, PathDelimiter) {
@@ -26,10 +26,10 @@ func ExpandPath(path string) []string {
 	return r
 }
 
-// DeriveLabelPattern derives from a given label a regex pattern.
+// deriveLabelPattern derives from a given label a regex pattern.
 // e.g. :id[^\d+$] => ^\d+$
 // e.g. :id => (.+)
-func DeriveLabelPattern(label string) string {
+func deriveLabelPattern(label string) string {
 	start := strings.Index(label, PatternDelimiterStart)
 	end := strings.Index(label, PatternDelimiterEnd)
 
@@ -41,10 +41,10 @@ func DeriveLabelPattern(label string) string {
 	return label[start+1 : end]
 }
 
-// DeriveParameterKey derives from a given label a regex pattern.
+// deriveParameterKey derives from a given label a regex pattern.
 // e.g. :id[^\d+$] → id
 // e.g. :id        → id
-func DeriveParameterKey(label string) string {
+func deriveParameterKey(label string) string {
 	start := strings.Index(label, ParameterDelimiter)
 	end := strings.Index(label, PatternDelimiterStart)
 
