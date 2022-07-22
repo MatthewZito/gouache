@@ -15,7 +15,8 @@ type Parameter struct {
 	value string
 }
 
-type Record struct {
+// Result represents a Trie search result.
+type Result struct {
 	actions    *Action
 	parameters []*Parameter
 }
@@ -34,8 +35,9 @@ type Node struct {
 
 var rc = MakeCache()
 
-func MakeRecord() *Record {
-	return &Record{}
+// MakeResult constructs and returns a pointer to a new Result.
+func MakeResult() *Result {
+	return &Result{}
 }
 
 // MakeTrie constructs and returns a pointer to a new Trie.
@@ -48,7 +50,7 @@ func MakeTrie() *Trie {
 	}
 }
 
-// Insert inserts a new routing record into the Trie.
+// Insert inserts a new routing result into the Trie.
 func (t *Trie) Insert(methods []string, path string, handler http.Handler) error {
 	curr := t.root
 
@@ -96,10 +98,10 @@ func (t *Trie) Insert(methods []string, path string, handler http.Handler) error
 	return nil
 }
 
-// Search searches a given path and method in the Trie's routing records.
-func (t *Trie) Search(method string, searchPath string) (*Record, error) {
+// Search searches a given path and method in the Trie's routing results.
+func (t *Trie) Search(method string, searchPath string) (*Result, error) {
 	var params []*Parameter
-	record := MakeRecord()
+	result := MakeResult()
 	curr := t.root
 
 	for _, path := range ExpandPath(searchPath) {
@@ -112,7 +114,7 @@ func (t *Trie) Search(method string, searchPath string) (*Record, error) {
 
 		if len(curr.children) == 0 {
 			if curr.label != path {
-				// No matching route record found.
+				// No matching route result found.
 				return nil, ErrNotFound
 			}
 			break
@@ -161,14 +163,14 @@ func (t *Trie) Search(method string, searchPath string) (*Record, error) {
 		}
 	}
 
-	record.actions = curr.actions[method]
+	result.actions = curr.actions[method]
 
 	// No matching handler.
-	if record.actions == nil {
-		return nil, ErrNotFound
+	if result.actions == nil {
+		return nil, ErrMethodNotAllowed
 	}
 
-	record.parameters = params
+	result.parameters = params
 
-	return record, nil
+	return result, nil
 }

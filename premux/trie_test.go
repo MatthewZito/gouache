@@ -1,5 +1,6 @@
 package premux
 
+// @todo refactor: reusability, setup/teardown
 import (
 	"net/http"
 	"reflect"
@@ -78,7 +79,7 @@ func TestSearchResults(t *testing.T) {
 
 	type TestCase struct {
 		search   SearchQuery
-		expected Record
+		expected Result
 	}
 
 	testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
@@ -126,7 +127,7 @@ func TestSearchResults(t *testing.T) {
 				method: http.MethodGet,
 				path:   "/test/path/12",
 			},
-			expected: Record{
+			expected: Result{
 				actions: &Action{
 					handler: testHandler,
 				},
@@ -141,7 +142,31 @@ func TestSearchResults(t *testing.T) {
 				method: http.MethodGet,
 				path:   "/test/path/paths",
 			},
-			expected: Record{
+			expected: Result{
+				actions: &Action{
+					handler: testHandler,
+				},
+				parameters: []*Parameter{},
+			},
+		},
+		{
+			search: SearchQuery{
+				method: http.MethodPost,
+				path:   "/test/path",
+			},
+			expected: Result{
+				actions: &Action{
+					handler: testHandler,
+				},
+				parameters: []*Parameter{},
+			},
+		},
+		{
+			search: SearchQuery{
+				method: http.MethodGet,
+				path:   "/test/path",
+			},
+			expected: Result{
 				actions: &Action{
 					handler: testHandler,
 				},
@@ -175,6 +200,97 @@ func TestSearchResults(t *testing.T) {
 			if !reflect.DeepEqual(param, test.expected.parameters[i]) {
 				t.Errorf("expected %v but got %v", test.expected.parameters[i], param)
 			}
+		}
+	}
+}
+
+func TestSearchError(t *testing.T) {
+	type SearchQuery struct {
+		method string
+		path   string
+	}
+
+	type TestCase struct {
+		search SearchQuery
+	}
+
+	testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+
+	insert := []RouteRecord{
+		{
+			path:    PathRoot,
+			methods: []string{http.MethodGet},
+			handler: testHandler,
+		},
+		{
+			path:    PathRoot,
+			methods: []string{http.MethodGet, http.MethodPost},
+			handler: testHandler,
+		},
+		{
+			path:    "/test",
+			methods: []string{http.MethodGet},
+			handler: testHandler,
+		},
+		{
+			path:    "/test/path",
+			methods: []string{http.MethodGet},
+			handler: testHandler,
+		},
+		{
+			path:    "/test/path",
+			methods: []string{http.MethodPost},
+			handler: testHandler,
+		},
+		{
+			path:    "/test/path/paths",
+			methods: []string{http.MethodGet},
+			handler: testHandler,
+		},
+		{
+			path:    "/test/path/:id[^\\d+$]",
+			methods: []string{http.MethodGet},
+			handler: testHandler,
+		}}
+
+	tests := []TestCase{
+		{
+			search: SearchQuery{
+				method: http.MethodGet,
+				path:   "/test/path/12/31",
+			},
+		},
+		{
+			search: SearchQuery{
+				method: http.MethodGet,
+				path:   "/test/path/path",
+			},
+		},
+		{
+			search: SearchQuery{
+				method: http.MethodPost,
+				path:   "/test/pat h",
+			},
+		},
+		{
+			search: SearchQuery{
+				method: http.MethodGet,
+				path:   "/test/path/world",
+			},
+		},
+	}
+
+	trie := MakeTrie()
+
+	for _, record := range insert {
+		trie.Insert(record.methods, record.path, record.handler)
+	}
+
+	for _, test := range tests {
+		result, err := trie.Search(test.search.method, test.search.path)
+
+		if err == nil {
+			t.Errorf("expected an error but got result %v", result)
 		}
 	}
 }
