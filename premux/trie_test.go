@@ -87,18 +87,20 @@ func TestSearchResults(t *testing.T) {
 		expected Result
 	}
 
+	rootHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
 	testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	testPathHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	testPathPathsHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	testPathIdHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	fooHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	barIdHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	wildcardHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
 
 	insert := []RouteRecord{
 		{
 			path:    PathRoot,
 			methods: []string{http.MethodGet},
-			handler: testHandler,
-		},
-		{
-			path:    PathRoot,
-			methods: []string{http.MethodGet, http.MethodPost},
-			handler: testHandler,
+			handler: rootHandler,
 		},
 		{
 			path:    "/test",
@@ -108,31 +110,65 @@ func TestSearchResults(t *testing.T) {
 		{
 			path:    "/test/path",
 			methods: []string{http.MethodGet},
-			handler: testHandler,
+			handler: testPathHandler,
 		},
 		{
 			path:    "/test/path",
 			methods: []string{http.MethodPost},
-			handler: testHandler,
+			handler: testPathHandler,
 		},
 		{
 			path:    "/test/path/paths",
 			methods: []string{http.MethodGet},
-			handler: testHandler,
+			handler: testPathPathsHandler,
 		},
 		{
 			path:    "/test/path/:id[^\\d+$]",
 			methods: []string{http.MethodGet},
-			handler: testHandler,
+			handler: testPathIdHandler,
 		},
 		{
 			path:    "/foo",
+			methods: []string{http.MethodGet},
+			handler: fooHandler,
+		},
+		{
+			path:    "/bar/:id[^\\d+$]/:user[^\\D+$]",
+			methods: []string{http.MethodPost},
+			handler: barIdHandler,
+		},
+		{
+			path:    "/:*[(.+)]",
 			methods: []string{http.MethodOptions},
-			handler: testHandler,
+			handler: wildcardHandler,
 		},
 	}
 
 	tests := []TestCase{
+		{
+			search: SearchQuery{
+				method: http.MethodGet,
+				path:   "/",
+			},
+			expected: Result{
+				actions: &Action{
+					handler: rootHandler,
+				},
+				parameters: []*Parameter{},
+			},
+		},
+		{
+			search: SearchQuery{
+				method: http.MethodGet,
+				path:   "/test/",
+			},
+			expected: Result{
+				actions: &Action{
+					handler: testHandler,
+				},
+				parameters: []*Parameter{},
+			},
+		},
 		// Test path with params
 		{
 			search: SearchQuery{
@@ -141,7 +177,7 @@ func TestSearchResults(t *testing.T) {
 			},
 			expected: Result{
 				actions: &Action{
-					handler: testHandler,
+					handler: testPathIdHandler,
 				},
 				parameters: []*Parameter{{
 					key:   "id",
@@ -156,7 +192,7 @@ func TestSearchResults(t *testing.T) {
 			},
 			expected: Result{
 				actions: &Action{
-					handler: testHandler,
+					handler: testPathPathsHandler,
 				},
 				parameters: []*Parameter{},
 			},
@@ -168,7 +204,7 @@ func TestSearchResults(t *testing.T) {
 			},
 			expected: Result{
 				actions: &Action{
-					handler: testHandler,
+					handler: testPathHandler,
 				},
 				parameters: []*Parameter{},
 			},
@@ -180,19 +216,19 @@ func TestSearchResults(t *testing.T) {
 			},
 			expected: Result{
 				actions: &Action{
-					handler: testHandler,
+					handler: testPathHandler,
 				},
 				parameters: []*Parameter{},
 			},
 		},
 		{
 			search: SearchQuery{
-				method: http.MethodOptions,
+				method: http.MethodGet,
 				path:   "/foo",
 			},
 			expected: Result{
 				actions: &Action{
-					handler: testHandler,
+					handler: fooHandler,
 				},
 				parameters: []*Parameter{},
 			},
@@ -200,14 +236,54 @@ func TestSearchResults(t *testing.T) {
 		// Test trailing path
 		{
 			search: SearchQuery{
-				method: http.MethodOptions,
+				method: http.MethodGet,
 				path:   "/foo/",
 			},
 			expected: Result{
 				actions: &Action{
-					handler: testHandler,
+					handler: fooHandler,
 				},
 				parameters: []*Parameter{},
+			},
+		},
+		// Test complex regex
+		{
+			search: SearchQuery{
+				method: http.MethodPost,
+				path:   "/bar/123/alice",
+			},
+			expected: Result{
+				actions: &Action{
+					handler: barIdHandler,
+				},
+				parameters: []*Parameter{
+					{
+						key:   "id",
+						value: "123",
+					},
+					{
+						key:   "user",
+						value: "alice",
+					},
+				},
+			},
+		},
+		// Test wildcard regex
+		{
+			search: SearchQuery{
+				method: http.MethodOptions,
+				path:   "/wildcard",
+			},
+			expected: Result{
+				actions: &Action{
+					handler: wildcardHandler,
+				},
+				parameters: []*Parameter{
+					{
+						key:   "*",
+						value: "wildcard",
+					},
+				},
 			},
 		},
 	}
