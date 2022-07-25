@@ -5,6 +5,10 @@ import (
 	"net/http"
 )
 
+func DefaultOk() map[string]bool {
+	return map[string]bool{"ok": true}
+}
+
 func FormatError(w http.ResponseWriter, code int, msg string) {
 	FormatResponse(w, code, map[string]string{"error": msg})
 }

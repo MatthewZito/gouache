@@ -10,14 +10,13 @@ type cacheRecord struct {
 	expires int64
 }
 
-type cache struct {
+type Cache struct {
 	state map[string]*cacheRecord
 	l     sync.Mutex
 }
 
-func NewCache() *cache {
-
-	c := &cache{
+func NewCache() *Cache {
+	c := &Cache{
 		state: make(map[string]*cacheRecord),
 	}
 
@@ -48,7 +47,7 @@ func (cr *cacheRecord) Expired(time int64) bool {
 	return time > cr.expires
 }
 
-func (c *cache) Get(key string) interface{} {
+func (c *Cache) Get(key string) interface{} {
 	c.l.Lock()
 	defer c.l.Unlock()
 
@@ -59,7 +58,7 @@ func (c *cache) Get(key string) interface{} {
 	return nil
 }
 
-func (c *cache) Put(key string, value interface{}, expires int64) {
+func (c *Cache) Put(key string, value interface{}, expires int64) {
 	c.l.Lock()
 	defer c.l.Unlock()
 
@@ -74,7 +73,7 @@ func (c *cache) Put(key string, value interface{}, expires int64) {
 	}
 }
 
-func (c *cache) Delete(key string) bool {
+func (c *Cache) Delete(key string) bool {
 	c.l.Lock()
 	defer c.l.Unlock()
 

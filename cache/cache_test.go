@@ -7,7 +7,7 @@ import (
 
 func TestNewCache(t *testing.T) {
 	actual := NewCache()
-	expected := &cache{
+	expected := &Cache{
 		state: make(map[string]*cacheRecord, 12),
 	}
 
