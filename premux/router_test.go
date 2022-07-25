@@ -321,7 +321,7 @@ func runHTTPTests(r *Router, tests []testCase) error {
 		req := httptest.NewRequest(test.method, test.path, nil)
 		rec := httptest.NewRecorder()
 
-		r.RouteRequest(rec, req)
+		r.ServeHTTP(rec, req)
 
 		if rec.Code != test.code {
 			return fmt.Errorf("expected code %v but got %v\n", test.code, rec.Code)

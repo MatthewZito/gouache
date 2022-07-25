@@ -73,8 +73,8 @@ func (r *Router) Register() {
 	cachedRoute = &Route{}
 }
 
-// RouteRequest routes an HTTP request to the appropriate Route record handler.
-func (r *Router) RouteRequest(w http.ResponseWriter, req *http.Request) {
+// ServeHTTP routes an HTTP request to the appropriate Route record handler.
+func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	method := req.Method
 	path := req.URL.Path
 

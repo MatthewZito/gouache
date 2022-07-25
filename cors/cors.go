@@ -224,6 +224,7 @@ func (c *Cors) Handler(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if isPreflightRequest(r) {
 			c.handlePreflightRequest(w, r)
+
 			if c.useOptionsPassthrough {
 				h.ServeHTTP(w, r)
 			} else {
