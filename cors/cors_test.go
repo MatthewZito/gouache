@@ -21,7 +21,7 @@ var allHeaders = []string{
 var mockHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
 
 func TestCorsMiddleWare(t *testing.T) {
-	type TestCase struct {
+	type testCase struct {
 		name       string
 		options    CorsOptions
 		method     string
@@ -30,7 +30,7 @@ func TestCorsMiddleWare(t *testing.T) {
 		code       int
 	}
 
-	tests := []TestCase{
+	tests := []testCase{
 		{
 			name: "AllOriginAllowed",
 			options: CorsOptions{
@@ -318,7 +318,7 @@ func TestCorsMiddleWare(t *testing.T) {
 }
 
 func TestAreHeadersAllowed(t *testing.T) {
-	type TestCase struct {
+	type testCase struct {
 		testHeaders []string
 		isAllowed   bool
 	}
@@ -326,7 +326,7 @@ func TestAreHeadersAllowed(t *testing.T) {
 	type Test struct {
 		name  string
 		cors  *Cors
-		cases []TestCase
+		cases []testCase
 	}
 
 	tests := []Test{
@@ -341,7 +341,7 @@ func TestAreHeadersAllowed(t *testing.T) {
 					"x-test-2",
 				},
 			}),
-			cases: []TestCase{
+			cases: []testCase{
 				{
 					testHeaders: []string{
 						"x-test-1",
@@ -373,7 +373,7 @@ func TestAreHeadersAllowed(t *testing.T) {
 					"*",
 				},
 			}),
-			cases: []TestCase{
+			cases: []testCase{
 				{
 					testHeaders: []string{
 						"x-test-1",
@@ -411,7 +411,7 @@ func TestAreHeadersAllowed(t *testing.T) {
 }
 
 func TestIsMethodAllowed(t *testing.T) {
-	type TestCase struct {
+	type testCase struct {
 		testMethod string
 		isAllowed  bool
 	}
@@ -419,7 +419,7 @@ func TestIsMethodAllowed(t *testing.T) {
 	type Test struct {
 		name  string
 		cors  *Cors
-		cases []TestCase
+		cases []testCase
 	}
 
 	tests := []Test{
@@ -434,7 +434,7 @@ func TestIsMethodAllowed(t *testing.T) {
 					http.MethodPut,
 				},
 			}),
-			cases: []TestCase{
+			cases: []testCase{
 				{
 					testMethod: http.MethodDelete,
 					isAllowed:  true,
@@ -465,7 +465,7 @@ func TestIsMethodAllowed(t *testing.T) {
 }
 
 func TestIsOriginAllowed(t *testing.T) {
-	type TestCase struct {
+	type testCase struct {
 		testOrigin string
 		isAllowed  bool
 	}
@@ -473,7 +473,7 @@ func TestIsOriginAllowed(t *testing.T) {
 	type Test struct {
 		name  string
 		cors  *Cors
-		cases []TestCase
+		cases []testCase
 	}
 
 	tests := []Test{
@@ -486,7 +486,7 @@ func TestIsOriginAllowed(t *testing.T) {
 					"baz.com",
 				},
 			}),
-			cases: []TestCase{
+			cases: []testCase{
 				{
 					testOrigin: "http://foo.com",
 					isAllowed:  true,
@@ -518,7 +518,7 @@ func TestIsOriginAllowed(t *testing.T) {
 			cors: New(CorsOptions{
 				AllowedOrigins: []string{"*"},
 			}),
-			cases: []TestCase{
+			cases: []testCase{
 				{
 					testOrigin: "http://foo.com",
 					isAllowed:  true,

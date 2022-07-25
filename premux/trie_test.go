@@ -90,7 +90,8 @@ func TestSearchResults(t *testing.T) {
 		path   string
 	}
 
-	type TestCase struct {
+	type testCase struct {
+		name     string
 		search   searchQuery
 		expected result
 	}
@@ -161,8 +162,9 @@ func TestSearchResults(t *testing.T) {
 		},
 	}
 
-	tests := []TestCase{
+	tests := []testCase{
 		{
+			name: "SearchRoot",
 			search: searchQuery{
 				method: http.MethodGet,
 				path:   "/",
@@ -176,6 +178,7 @@ func TestSearchResults(t *testing.T) {
 			},
 		},
 		{
+			name: "SearchTrailingPath",
 			search: searchQuery{
 				method: http.MethodGet,
 				path:   "/test/",
@@ -188,8 +191,8 @@ func TestSearchResults(t *testing.T) {
 				parameters: []*parameter{},
 			},
 		},
-		// Test path with params
 		{
+			name: "SearchWithParams",
 			search: searchQuery{
 				method: http.MethodGet,
 				path:   "/test/path/12",
@@ -206,6 +209,7 @@ func TestSearchResults(t *testing.T) {
 			},
 		},
 		{
+			name: "SearchNestedPath",
 			search: searchQuery{
 				method: http.MethodGet,
 				path:   "/test/path/paths",
@@ -219,6 +223,7 @@ func TestSearchResults(t *testing.T) {
 			},
 		},
 		{
+			name: "SearchPartialPath",
 			search: searchQuery{
 				method: http.MethodPost,
 				path:   "/test/path",
@@ -232,6 +237,7 @@ func TestSearchResults(t *testing.T) {
 			},
 		},
 		{
+			name: "SearchPartialPathOtherMethod",
 			search: searchQuery{
 				method: http.MethodGet,
 				path:   "/test/path",
@@ -245,6 +251,7 @@ func TestSearchResults(t *testing.T) {
 			},
 		},
 		{
+			name: "SearchAdditionalBasePath",
 			search: searchQuery{
 				method: http.MethodGet,
 				path:   "/foo",
@@ -257,8 +264,8 @@ func TestSearchResults(t *testing.T) {
 				parameters: []*parameter{},
 			},
 		},
-		// Test trailing path
 		{
+			name: "SearchAdditionalBasePathTrailingSlash",
 			search: searchQuery{
 				method: http.MethodGet,
 				path:   "/foo/",
@@ -271,8 +278,8 @@ func TestSearchResults(t *testing.T) {
 				parameters: []*parameter{},
 			},
 		},
-		// Test complex regex
 		{
+			name: "SearchComplexRegex",
 			search: searchQuery{
 				method: http.MethodPost,
 				path:   "/bar/123/alice",
@@ -294,8 +301,8 @@ func TestSearchResults(t *testing.T) {
 				},
 			},
 		},
-		// Test wildcard regex
 		{
+			name: "SearchWildcardRegex",
 			search: searchQuery{
 				method: http.MethodOptions,
 				path:   "/wildcard",
@@ -322,25 +329,27 @@ func TestSearchResults(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		actual, err := trie.search(test.search.method, test.search.path)
+		t.Run(test.name, func(t *testing.T) {
+			actual, err := trie.search(test.search.method, test.search.path)
 
-		if err != nil {
-			t.Errorf("expected a result but got error %v", err)
-		}
-
-		if reflect.ValueOf(actual.actions.handler) != reflect.ValueOf(test.expected.actions.handler) {
-			t.Errorf("expected %v but got %v", test.expected.actions.handler, actual.actions.handler)
-		}
-
-		if len(actual.parameters) != len(test.expected.parameters) {
-			t.Errorf("expected %v but got %v", len(test.expected.parameters), len(actual.parameters))
-		}
-
-		for i, param := range actual.parameters {
-			if !reflect.DeepEqual(param, test.expected.parameters[i]) {
-				t.Errorf("expected %v but got %v", test.expected.parameters[i], param)
+			if err != nil {
+				t.Errorf("expected a result but got error %v", err)
 			}
-		}
+
+			if reflect.ValueOf(actual.actions.handler) != reflect.ValueOf(test.expected.actions.handler) {
+				t.Errorf("expected %v but got %v", test.expected.actions.handler, actual.actions.handler)
+			}
+
+			if len(actual.parameters) != len(test.expected.parameters) {
+				t.Errorf("expected %v but got %v", len(test.expected.parameters), len(actual.parameters))
+			}
+
+			for i, param := range actual.parameters {
+				if !reflect.DeepEqual(param, test.expected.parameters[i]) {
+					t.Errorf("expected %v but got %v", test.expected.parameters[i], param)
+				}
+			}
+		})
 	}
 }
 
@@ -350,7 +359,8 @@ func TestSearchError(t *testing.T) {
 		path   string
 	}
 
-	type TestCase struct {
+	type testCase struct {
+		name   string
 		search searchQuery
 	}
 
@@ -400,26 +410,30 @@ func TestSearchError(t *testing.T) {
 			middlewares: []middleware{first},
 		}}
 
-	tests := []TestCase{
+	tests := []testCase{
 		{
+			name: "SearchComplexRegex",
 			search: searchQuery{
 				method: http.MethodGet,
 				path:   "/test/path/12/31",
 			},
 		},
 		{
+			name: "SearchNestedPath",
 			search: searchQuery{
 				method: http.MethodGet,
 				path:   "/test/path/path",
 			},
 		},
 		{
+			name: "SearchSpaceInPath",
 			search: searchQuery{
 				method: http.MethodPost,
 				path:   "/test/pat h",
 			},
 		},
 		{
+			name: "SearchNestedPathAlt",
 			search: searchQuery{
 				method: http.MethodGet,
 				path:   "/test/path/world",
@@ -434,10 +448,12 @@ func TestSearchError(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		result, err := trie.search(test.search.method, test.search.path)
+		t.Run(test.name, func(t *testing.T) {
+			result, err := trie.search(test.search.method, test.search.path)
 
-		if err == nil {
-			t.Errorf("expected an error but got result %v", result)
-		}
+			if err == nil {
+				t.Errorf("expected an error but got result %v", result)
+			}
+		})
 	}
 }

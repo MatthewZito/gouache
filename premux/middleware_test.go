@@ -51,18 +51,21 @@ func TestMiddlewareInvocation(t *testing.T) {
 
 	tests := []testCase{
 		{
+			name:   "Middleware",
 			path:   "/",
 			method: http.MethodGet,
 			code:   http.StatusOK,
 			body:   "first: before\nsecond: before\nthird: before\n/third: after\nsecond: after\nfirst: after\n",
 		},
 		{
+			name:   "MiddlewareAltMethod",
 			path:   "/foo",
 			method: http.MethodPost,
 			code:   http.StatusOK,
 			body:   "first: before\nsecond: before\nfoosecond: after\nfirst: after\n",
 		},
 		{
+			name:   "MiddlewareWithContext",
 			path:   "/foo/20",
 			method: http.MethodPost,
 			code:   http.StatusOK,
@@ -70,9 +73,7 @@ func TestMiddlewareInvocation(t *testing.T) {
 		},
 	}
 
-	if err := runHTTPTests(r, tests); err != nil {
-		t.Error(err)
-	}
+	runHTTPTests(t, r, tests)
 }
 
 func first(next http.Handler) http.Handler {

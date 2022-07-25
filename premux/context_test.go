@@ -7,6 +7,7 @@ import (
 
 func TestContext(t *testing.T) {
 	type testCase struct {
+		name     string
 		actual   string
 		expected string
 	}
@@ -26,22 +27,27 @@ func TestContext(t *testing.T) {
 
 	tests := []testCase{
 		{
+			name:     "BasicKey",
 			expected: "12",
 			actual:   GetParam(ctx, "id"),
 		},
 		{
+			name:     "KeyNotExtant",
 			expected: "",
 			actual:   GetParam(ctx, "test"),
 		},
 		{
+			name:     "BasicKeySecond",
 			expected: "uxc",
 			actual:   GetParam(ctx, "user"),
 		},
 	}
 
 	for _, test := range tests {
-		if test.actual != test.expected {
-			t.Errorf("expected %s but got %s", test.expected, test.actual)
-		}
+		t.Run(test.name, func(t *testing.T) {
+			if test.actual != test.expected {
+				t.Errorf("expected %s but got %s", test.expected, test.actual)
+			}
+		})
 	}
 }

@@ -24,8 +24,7 @@ func TestDeriveHeaders(t *testing.T) {
 }
 
 func TestIsPreflightRequest(t *testing.T) {
-
-	type TestCase struct {
+	type testCase struct {
 		name          string
 		method        string
 		requestMethod bool
@@ -33,7 +32,7 @@ func TestIsPreflightRequest(t *testing.T) {
 		withOrigin    bool
 	}
 
-	tests := []TestCase{
+	tests := []testCase{
 		{
 			name:          "Preflight",
 			method:        http.MethodOptions,

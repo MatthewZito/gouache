@@ -10,6 +10,7 @@ import (
 )
 
 type testCase struct {
+	name   string
 	path   string
 	method string
 	code   int
@@ -64,42 +65,49 @@ func TestRouteHandler(t *testing.T) {
 
 	tests := []testCase{
 		{
+			name:   "RootPath",
 			path:   "/",
 			method: http.MethodGet,
 			code:   http.StatusOK,
 			body:   "/",
 		},
 		{
+			name:   "BasicPath",
 			path:   "/foo",
 			method: http.MethodGet,
 			code:   http.StatusOK,
 			body:   "foo",
 		},
 		{
+			name:   "NestedPath",
 			path:   "/foo/bar",
 			method: http.MethodGet,
 			code:   http.StatusOK,
 			body:   "foobar",
 		},
 		{
+			name:   "PathWithParams",
 			path:   "/foo/bar/123",
 			method: http.MethodGet,
 			code:   http.StatusOK,
 			body:   "/foo/bar/123",
 		},
 		{
+			name:   "PathWithComplexParams",
 			path:   "/baz/123/bob",
 			method: http.MethodGet,
 			code:   http.StatusOK,
 			body:   "/baz/123/bob",
 		},
 		{
+			name:   "PartialPathWithParams",
 			path:   "/foo/21",
 			method: http.MethodDelete,
 			code:   http.StatusOK,
 			body:   "/foo/21",
 		},
 		{
+			name:   "OptionsPath",
 			path:   "/options",
 			method: http.MethodOptions,
 			code:   http.StatusOK,
@@ -107,9 +115,7 @@ func TestRouteHandler(t *testing.T) {
 		},
 	}
 
-	if err := runHTTPTests(r, tests); err != nil {
-		t.Error(err)
-	}
+	runHTTPTests(t, r, tests)
 }
 
 func TestMultiMethodRouteHandler(t *testing.T) {
@@ -142,60 +148,70 @@ func TestMultiMethodRouteHandler(t *testing.T) {
 
 	tests := []testCase{
 		{
+			name:   "RootPathGET",
 			path:   "/",
 			method: http.MethodGet,
 			code:   http.StatusOK,
 			body:   "/",
 		},
 		{
+			name:   "RootPathPOST",
 			path:   "/",
 			method: http.MethodPost,
 			code:   http.StatusOK,
 			body:   "/",
 		},
 		{
+			name:   "BasicPathGET",
 			path:   "/foo",
 			method: http.MethodGet,
 			code:   http.StatusOK,
 			body:   "foo",
 		},
 		{
+			name:   "BasicPathPOST",
 			path:   "/foo",
 			method: http.MethodPost,
 			code:   http.StatusOK,
 			body:   "foo",
 		},
 		{
+			name:   "ParamsPathGET",
 			path:   "/foo/bar/123",
 			method: http.MethodGet,
 			code:   http.StatusOK,
 			body:   "/foo/bar/123",
 		},
 		{
+			name:   "ParamsPathPOST",
 			path:   "/foo/bar/123",
 			method: http.MethodPost,
 			code:   http.StatusOK,
 			body:   "/foo/bar/123",
 		},
 		{
+			name:   "ComplexParamsPathGET",
 			path:   "/baz/123/bob",
 			method: http.MethodGet,
 			code:   http.StatusOK,
 			body:   "/baz/123/bob",
 		},
 		{
+			name:   "ComplexParamsPathPOST",
 			path:   "/baz/123/bob",
 			method: http.MethodPost,
 			code:   http.StatusOK,
 			body:   "/baz/123/bob",
 		},
 		{
+			name:   "AltPathPOST",
 			path:   "/foo/21",
 			method: http.MethodPost,
 			code:   http.StatusOK,
 			body:   "/foo/21",
 		},
 		{
+			name:   "AltPathDELETE",
 			path:   "/foo/21",
 			method: http.MethodDelete,
 			code:   http.StatusOK,
@@ -203,9 +219,7 @@ func TestMultiMethodRouteHandler(t *testing.T) {
 		},
 	}
 
-	if err := runHTTPTests(r, tests); err != nil {
-		t.Error(err)
-	}
+	runHTTPTests(t, r, tests)
 }
 
 func TestDefaultErrorHandlers(t *testing.T) {
@@ -216,12 +230,14 @@ func TestDefaultErrorHandlers(t *testing.T) {
 
 	tests := []testCase{
 		{
+			name:   "DefaultNotFoundHandler",
 			path:   "/",
 			method: http.MethodGet,
 			code:   http.StatusNotFound,
 			body:   "",
 		},
 		{
+			name:   "DefaultMethodNotAllowedHandler",
 			path:   "/notallowed",
 			method: http.MethodPost,
 			code:   http.StatusMethodNotAllowed,
@@ -229,9 +245,7 @@ func TestDefaultErrorHandlers(t *testing.T) {
 		},
 	}
 
-	if err := runHTTPTests(r, tests); err != nil {
-		t.Error(err)
-	}
+	runHTTPTests(t, r, tests)
 }
 
 func TestCustomNotFoundHandler(t *testing.T) {
@@ -243,12 +257,14 @@ func TestCustomNotFoundHandler(t *testing.T) {
 
 	tests := []testCase{
 		{
+			name:   "CustomNotFoundHandler",
 			path:   "/",
 			method: http.MethodGet,
 			code:   http.StatusNotFound,
 			body:   "NotFound",
 		},
 		{
+			name:   "CustomNotFoundHandlerAltMethod",
 			path:   "/notfound",
 			method: http.MethodPost,
 			code:   http.StatusNotFound,
@@ -256,9 +272,7 @@ func TestCustomNotFoundHandler(t *testing.T) {
 		},
 	}
 
-	if err := runHTTPTests(r, tests); err != nil {
-		t.Error(err)
-	}
+	runHTTPTests(t, r, tests)
 }
 
 func TestCustomMethodNotAllowedHandler(t *testing.T) {
@@ -274,36 +288,42 @@ func TestCustomMethodNotAllowedHandler(t *testing.T) {
 
 	tests := []testCase{
 		{
+			name:   "MethodAllowed",
 			path:   "/",
 			method: http.MethodGet,
 			code:   http.StatusOK,
 			body:   "OK",
 		},
 		{
+			name:   "MethodAllowedAltMethod",
 			path:   "/",
 			method: http.MethodDelete,
 			code:   http.StatusOK,
 			body:   "OK",
 		},
 		{
+			name:   "MethodNotAllowed1",
 			path:   "/",
 			method: http.MethodPost,
 			code:   http.StatusMethodNotAllowed,
 			body:   "MethodNotAllowed",
 		},
 		{
+			name:   "MethodNotAllowed2",
 			path:   "/",
 			method: http.MethodPatch,
 			code:   http.StatusMethodNotAllowed,
 			body:   "MethodNotAllowed",
 		},
 		{
+			name:   "MethodNotAllowed3",
 			path:   "/",
 			method: http.MethodPut,
 			code:   http.StatusMethodNotAllowed,
 			body:   "MethodNotAllowed",
 		},
 		{
+			name:   "MethodNotAllowed4",
 			path:   "/",
 			method: http.MethodOptions,
 			code:   http.StatusMethodNotAllowed,
@@ -311,30 +331,28 @@ func TestCustomMethodNotAllowedHandler(t *testing.T) {
 		},
 	}
 
-	if err := runHTTPTests(r, tests); err != nil {
-		t.Error(err)
-	}
+	runHTTPTests(t, r, tests)
 }
 
-func runHTTPTests(r *Router, tests []testCase) error {
+func runHTTPTests(t *testing.T, r *Router, tests []testCase) {
 	for _, test := range tests {
-		req := httptest.NewRequest(test.method, test.path, nil)
-		rec := httptest.NewRecorder()
+		t.Run(test.name, func(t *testing.T) {
+			req := httptest.NewRequest(test.method, test.path, nil)
+			rec := httptest.NewRecorder()
 
-		r.ServeHTTP(rec, req)
+			r.ServeHTTP(rec, req)
 
-		if rec.Code != test.code {
-			return fmt.Errorf("expected code %v but got %v\n", test.code, rec.Code)
-		}
-
-		if test.body != "" {
-			bodyBytes, _ := ioutil.ReadAll(rec.Body)
-			body := string(bodyBytes)
-			if body != test.body {
-				return fmt.Errorf("expected body %v but got %v\n", test.body, body)
+			if rec.Code != test.code {
+				t.Errorf("expected code %d but got %d\n", test.code, rec.Code)
 			}
-		}
-	}
 
-	return nil
+			if test.body != "" {
+				bodyBytes, _ := ioutil.ReadAll(rec.Body)
+				body := string(bodyBytes)
+				if body != test.body {
+					t.Errorf("expected body %s but got %s\n", test.body, body)
+				}
+			}
+		})
+	}
 }
