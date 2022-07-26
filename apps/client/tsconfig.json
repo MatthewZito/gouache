@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "module": "ESNext",
+    "target": "ESNext",
+    "lib": ["DOM", "ESNext", "WebWorker"],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "noUnusedLocals": true,
+    "allowJs":  true,
+    "forceConsistentCasingInFileNames": true,
+		"noEmit": true,
+    "types": [
+      "vite/client",
+			"node"
+    ],
+		"typeRoots": ["src/types/**/*.d.ts","node_modules/@types"],
+		"jsx": "preserve",
+    "paths": {
+      "@/*": ["src/*"]
+    }
+  },
+	"include": ["src", "test", "*.ts"]
+}

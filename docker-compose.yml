@@ -6,13 +6,37 @@ services:
     restart: always
     ports:
       - "5000:5000"
-    build: .
-    env_file: .env
+    build:
+      context: ./apps/api/
+      dockerfile: Dockerfile.dev
+    env_file: ./apps/api/.env
     volumes:
-      - ./:/app
+      - ./apps/api/:/app
     networks:
       - gouache-network
+
+  gouache-client:
+    container_name: gouache-client
+    restart: always
+    ports:
+      - "3000:3000"
+    build:
+      context: ./apps/client/
+      dockerfile: Dockerfile.dev
+    env_file:
+      - ./apps/client/.env
+    volumes:
+      - ./apps/client/:/app
+      - client_node_modules:/app/node_modules
+    networks:
+      - gouache-network
+    depends_on:
+      - gouache-api
+
 
 networks:
   gouache-network:
     driver: bridge
+
+volumes:
+  client_node_modules:
