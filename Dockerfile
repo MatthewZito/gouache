@@ -1,28 +1,16 @@
-FROM golang:alpine AS builder
+FROM golang:1.17
 
 ENV GO111MODULE=on \
     CGO_ENABLED=0 \
     GOOS=linux \
     GOARCH=amd64
 
-WORKDIR /build
+WORKDIR /app
 
-COPY go.mod .
-COPY go.sum .
+COPY ./ /app
 
 RUN go mod download
 
-COPY . .
+RUN go get github.com/githubnemo/CompileDaemon
 
-RUN go build -o app ./cmd/ 
-
-WORKDIR /dist
-
-RUN cp /build/app .
-RUN cp /build/.env .
-
-FROM scratch
-
-COPY --from=builder /dist/app . /dist/.env ./
-
-ENTRYPOINT ["/app"]
+ENTRYPOINT CompileDaemon --build="go build cmd/serve.go" --command=./serve

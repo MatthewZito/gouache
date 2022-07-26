@@ -9,11 +9,11 @@ import (
 
 // Health is a liveness check that returns the server's current status.
 func Health(w http.ResponseWriter, r *http.Request) {
-	name, err := os.Hostname()
 
-	if err != nil {
+	if name, err := os.Hostname(); err != nil {
 		format.FormatError(w, http.StatusBadRequest, "Health check failed")
+	} else {
+		format.FormatResponse(w, http.StatusOK, map[string]string{"server": name, "result": "success"})
 	}
 
-	format.FormatResponse(w, http.StatusOK, map[string]string{"server": name, "result": "success"})
 }
