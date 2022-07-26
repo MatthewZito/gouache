@@ -7,10 +7,11 @@ import (
 	"os"
 
 	controllers "github.com/MatthewZito/gouache/controllers"
-	"github.com/MatthewZito/gouache/cors"
 	"github.com/MatthewZito/gouache/format"
-	mux "github.com/MatthewZito/gouache/premux"
+	srv "github.com/MatthewZito/gouache/services"
 
+	"github.com/MatthewZito/corset"
+	"github.com/MatthewZito/turnpike"
 	"github.com/joho/godotenv"
 )
 
@@ -26,29 +27,38 @@ func main() {
 	origins := []string{"*"}
 	methods := []string{"PUT"}
 
-	c := cors.New(cors.CorsOptions{
+	c := corset.NewCorset(corset.CorsetOptions{
 		AllowedOrigins: origins,
 		AllowedMethods: methods,
 	})
 
+	bl := srv.NewLogger("cmd/serve")
+
 	/* State */
-	rc := controllers.NewResourceCache()
+	rctx := controllers.NewResourceContext(true)
+	mctx := controllers.NewMetaContext(true)
 
 	/* Routers */
-	r := mux.NewRouter()
+	r := turnpike.NewRouter()
 
 	r.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		bl.Logf("NotFoundHandler - route %s%s\n", r.Host, r.URL.Path)
 		format.FormatError(w, http.StatusNotFound, "invalid route")
+	})
+
+	r.MethodNotAllowedHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		bl.Logf("MethodNotAllowedHandler - %s at route %s%s\n", r.Method, r.Host, r.URL.Path)
+		format.FormatError(w, http.StatusMethodNotAllowed, "method not allowed")
 	})
 
 	r.Handler("/", http.HandlerFunc(controllers.Health)).WithMethods(http.MethodGet).Register()
 
-	r.Handler("/resource/:key[(.+)]", http.HandlerFunc(rc.GetResource)).WithMethods(http.MethodGet).Register()
-	r.Handler("/resource", http.HandlerFunc(rc.AddResource)).WithMethods(http.MethodPost).Register()
-	r.Handler("/resource/:key[(.+)]", http.HandlerFunc(rc.UpdateResource)).WithMethods(http.MethodPatch).Register()
-	r.Handler("/resource/:key[(.+)]", http.HandlerFunc(rc.DeleteResource)).WithMethods(http.MethodDelete).Register()
+	r.Handler("/resource/:key[(.+)]", http.HandlerFunc(rctx.GetResource)).WithMethods(http.MethodGet).Register()
+	r.Handler("/resource", http.HandlerFunc(rctx.AddResource)).WithMethods(http.MethodPost).Register()
+	r.Handler("/resource/:key[(.+)]", http.HandlerFunc(rctx.UpdateResource)).WithMethods(http.MethodPatch).Register()
+	r.Handler("/resource/:key[(.+)]", http.HandlerFunc(rctx.DeleteResource)).WithMethods(http.MethodDelete).Register()
 
-	r.Handler("/time", http.HandlerFunc(controllers.GetTime)).WithMethods(http.MethodGet).Register()
+	r.Handler("/time", http.HandlerFunc(mctx.GetTime)).WithMethods(http.MethodGet).Register()
 
 	/* Init */
 	fmt.Printf("Listening on port %s...\n", port)

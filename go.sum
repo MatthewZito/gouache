@@ -1,2 +1,6 @@
+github.com/MatthewZito/corset v0.0.0-20220726115451-f395db3e1333 h1:f3meTrQL8/ToL5uXyNBO6QbIJGu0CFLYDMeuubVYz18=
+github.com/MatthewZito/corset v0.0.0-20220726115451-f395db3e1333/go.mod h1:40spaaLhkQeO8yKpt7eEkMmiajrHXWTahEMr2j9XhEU=
+github.com/MatthewZito/turnpike v0.0.0-20220726125838-72922b7aa150 h1:q/rBfpJuozySDHTnF9fM+jtVLC9h6VShy5nYIQ/WZ5w=
+github.com/MatthewZito/turnpike v0.0.0-20220726125838-72922b7aa150/go.mod h1:W7OQSHBWYu10E6zntUbv4O3aRHGnIehyFSxA0kvf5Qc=
 github.com/joho/godotenv v1.4.0 h1:3l4+N6zfMWnkbPEXKng2o2/MR5mSwTrBih4ZEkkz1lg=
 github.com/joho/godotenv v1.4.0/go.mod h1:f4LDr5Voq0i2e/R5DDNOoa2zzDfwtkZa6DnEwAbqwq4=

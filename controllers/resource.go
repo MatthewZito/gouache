@@ -7,7 +7,9 @@ import (
 
 	cache "github.com/MatthewZito/gouache/cache"
 	format "github.com/MatthewZito/gouache/format"
-	"github.com/MatthewZito/gouache/premux"
+	srv "github.com/MatthewZito/gouache/services"
+
+	"github.com/MatthewZito/turnpike"
 )
 
 type Resource struct {
@@ -16,63 +18,80 @@ type Resource struct {
 	Expires int64
 }
 
-type ResourceCache struct {
+type ResourceContext struct {
 	c *cache.Cache
+	l *srv.LoggerClient
 }
 
-func NewResourceCache() *ResourceCache {
-	return &ResourceCache{c: cache.NewCache()}
-}
+func NewResourceContext(debug bool) *ResourceContext {
+	ctx := &ResourceContext{c: cache.NewCache()}
 
-func (rc *ResourceCache) GetResource(w http.ResponseWriter, r *http.Request) {
-	key := premux.GetParam(r.Context(), "key")
-	if key == "" {
-		format.FormatError(w, http.StatusBadRequest, "missing key")
+	if debug {
+		ctx.l = srv.NewLogger("resource")
 	}
 
-	rs := rc.c.Get(key)
+	return ctx
+}
+
+func (ctx *ResourceContext) GetResource(w http.ResponseWriter, r *http.Request) {
+	key := turnpike.GetParam(r.Context(), "key")
+	if key == "" {
+		ctx.l.Logf("GetResource - key not provided\n")
+		format.FormatError(w, http.StatusBadRequest, "key not provided")
+	}
+
+	ctx.l.Logf("GetResource - request key %s\n", key)
+	rs := ctx.c.Get(key)
+
 	if v, err := json.Marshal(&rs); err == nil {
 		format.FormatResponse(w, http.StatusOK, map[string]string{"ok": "true", "rs": string(v)})
 	} else {
+		ctx.l.Logf("GetResource - marshalling error %v\n", err)
 		format.FormatError(w, http.StatusBadRequest, err.Error())
 	}
 }
 
-func (rc *ResourceCache) AddResource(w http.ResponseWriter, r *http.Request) {
+func (ctx *ResourceContext) AddResource(w http.ResponseWriter, r *http.Request) {
 	rs := Resource{}
 
-	err := json.NewDecoder(r.Body).Decode(&rs)
-	if err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&rs); err != nil {
+		ctx.l.Logf("AddResource - decoding error %v\n", err)
 		format.FormatError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	rc.c.Put(rs.Key, rs.Value, rs.Expires)
+	ctx.l.Logf("AddResource - put key: %s value: %v expires: %d\n", rs.Key, rs.Value, rs.Expires)
+
+	ctx.c.Put(rs.Key, rs.Value, rs.Expires)
 	format.FormatResponse(w, http.StatusOK, format.DefaultOk())
 }
 
-func (rc *ResourceCache) UpdateResource(w http.ResponseWriter, r *http.Request) {
-	key := premux.GetParam(r.Context(), "key")
+func (ctx *ResourceContext) UpdateResource(w http.ResponseWriter, r *http.Request) {
+	key := turnpike.GetParam(r.Context(), "key")
 	if key == "" {
-		format.FormatError(w, http.StatusBadRequest, "missing key")
+		ctx.l.Logf("UpdateResource - key not provided\n")
+		format.FormatError(w, http.StatusBadRequest, "key not provided")
 	}
 
 	rs := Resource{}
 
-	err := json.NewDecoder(r.Body).Decode(&rs)
-	if err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&rs); err != nil {
+		ctx.l.Logf("UpdateResource - decoding error %v\n", err)
 		format.FormatError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	rc.c.Put(key, rs.Value, rs.Expires)
+	ctx.l.Logf("UpdateResource - put key: %s value: %v expires: %d\n", rs.Key, rs.Value, rs.Expires)
+	ctx.c.Put(key, rs.Value, rs.Expires)
 	format.FormatResponse(w, http.StatusOK, format.DefaultOk())
 }
 
-func (rc *ResourceCache) DeleteResource(w http.ResponseWriter, r *http.Request) {
-	key := premux.GetParam(r.Context(), "key")
+func (ctx *ResourceContext) DeleteResource(w http.ResponseWriter, r *http.Request) {
+	key := turnpike.GetParam(r.Context(), "key")
+	ctx.l.Logf("DeleteResource - request key %s\n", key)
 
-	if ok := rc.c.Delete(key); !ok {
+	if ok := ctx.c.Delete(key); !ok {
+		ctx.l.Logf("DeleteResource - delete key %s failed\n", key)
 		format.FormatError(w, http.StatusBadRequest, fmt.Sprintf("delete failed for key %s", key))
 	}
 
