@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import styled from '@magister_zito/vue3-styled-components'
-import Table from '@/components/Table.vue'
-import Modal from '@/components/Modal.vue'
+import Table from '@/components/ui/Table.vue'
+import Modal from '@/components/ui/Modal.vue'
+import EditResource from '@/components/Resource/EditResource.vue'
 
 const Container = styled.div`
   width: 100%;
@@ -35,6 +36,11 @@ function handleRowClick(row: Resource, idx: number) {
   selectedRow.value = row
   showModal.value = true
 }
+
+function handleCloseModal() {
+  selectedRow.value = null
+  showModal.value = false
+}
 </script>
 
 <template>
@@ -47,11 +53,9 @@ function handleRowClick(row: Resource, idx: number) {
   </Container>
 
   <Teleport to="#portal">
-    <Modal v-if="showModal" @close="showModal = false">
+    <Modal v-if="showModal && selectedRow" @close="showModal = false">
       <template #content>
-        <div>
-          {{ selectedRow }}
-        </div>
+        <EditResource :selected-row="selectedRow" @close="handleCloseModal" />
       </template>
     </Modal>
   </Teleport>
