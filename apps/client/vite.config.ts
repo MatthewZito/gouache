@@ -23,7 +23,9 @@ export default defineConfig(({ mode }) => {
     },
 
     // pre-bundle the following inclusions
-    optimizeDeps: {},
+    optimizeDeps: {
+      include: ['vue', 'vue-router'],
+    },
 
     plugins: [
       /* Vue */
@@ -32,7 +34,7 @@ export default defineConfig(({ mode }) => {
       /* Auto-import the following modules as compiler macros */
       AutoImport({
         dts: 'src/types/auto-imports.d.ts',
-        imports: ['vue'],
+        imports: ['vue', 'vue-router'],
       }),
     ],
 

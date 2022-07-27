@@ -1,9 +1,5 @@
-<script lang="ts">
-export default defineComponent({
-  name: 'App',
-})
-</script>
+<script lang="ts" setup></script>
 
 <template>
-  <main>hi</main>
+  <router-view />
 </template>

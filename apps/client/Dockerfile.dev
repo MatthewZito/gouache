@@ -1,6 +1,6 @@
 FROM node:16-alpine
 ARG PNPM_VERSION=6.24.4
-RUN npm --no-update-notifier --no-fund --global install pnpm@${PNPM_VERSION}
+RUN npm --no-update-notifier --no-fund --location=global install pnpm@${PNPM_VERSION}
 
 WORKDIR /app
 

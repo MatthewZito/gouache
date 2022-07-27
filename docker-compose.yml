@@ -27,7 +27,6 @@ services:
       - ./apps/client/.env
     volumes:
       - ./apps/client/:/app
-      - client_node_modules:/app/node_modules
     networks:
       - gouache-network
     depends_on:
@@ -37,6 +36,3 @@ services:
 networks:
   gouache-network:
     driver: bridge
-
-volumes:
-  client_node_modules:
