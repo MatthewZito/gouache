@@ -2,10 +2,9 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
-	cache "github.com/MatthewZito/gouache/cache"
+	db "github.com/MatthewZito/gouache/db"
 	format "github.com/MatthewZito/gouache/format"
 	models "github.com/MatthewZito/gouache/models"
 	srv "github.com/MatthewZito/gouache/services"
@@ -14,12 +13,12 @@ import (
 )
 
 type ResourceContext struct {
-	c *cache.Cache
-	l *srv.LoggerClient
+	db *db.DB
+	l  *srv.LoggerClient
 }
 
-func NewResourceContext(debug bool) *ResourceContext {
-	ctx := &ResourceContext{c: cache.NewCache()}
+func NewResourceContext(debug bool, db *db.DB) *ResourceContext {
+	ctx := &ResourceContext{db: db}
 
 	if debug {
 		ctx.l = srv.NewLogger("resource")
@@ -29,63 +28,65 @@ func NewResourceContext(debug bool) *ResourceContext {
 }
 
 func (ctx *ResourceContext) GetResource(w http.ResponseWriter, r *http.Request) {
-	key := turnpike.GetParam(r.Context(), "key")
-	if key == "" {
-		ctx.l.Logf("GetResource - key not provided\n")
-		format.FormatError(w, http.StatusBadRequest, "key not provided")
+	id := turnpike.GetParam(r.Context(), "id")
+	if id == "" {
+		ctx.l.Logf("GetResource - id not provided\n")
+		format.FormatError(w, http.StatusBadRequest, "id not provided")
 	}
 
-	ctx.l.Logf("GetResource - request key %s\n", key)
-	rs := ctx.c.Get(key)
+	ctx.l.Logf("GetResource - request key %s\n", id)
 
-	if v, err := json.Marshal(&rs); err == nil {
-
-		format.FormatResponse(w, http.StatusOK, format.DefaultOk(v))
+	if r, err := ctx.db.GetResource(id); err == nil {
+		format.FormatResponse(w, http.StatusOK, format.DefaultOk(r))
 	} else {
-		ctx.l.Logf("GetResource - marshalling error %v\n", err)
+		ctx.l.Logf("GetResource - database error %v\n", err)
 		format.FormatError(w, http.StatusBadRequest, err.Error())
 	}
 }
 
 func (ctx *ResourceContext) GetAllResources(w http.ResponseWriter, r *http.Request) {
-	rs := ctx.c.All()
-
-	payload := format.Response{
-		Ok:   true,
-		Data: rs,
-	}
-
-	if v, err := json.Marshal(&payload); err == nil {
-		format.FormatResponse(w, http.StatusOK, v)
+	if rs, err := ctx.db.GetResources(); err == nil {
+		if v, err := json.Marshal(&format.Response{
+			Ok:   true,
+			Data: rs,
+		}); err == nil {
+			format.FormatResponse(w, http.StatusOK, v)
+		} else {
+			ctx.l.Logf("GetAllResources - marshalling error %v\n", err)
+			format.FormatError(w, http.StatusBadRequest, err.Error())
+		}
 	} else {
-		ctx.l.Logf("GetAllResources - marshalling error %v\n", err)
+		ctx.l.Logf("GetAllResources - database error %v\n", err)
 		format.FormatError(w, http.StatusBadRequest, err.Error())
 	}
 }
 
-func (ctx *ResourceContext) AddResource(w http.ResponseWriter, r *http.Request) {
-	rs := models.Resource{}
+func (ctx *ResourceContext) CreateResource(w http.ResponseWriter, r *http.Request) {
+	rs := &models.NewResourceTemplate{}
 
 	if err := json.NewDecoder(r.Body).Decode(&rs); err != nil {
-		ctx.l.Logf("AddResource - decoding error %v\n", err)
+		ctx.l.Logf("CreateResource - decoding error %v\n", err)
 		format.FormatError(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	ctx.l.Logf("AddResource - put key: %s value: %v expires: %d\n", rs.Key, rs.Value, rs.Expires)
-
-	ctx.c.Put(rs.Key, rs.Value, rs.Expires)
-	format.FormatResponse(w, http.StatusOK, format.DefaultOk(nil))
+	if err := ctx.db.CreateResource(rs); err != nil {
+		ctx.l.Logf("CreateResource - database error %v\n", err)
+		format.FormatError(w, http.StatusBadRequest, err.Error())
+	} else {
+		ctx.l.Logf("CreateResource - %v\n", rs)
+		format.FormatResponse(w, http.StatusOK, format.DefaultOk(nil))
+	}
 }
 
 func (ctx *ResourceContext) UpdateResource(w http.ResponseWriter, r *http.Request) {
-	key := turnpike.GetParam(r.Context(), "key")
-	if key == "" {
-		ctx.l.Logf("UpdateResource - key not provided\n")
-		format.FormatError(w, http.StatusBadRequest, "key not provided")
+	id := turnpike.GetParam(r.Context(), "id")
+	if id == "" {
+		ctx.l.Logf("UpdateResource - id not provided\n")
+		format.FormatError(w, http.StatusBadRequest, "id not provided")
 	}
 
-	rs := models.Resource{}
+	rs := &models.UpdateResourceTemplate{}
 
 	if err := json.NewDecoder(r.Body).Decode(&rs); err != nil {
 		ctx.l.Logf("UpdateResource - decoding error %v\n", err)
@@ -93,19 +94,23 @@ func (ctx *ResourceContext) UpdateResource(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	ctx.l.Logf("UpdateResource - put key: %s value: %v expires: %d\n", rs.Key, rs.Value, rs.Expires)
-	ctx.c.Put(key, rs.Value, rs.Expires)
-	format.FormatResponse(w, http.StatusOK, format.DefaultOk(nil))
-}
-
-func (ctx *ResourceContext) DeleteResource(w http.ResponseWriter, r *http.Request) {
-	key := turnpike.GetParam(r.Context(), "key")
-	ctx.l.Logf("DeleteResource - request key %s\n", key)
-
-	if ok := ctx.c.Delete(key); !ok {
-		ctx.l.Logf("DeleteResource - delete key %s failed\n", key)
-		format.FormatError(w, http.StatusBadRequest, fmt.Sprintf("delete failed for key %s", key))
+	if err := ctx.db.UpdateResource(rs); err != nil {
+		ctx.l.Logf("UpdateResource - database error %v\n", err)
+		format.FormatError(w, http.StatusBadRequest, err.Error())
+	} else {
+		ctx.l.Logf("UpdateResource - %v\n", rs)
+		format.FormatResponse(w, http.StatusOK, format.DefaultOk(nil))
 	}
-
-	format.FormatResponse(w, http.StatusOK, format.DefaultOk(nil))
 }
+
+// func (ctx *ResourceContext) DeleteResource(w http.ResponseWriter, r *http.Request) {
+// 	key := turnpike.GetParam(r.Context(), "key")
+// 	ctx.l.Logf("DeleteResource - request key %s\n", key)
+
+// 	if ok := ctx.c.Delete(key); !ok {
+// 		ctx.l.Logf("DeleteResource - delete key %s failed\n", key)
+// 		format.FormatError(w, http.StatusBadRequest, fmt.Sprintf("delete failed for key %s", key))
+// 	}
+
+// 	format.FormatResponse(w, http.StatusOK, format.DefaultOk(nil))
+// }

@@ -7,6 +7,7 @@ import (
 	"os"
 
 	controllers "github.com/MatthewZito/gouache/controllers"
+	"github.com/MatthewZito/gouache/db"
 	"github.com/MatthewZito/gouache/format"
 	srv "github.com/MatthewZito/gouache/services"
 
@@ -36,8 +37,13 @@ func main() {
 
 	bl := srv.NewLogger("cmd/serve")
 
+	db, err := db.Connect()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	/* State */
-	rctx := controllers.NewResourceContext(true)
+	rctx := controllers.NewResourceContext(true, db)
 	mctx := controllers.NewMetaContext(true)
 
 	/* Routers */
@@ -56,10 +62,10 @@ func main() {
 	r.Handler("/", http.HandlerFunc(controllers.Health)).WithMethods(http.MethodGet).Register()
 
 	r.Handler("/resource/:key[(.+)]", http.HandlerFunc(rctx.GetResource)).WithMethods(http.MethodGet).Register()
-	r.Handler("/resource", http.HandlerFunc(rctx.AddResource)).WithMethods(http.MethodPost).Register()
+	r.Handler("/resource", http.HandlerFunc(rctx.CreateResource)).WithMethods(http.MethodPost).Register()
 	r.Handler("/resource", http.HandlerFunc(rctx.GetAllResources)).WithMethods(http.MethodGet).Register()
 	r.Handler("/resource/:key[(.+)]", http.HandlerFunc(rctx.UpdateResource)).WithMethods(http.MethodPatch).Register()
-	r.Handler("/resource/:key[(.+)]", http.HandlerFunc(rctx.DeleteResource)).WithMethods(http.MethodDelete).Register()
+	// r.Handler("/resource/:key[(.+)]", http.HandlerFunc(rctx.DeleteResource)).WithMethods(http.MethodDelete).Register()
 
 	r.Handler("/time", http.HandlerFunc(mctx.GetTime)).WithMethods(http.MethodGet).Register()
 
