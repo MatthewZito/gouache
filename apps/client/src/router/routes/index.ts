@@ -12,7 +12,7 @@ export default [
   {
     path: '/',
     name: 'Layout',
-    component: async () => import('@/views/Layout/Index.vue'),
+    component: async () => import('@/views/Layout.vue'),
     meta: {
       authRequired: true,
     },

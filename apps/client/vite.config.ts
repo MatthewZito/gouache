@@ -2,6 +2,8 @@ import 'dotenv/config'
 import { resolve } from 'path'
 
 /* Plugins */
+import { quasar, transformAssetUrls } from '@quasar/vite-plugin'
+
 import Vue from '@vitejs/plugin-vue'
 import AutoImport from 'unplugin-auto-import/vite'
 import { defineConfig } from 'vite'
@@ -29,13 +31,17 @@ export default defineConfig(({ mode }) => {
 
     plugins: [
       /* Vue */
-      Vue({}),
+      Vue({
+        template: { transformAssetUrls },
+      }),
 
       /* Auto-import the following modules as compiler macros */
       AutoImport({
         dts: 'src/types/auto-imports.d.ts',
         imports: ['vue', 'vue-router'],
       }),
+
+      quasar({}),
     ],
 
     /* Alias Resolution */

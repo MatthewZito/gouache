@@ -7,16 +7,11 @@ import (
 
 	cache "github.com/MatthewZito/gouache/cache"
 	format "github.com/MatthewZito/gouache/format"
+	models "github.com/MatthewZito/gouache/models"
 	srv "github.com/MatthewZito/gouache/services"
 
 	"github.com/MatthewZito/turnpike"
 )
-
-type Resource struct {
-	Key     string
-	Value   interface{}
-	Expires int64
-}
 
 type ResourceContext struct {
 	c *cache.Cache
@@ -44,15 +39,32 @@ func (ctx *ResourceContext) GetResource(w http.ResponseWriter, r *http.Request) 
 	rs := ctx.c.Get(key)
 
 	if v, err := json.Marshal(&rs); err == nil {
-		format.FormatResponse(w, http.StatusOK, map[string]string{"ok": "true", "rs": string(v)})
+
+		format.FormatResponse(w, http.StatusOK, format.DefaultOk(v))
 	} else {
 		ctx.l.Logf("GetResource - marshalling error %v\n", err)
 		format.FormatError(w, http.StatusBadRequest, err.Error())
 	}
 }
 
+func (ctx *ResourceContext) GetAllResources(w http.ResponseWriter, r *http.Request) {
+	rs := ctx.c.All()
+
+	payload := format.Response{
+		Ok:   true,
+		Data: rs,
+	}
+
+	if v, err := json.Marshal(&payload); err == nil {
+		format.FormatResponse(w, http.StatusOK, v)
+	} else {
+		ctx.l.Logf("GetAllResources - marshalling error %v\n", err)
+		format.FormatError(w, http.StatusBadRequest, err.Error())
+	}
+}
+
 func (ctx *ResourceContext) AddResource(w http.ResponseWriter, r *http.Request) {
-	rs := Resource{}
+	rs := models.Resource{}
 
 	if err := json.NewDecoder(r.Body).Decode(&rs); err != nil {
 		ctx.l.Logf("AddResource - decoding error %v\n", err)
@@ -63,7 +75,7 @@ func (ctx *ResourceContext) AddResource(w http.ResponseWriter, r *http.Request) 
 	ctx.l.Logf("AddResource - put key: %s value: %v expires: %d\n", rs.Key, rs.Value, rs.Expires)
 
 	ctx.c.Put(rs.Key, rs.Value, rs.Expires)
-	format.FormatResponse(w, http.StatusOK, format.DefaultOk())
+	format.FormatResponse(w, http.StatusOK, format.DefaultOk(nil))
 }
 
 func (ctx *ResourceContext) UpdateResource(w http.ResponseWriter, r *http.Request) {
@@ -73,7 +85,7 @@ func (ctx *ResourceContext) UpdateResource(w http.ResponseWriter, r *http.Reques
 		format.FormatError(w, http.StatusBadRequest, "key not provided")
 	}
 
-	rs := Resource{}
+	rs := models.Resource{}
 
 	if err := json.NewDecoder(r.Body).Decode(&rs); err != nil {
 		ctx.l.Logf("UpdateResource - decoding error %v\n", err)
@@ -83,7 +95,7 @@ func (ctx *ResourceContext) UpdateResource(w http.ResponseWriter, r *http.Reques
 
 	ctx.l.Logf("UpdateResource - put key: %s value: %v expires: %d\n", rs.Key, rs.Value, rs.Expires)
 	ctx.c.Put(key, rs.Value, rs.Expires)
-	format.FormatResponse(w, http.StatusOK, format.DefaultOk())
+	format.FormatResponse(w, http.StatusOK, format.DefaultOk(nil))
 }
 
 func (ctx *ResourceContext) DeleteResource(w http.ResponseWriter, r *http.Request) {
@@ -95,5 +107,5 @@ func (ctx *ResourceContext) DeleteResource(w http.ResponseWriter, r *http.Reques
 		format.FormatError(w, http.StatusBadRequest, fmt.Sprintf("delete failed for key %s", key))
 	}
 
-	format.FormatResponse(w, http.StatusOK, format.DefaultOk())
+	format.FormatResponse(w, http.StatusOK, format.DefaultOk(nil))
 }

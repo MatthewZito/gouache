@@ -13,7 +13,8 @@ func Health(w http.ResponseWriter, r *http.Request) {
 	if name, err := os.Hostname(); err != nil {
 		format.FormatError(w, http.StatusBadRequest, "Health check failed")
 	} else {
-		format.FormatResponse(w, http.StatusOK, map[string]string{"server": name, "result": "success"})
+
+		format.FormatResponse(w, http.StatusOK, format.DefaultOk(map[string]string{"server": name}))
 	}
 
 }

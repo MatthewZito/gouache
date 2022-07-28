@@ -2,7 +2,7 @@ export default [
   {
     name: 'Dashboard',
     path: '',
-    component: async () => import('@/views/Dashboard.vue'),
+    component: async () => import('@/views/DashboardWrapper.vue'),
     meta: {
       authRequired: true,
     },

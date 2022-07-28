@@ -3,6 +3,8 @@ package cache
 import (
 	"sync"
 	"time"
+
+	"github.com/MatthewZito/gouache/models"
 )
 
 type cacheRecord struct {
@@ -83,4 +85,18 @@ func (c *Cache) Delete(key string) bool {
 	}
 
 	return false
+}
+
+func (c *Cache) All() []models.Resource {
+	resources := []models.Resource{}
+
+	for k, r := range c.state {
+		resources = append(resources, models.Resource{
+			Key:     k,
+			Value:   r.value,
+			Expires: r.expires,
+		})
+	}
+
+	return resources
 }

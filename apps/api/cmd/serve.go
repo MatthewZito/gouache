@@ -25,11 +25,13 @@ func main() {
 
 	/* Config */
 	origins := []string{"*"}
-	methods := []string{"PUT"}
+	methods := []string{http.MethodOptions, http.MethodGet, http.MethodPut, http.MethodPatch}
+	headers := []string{"*"}
 
 	c := corset.NewCorset(corset.CorsetOptions{
 		AllowedOrigins: origins,
 		AllowedMethods: methods,
+		AllowedHeaders: headers,
 	})
 
 	bl := srv.NewLogger("cmd/serve")
@@ -55,6 +57,7 @@ func main() {
 
 	r.Handler("/resource/:key[(.+)]", http.HandlerFunc(rctx.GetResource)).WithMethods(http.MethodGet).Register()
 	r.Handler("/resource", http.HandlerFunc(rctx.AddResource)).WithMethods(http.MethodPost).Register()
+	r.Handler("/resource", http.HandlerFunc(rctx.GetAllResources)).WithMethods(http.MethodGet).Register()
 	r.Handler("/resource/:key[(.+)]", http.HandlerFunc(rctx.UpdateResource)).WithMethods(http.MethodPatch).Register()
 	r.Handler("/resource/:key[(.+)]", http.HandlerFunc(rctx.DeleteResource)).WithMethods(http.MethodDelete).Register()
 

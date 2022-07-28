@@ -26,5 +26,5 @@ func NewMetaContext(debug bool) *MetaContext {
 func (ctx *MetaContext) GetTime(w http.ResponseWriter, r *http.Request) {
 	now := time.Now().UnixNano()
 	ctx.l.Logf("GetTime %d", now)
-	format.FormatResponse(w, http.StatusOK, map[string]string{"time": fmt.Sprint(now)})
+	format.FormatResponse(w, http.StatusOK, format.DefaultOk(fmt.Sprint(now)))
 }
