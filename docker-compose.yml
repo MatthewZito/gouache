@@ -7,13 +7,31 @@ services:
     ports:
       - "5000:5000"
     build:
-      context: ./apps/api/
+      context: ./services/api/
       dockerfile: Dockerfile.dev
-    env_file: ./apps/api/.env
+    env_file: ./services/api/.env
     volumes:
-      - ./apps/api/:/app
+      - ./services/api/:/app
     networks:
       - gouache-network
+    depends_on:
+      - gouache-db
+
+  gouache-db:
+    container_name: gouache-db
+    restart: always
+    image: 'postgres:latest'
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: username
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: test
+    networks:
+      - gouache-network
+    volumes:
+      - ./services/db/:/docker-entrypoint-initdb.d/
+      # - ./db-data/:/var/lib/postgresql/data/
 
   gouache-client:
     container_name: gouache-client
@@ -21,12 +39,12 @@ services:
     ports:
       - "3000:3000"
     build:
-      context: ./apps/client/
+      context: ./services/client/
       dockerfile: Dockerfile.dev
     env_file:
-      - ./apps/client/.env
+      - ./services/client/.env
     volumes:
-      - ./apps/client/:/app
+      - ./services/client/:/app
     networks:
       - gouache-network
     depends_on:

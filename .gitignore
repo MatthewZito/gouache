@@ -40,3 +40,4 @@ downloads
 .pnpm
 pnpm-lock.yaml
 serve
+db-data
