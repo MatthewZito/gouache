@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import EditResource from '@/components/EditResource.vue'
 import type { Resource } from '@/types'
-import { logger, useErrorHandler } from '@/services'
+import { useErrorHandler } from '@/services'
 import CreateResource from '@/components/CreateResource.vue'
 import { resourceApi } from '@/services'
 import { toReadableDate } from '@/utils'
@@ -36,7 +36,11 @@ async function fetchResources() {
 
     resourceStore.setResources(data ?? [])
   } catch (ex) {
-    logger.error('failed to fetch resources', ex)
+    useErrorHandler(ex, {
+      notify: true,
+      fallback:
+        'Something went wrong and we were unable to fetch your resources.',
+    })
   } finally {
     isLoading.value = false
   }

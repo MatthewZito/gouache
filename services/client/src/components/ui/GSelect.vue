@@ -1,26 +1,42 @@
 <script lang="ts" setup>
-import { listRequired } from '@/utils'
-import { availableTags } from '@/mock'
+import type { ValidationRule } from 'quasar'
 import type { PropType } from 'vue'
+
+interface SelectOption {
+  value: string
+  label: string
+  description: string
+  icon: string
+  color: string
+}
+
+type State = typeof props.modelValue
 
 const props = defineProps({
   modelValue: {
     type: Array as PropType<string[]>,
     required: true,
   },
+  options: {
+    type: Array as PropType<SelectOption[]>,
+    required: true,
+  },
+  rules: {
+    type: Array as PropType<ValidationRule[]>,
+    default: () => [],
+  },
 })
 
 const $emit = defineEmits<{
-  (e: 'update:modelValue', nextValue: typeof props.modelValue): void
+  (e: 'update:modelValue', nextValue: State): void
 }>()
 
 const mutableModelValue = computed({
   get() {
     return props.modelValue
   },
-  set(v: string[]) {
-    console.log({ v })
-    $emit('update:modelValue', v)
+  set(v) {
+    $emit('update:modelValue', v ?? [])
   },
 })
 
@@ -35,11 +51,9 @@ function removeOption(value: string) {
 <template>
   <q-select
     v-model="mutableModelValue"
-    :options="availableTags"
-    :rules="[listRequired('At least one tag is required.')]"
-    label="Tags"
+    :options="props.options"
+    :rules="props.rules"
     option-value="value"
-    class="mr-2 extra-dense"
     filled
     clearable
     dense
@@ -51,6 +65,7 @@ function removeOption(value: string) {
     <template #selected-item="{ opt }">
       <q-chip
         :color="opt.color"
+        text-color="black"
         removable
         @remove="_ => removeOption(opt.value)"
       >

@@ -8,17 +8,17 @@ type NotificationTypes = 'error' | 'success' | 'warning'
 const notificationTypes: Record<NotificationTypes, V> = {
   error: {
     icon: 'mdi-alert',
-    color: 'red',
+    color: 'negative',
     timeout: 4000,
   },
   success: {
     icon: 'mdi-checkbox-marked-circle',
-    color: 'green',
+    color: 'positive',
     timeout: 4000,
   },
   warning: {
     icon: 'mdi-alert',
-    color: 'orange',
+    color: 'info',
     timeout: 4000,
   },
 }

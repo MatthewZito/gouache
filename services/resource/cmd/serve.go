@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/MatthewZito/gouache/auth"
+	"github.com/MatthewZito/gouache/cache"
 	controllers "github.com/MatthewZito/gouache/controllers"
 	"github.com/MatthewZito/gouache/db"
 	"github.com/MatthewZito/gouache/format"
@@ -17,7 +19,6 @@ import (
 )
 
 func main() {
-
 	if err := godotenv.Load(".env"); err != nil {
 		log.Fatal("Error loading .env file")
 	}
@@ -30,9 +31,10 @@ func main() {
 	headers := []string{"*"}
 
 	c := corset.NewCorset(corset.CorsetOptions{
-		AllowedOrigins: origins,
-		AllowedMethods: methods,
-		AllowedHeaders: headers,
+		AllowedOrigins:   origins,
+		AllowedMethods:   methods,
+		AllowedHeaders:   headers,
+		AllowCredentials: true,
 	})
 
 	bl := srv.NewLogger("cmd/serve")
@@ -42,9 +44,14 @@ func main() {
 		log.Fatal(err)
 	}
 
+	cache, err := cache.NewRedisStore()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	/* State */
+	actx := auth.NewSessionContext(cache)
 	rctx := controllers.NewResourceContext(true, db)
-	mctx := controllers.NewMetaContext(true)
 
 	/* Routers */
 	r := turnpike.NewRouter()
@@ -59,15 +66,20 @@ func main() {
 		format.FormatError(w, http.StatusMethodNotAllowed, "method not allowed")
 	})
 
+	/* Health check */
 	r.Handler("/", http.HandlerFunc(controllers.Health)).WithMethods(http.MethodGet).Register()
 
+	/* Resource */
+	r.Handler("/resource", http.HandlerFunc(rctx.GetAllResources)).WithMethods(http.MethodGet).Use(actx.Authorize).Register()
 	r.Handler("/resource/:id[(.+)]", http.HandlerFunc(rctx.GetResource)).WithMethods(http.MethodGet).Register()
 	r.Handler("/resource", http.HandlerFunc(rctx.CreateResource)).WithMethods(http.MethodPost).Register()
-	r.Handler("/resource", http.HandlerFunc(rctx.GetAllResources)).WithMethods(http.MethodGet).Register()
 	r.Handler("/resource/:id[(.+)]", http.HandlerFunc(rctx.UpdateResource)).WithMethods(http.MethodPatch).Register()
 	// r.Handler("/resource/:id[(.+)]", http.HandlerFunc(rctx.DeleteResource)).WithMethods(http.MethodDelete).Register()
 
-	r.Handler("/time", http.HandlerFunc(mctx.GetTime)).WithMethods(http.MethodGet).Register()
+	/* Session @todo relocate to separate service */
+	r.Handler("/session/login", http.HandlerFunc(actx.Login)).WithMethods(http.MethodPost).Register()
+	r.Handler("/session/renew", http.HandlerFunc(actx.RenewSession)).WithMethods(http.MethodPost).Use(actx.Authorize).Register()
+	r.Handler("/session/logout", http.HandlerFunc(actx.Logout)).WithMethods(http.MethodPost).Use(actx.Authorize).Register()
 
 	/* Init */
 	fmt.Printf("Listening on port %s...\n", port)

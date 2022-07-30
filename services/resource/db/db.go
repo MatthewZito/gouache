@@ -5,10 +5,12 @@ import (
 	"os"
 )
 
+// DB holds a pointer to the opened database handle.
 type DB struct {
 	*sql.DB
 }
 
+// Connect initializes a new postgres connection.
 func Connect() (*DB, error) {
 	connStr := os.Getenv("DB_CONN")
 

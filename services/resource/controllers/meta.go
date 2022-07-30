@@ -9,10 +9,12 @@ import (
 	srv "github.com/MatthewZito/gouache/services"
 )
 
+// MetaContext holds shared context for meta endpoints.
 type MetaContext struct {
 	l *srv.LoggerClient
 }
 
+// NewMetaContext creates a new MetaContext object.
 func NewMetaContext(debug bool) *MetaContext {
 	ctx := &MetaContext{}
 
@@ -23,6 +25,7 @@ func NewMetaContext(debug bool) *MetaContext {
 	return ctx
 }
 
+// GetTime
 func (ctx *MetaContext) GetTime(w http.ResponseWriter, r *http.Request) {
 	now := time.Now().UnixNano()
 	ctx.l.Logf("GetTime %d", now)

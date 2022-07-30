@@ -11,6 +11,7 @@ import {
 import { availableTags } from '@/mock'
 import { useResourceStore } from '@/state'
 import { UUID } from '@/types/scalar'
+import GSelect from '@/components/ui/GSelect.vue'
 
 const props = defineProps({
   resourceId: {
@@ -75,13 +76,6 @@ async function handleSave() {
     isLoading.value = false
   }
 }
-
-function removeOption(value: string) {
-  const foundIdx = formModel.tags.findIndex(tag => tag === value)
-  if (foundIdx !== -1) {
-    formModel.tags.splice(foundIdx, 1)
-  }
-}
 </script>
 
 <template>
@@ -100,37 +94,13 @@ function removeOption(value: string) {
           class="q-mb-md"
           :rules="[required('A title is required.')]"
         />
-        <q-select
+        {{ formModel }}
+        <GSelect
           v-model="formModel.tags"
           :options="availableTags"
           label="Tags"
-          option-value="value"
-          class="mr-2 extra-dense"
-          filled
-          clearable
-          dense
-          emit-value
-          map-options
-          multiple
-          use-chips
           :rules="[listRequired('At least one tag is required.')]"
-        >
-          <template #selected-item="{ opt }">
-            <q-chip
-              :color="opt.color"
-              removable
-              @remove="_ => removeOption(opt.value)"
-            >
-              <span class="q-mr-sm">
-                {{ opt.label }}
-              </span>
-              <q-icon :name="opt.icon" />
-              <q-tooltip>
-                {{ opt.description }}
-              </q-tooltip>
-            </q-chip>
-          </template>
-        </q-select>
+        />
       </q-form>
     </q-card-section>
 

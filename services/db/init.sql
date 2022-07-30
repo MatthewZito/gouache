@@ -1,10 +1,7 @@
--- CREATE USER testuser WITH PASSWORD 'test';
-
--- CREATE DATABASE test;
-
+-- Add support for UUID.
 CREATE extension IF NOT EXISTS "uuid-ossp";
 
-CREATE TABLE resource_record (
+CREATE TABLE IF NOT EXISTS resource_record (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
   updated_at TIMESTAMP WITH TIME ZONE,
@@ -12,5 +9,9 @@ CREATE TABLE resource_record (
   title VARCHAR(255) NOT NULL
 );
 
-
-GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO testuser;
+CREATE TABLE IF NOT EXISTS user_record (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
+  username VARCHAR(32) NOT NULL,
+  passhash VARCHAR(16) NOT NULL
+);

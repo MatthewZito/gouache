@@ -1,4 +1,4 @@
-package db // @todo docs
+package db
 
 import (
 	"time"
@@ -7,7 +7,9 @@ import (
 	"github.com/lib/pq"
 )
 
-func (db *DB) GetResources() ([]models.ResourceV2, error) {
+// GetResources retrieves all resources from the database.
+// @todo Paginate/batch.
+func (db *DB) GetResources() ([]models.Resource, error) {
 	rows, err := db.Query(`
 		SELECT
 			id,
@@ -20,15 +22,15 @@ func (db *DB) GetResources() ([]models.ResourceV2, error) {
 	`)
 
 	if err != nil {
-		return []models.ResourceV2{}, err
+		return []models.Resource{}, err
 	}
 
 	defer rows.Close()
 
-	var r []models.ResourceV2
+	var r []models.Resource
 
 	for rows.Next() {
-		resource := models.ResourceV2{}
+		resource := models.Resource{}
 
 		if err = rows.Scan(
 			&resource.Id,
@@ -37,20 +39,21 @@ func (db *DB) GetResources() ([]models.ResourceV2, error) {
 			&resource.UpdatedAt,
 			&resource.Tags,
 		); err != nil {
-			return []models.ResourceV2{}, err
+			return []models.Resource{}, err
 		}
 
 		r = append(r, resource)
 	}
 
 	if err = rows.Err(); err != nil {
-		return []models.ResourceV2{}, err
+		return []models.Resource{}, err
 	}
 
 	return r, nil
 }
 
-func (db *DB) GetResource(id string) (models.ResourceV2, error) {
+// GetResource retrieves the resource that corresponds to a given ID.
+func (db *DB) GetResource(id string) (models.Resource, error) {
 	sql := `
 		SELECT
 			id,
@@ -65,7 +68,7 @@ func (db *DB) GetResource(id string) (models.ResourceV2, error) {
 
 	row := db.QueryRow(sql, id)
 
-	var r models.ResourceV2
+	var r models.Resource
 
 	if err := row.Scan(
 		&r.Id,
@@ -74,13 +77,13 @@ func (db *DB) GetResource(id string) (models.ResourceV2, error) {
 		&r.UpdatedAt,
 		&r.Tags,
 	); err != nil {
-		return models.ResourceV2{}, err
+		return models.Resource{}, err
 	}
 
 	return r, nil
 }
 
-// @todo return id
+// CreateResource creates a new resource in the database and returns its ID.
 func (db *DB) CreateResource(t *models.NewResourceTemplate) (string, error) {
 	sql := `
     	INSERT INTO resource_record
@@ -102,6 +105,7 @@ func (db *DB) CreateResource(t *models.NewResourceTemplate) (string, error) {
 	return id, nil
 }
 
+// UpdateResource updates a given resource.
 func (db *DB) UpdateResource(t *models.UpdateResourceTemplate) error {
 	sql := `
     	UPDATE resource_record

@@ -1,26 +1,27 @@
 version: "3.9"
 
 services:
-  gouache-api:
-    container_name: gouache-api
+  gouache-resource:
+    container_name: gouache-resource
     restart: always
     ports:
       - "5000:5000"
     build:
-      context: ./services/api/
+      context: ./services/resource/
       dockerfile: Dockerfile.dev
-    env_file: ./services/api/.env
+    env_file: ./services/resource/.env
     volumes:
-      - ./services/api/:/app
+      - ./services/resource/:/app
     networks:
       - gouache-network
     depends_on:
       - gouache-db
+      - gouache-cache
 
   gouache-db:
     container_name: gouache-db
-    restart: always
     image: 'postgres:latest'
+    restart: always
     ports:
       - "5432:5432"
     environment:
@@ -32,6 +33,16 @@ services:
     volumes:
       - ./services/db/:/docker-entrypoint-initdb.d/
       # - ./db-data/:/var/lib/postgresql/data/
+
+  gouache-cache:
+    container_name: gouache-cache
+    image: redis
+    restart: always
+    ports:
+     - "6379:6379"
+    networks:
+      - gouache-network
+    command: redis-server --save 20 1 --loglevel warning --requirepass password
 
   gouache-client:
     container_name: gouache-client
@@ -48,7 +59,7 @@ services:
     networks:
       - gouache-network
     depends_on:
-      - gouache-api
+      - gouache-resource
 
 
 networks:

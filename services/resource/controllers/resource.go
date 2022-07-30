@@ -12,11 +12,13 @@ import (
 	"github.com/MatthewZito/turnpike"
 )
 
+// ResourceContext houses shared state across resource handlers.
 type ResourceContext struct {
 	db *db.DB
 	l  *srv.LoggerClient
 }
 
+// NewResourceContext initializes a shared context object for resource handlers.
 func NewResourceContext(debug bool, db *db.DB) *ResourceContext {
 	ctx := &ResourceContext{db: db}
 
@@ -27,6 +29,7 @@ func NewResourceContext(debug bool, db *db.DB) *ResourceContext {
 	return ctx
 }
 
+// GetResource implements a REST handler for retrieving a resource record by ID.
 func (ctx *ResourceContext) GetResource(w http.ResponseWriter, r *http.Request) {
 	id := turnpike.GetParam(r.Context(), "id")
 	if id == "" {
@@ -44,6 +47,7 @@ func (ctx *ResourceContext) GetResource(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
+// GetAllResources implements a REST handler for retrieving all resource records.
 func (ctx *ResourceContext) GetAllResources(w http.ResponseWriter, r *http.Request) {
 	if rs, err := ctx.db.GetResources(); err == nil {
 		if v, err := json.Marshal(&format.Response{
@@ -61,6 +65,7 @@ func (ctx *ResourceContext) GetAllResources(w http.ResponseWriter, r *http.Reque
 	}
 }
 
+// CreateResource implements a REST handler for creating new resource records.
 func (ctx *ResourceContext) CreateResource(w http.ResponseWriter, r *http.Request) {
 	rs := &models.NewResourceTemplate{}
 
@@ -79,6 +84,7 @@ func (ctx *ResourceContext) CreateResource(w http.ResponseWriter, r *http.Reques
 	}
 }
 
+// UpdateResource implements a REST handler for updating resource records.
 func (ctx *ResourceContext) UpdateResource(w http.ResponseWriter, r *http.Request) {
 	id := turnpike.GetParam(r.Context(), "id")
 	if id == "" {
