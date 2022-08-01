@@ -15,11 +15,23 @@ interface NormalizedErrorResponse {
 }
 
 export class HttpClient {
-  constructor(public baseUrl: string) {}
+  baseUrl: string
+  withCredentials: boolean
+  constructor({
+    baseUrl = '/',
+    withCredentials = false,
+  }: {
+    baseUrl: string
+    withCredentials: boolean
+  }) {
+    this.baseUrl = baseUrl
+    this.withCredentials = withCredentials
+  }
 
   private request(url = '/', opts: RequestInit) {
     return fetch(this.baseUrl + url, {
       mode: 'cors',
+      ...(this.withCredentials ? { credentials: 'include' } : {}),
       ...opts,
     })
   }
@@ -46,13 +58,13 @@ export class HttpClient {
     }
   }
 
-  async post<T, D>(url = '/', payload: D): NormalizedResponse<T> {
+  async post<T, D>(url = '/', payload?: D): NormalizedResponse<T> {
     const response = await this.request(url, {
       method: 'POST',
-      body: JSON.stringify(payload),
+      ...(payload ? { body: JSON.stringify(payload) } : {}),
     })
 
-    if (response.status !== 200) {
+    if (![200, 201].includes(response.status)) {
       return {
         ok: false,
         data: null,

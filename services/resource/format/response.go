@@ -2,6 +2,7 @@ package format
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 )
 
@@ -16,6 +17,8 @@ func DefaultOk(data interface{}) []byte {
 		Ok:   true,
 		Data: data,
 	})
+
+	fmt.Println(data)
 
 	return v
 }

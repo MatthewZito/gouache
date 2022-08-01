@@ -94,7 +94,6 @@ async function handleSave() {
           class="q-mb-md"
           :rules="[required('A title is required.')]"
         />
-        {{ formModel }}
         <GSelect
           v-model="formModel.tags"
           :options="availableTags"

@@ -17,3 +17,21 @@ export function toReadableDate(date?: Date | string) {
         day: '2-digit',
       })
 }
+
+export function epochToReadableTime(maybeEpoch: number | null) {
+  if (!maybeEpoch) {
+    return null
+  }
+
+  const d = new Date(maybeEpoch * 1000)
+
+  if (isNaN(d.valueOf())) {
+    return null
+  }
+
+  return d.toLocaleString('en-US', {
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: true,
+  })
+}

@@ -80,7 +80,7 @@ func (ctx *ResourceContext) CreateResource(w http.ResponseWriter, r *http.Reques
 		format.FormatError(w, http.StatusBadRequest, err.Error())
 	} else {
 		ctx.l.Logf("CreateResource - %v with id %s\n", rs, id)
-		format.FormatResponse(w, http.StatusOK, format.DefaultOk(id))
+		format.FormatResponse(w, http.StatusCreated, format.DefaultOk(id))
 	}
 }
 

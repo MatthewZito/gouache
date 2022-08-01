@@ -2,7 +2,10 @@ import type { MutableResource, Resource } from '@/types'
 import type { UUID } from '@/types/scalar'
 import { HttpClient } from '../client'
 
-const client = new HttpClient('http://localhost:5000/resource')
+const client = new HttpClient({
+  baseUrl: `${import.meta.env.VITE_RESOURCE_API}/resource`,
+  withCredentials: true,
+})
 
 export const resourceApi = {
   async getResource(id: UUID) {

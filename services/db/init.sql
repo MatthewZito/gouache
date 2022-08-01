@@ -10,8 +10,8 @@ CREATE TABLE IF NOT EXISTS resource_record (
 );
 
 CREATE TABLE IF NOT EXISTS user_record (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  username VARCHAR(32) PRIMARY KEY,
+  id UUID DEFAULT uuid_generate_v4(),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
-  username VARCHAR(32) NOT NULL,
-  passhash VARCHAR(16) NOT NULL
+  passhash VARCHAR(255) NOT NULL
 );

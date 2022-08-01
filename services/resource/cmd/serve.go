@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/MatthewZito/gouache/auth"
 	"github.com/MatthewZito/gouache/cache"
 	controllers "github.com/MatthewZito/gouache/controllers"
 	"github.com/MatthewZito/gouache/db"
@@ -26,7 +25,7 @@ func main() {
 	port := os.Getenv("PORT")
 
 	/* Config */
-	origins := []string{"*"}
+	origins := []string{"http://localhost:3000"}
 	methods := []string{http.MethodOptions, http.MethodGet, http.MethodPut, http.MethodPatch}
 	headers := []string{"*"}
 
@@ -50,7 +49,7 @@ func main() {
 	}
 
 	/* State */
-	actx := auth.NewSessionContext(cache)
+	actx := controllers.NewSessionContext(cache, db)
 	rctx := controllers.NewResourceContext(true, db)
 
 	/* Routers */
@@ -78,6 +77,7 @@ func main() {
 
 	/* Session @todo relocate to separate service */
 	r.Handler("/session/login", http.HandlerFunc(actx.Login)).WithMethods(http.MethodPost).Register()
+	r.Handler("/session/register", http.HandlerFunc(actx.Register)).WithMethods(http.MethodPost).Register()
 	r.Handler("/session/renew", http.HandlerFunc(actx.RenewSession)).WithMethods(http.MethodPost).Use(actx.Authorize).Register()
 	r.Handler("/session/logout", http.HandlerFunc(actx.Logout)).WithMethods(http.MethodPost).Use(actx.Authorize).Register()
 

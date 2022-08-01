@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { useErrorHandler } from '@/services'
+import { useSessionStore } from '@/state'
+import { epochToReadableTime, normalizeNullish } from '@/utils'
 import { useQuasar } from 'quasar'
+
 const $q = useQuasar()
+const sessionStore = useSessionStore()
 
 const leftDrawerOpen = ref(false)
 
@@ -38,7 +42,46 @@ onErrorCaptured((ex: any) => {
             isDarkMode ? `mdi-moon-waxing-crescent` : `mdi-white-balance-sunny`
           "
           @click="toggleDarkMode"
+          class="q-mr-md"
         />
+
+        <q-btn dense flat round icon="mdi-account">
+          <q-menu class="q-pa-xs">
+            <q-list>
+              <q-item>
+                <q-item-section avatar>
+                  <q-icon name="mdi-account" size="md" color="accent" />
+                </q-item-section>
+
+                <q-item-section class="text-subtitle1">
+                  <q-item-label>
+                    Logged in as
+                    <span class="text-weight-bold">
+                      {{ sessionStore.username }}
+                    </span>
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+
+              <q-item>
+                <q-item-section avatar>
+                  <q-icon name="mdi-clock" size="md" color="accent" />
+                </q-item-section>
+
+                <q-item-section class="text-subtitle1">
+                  <q-item-label>
+                    Next session renewal
+                    <span class="text-weight-bold">
+                      {{
+                        normalizeNullish(epochToReadableTime(sessionStore.exp))
+                      }}
+                    </span>
+                  </q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-menu>
+        </q-btn>
       </q-toolbar>
     </q-header>
 
