@@ -9,6 +9,10 @@ type MockProvider struct {
 	sessions map[string]*Session
 }
 
+func NewMockProvider() *MockProvider {
+	return &MockProvider{sessions: make(map[string]*Session)}
+}
+
 func (m *MockProvider) NewSession(sid string) (Session, error) {
 	sess := Session{provider: m, sid: sid, lastAccessed: time.Now(), value: map[interface{}]interface{}{"id": sid}}
 

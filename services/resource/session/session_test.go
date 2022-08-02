@@ -93,12 +93,11 @@ func TestSessionID(t *testing.T) {
 }
 
 func makeSession() (*Session, string) {
-	provider := &MockProvider{}
 	sid := newSessionId()
 	v := make(map[interface{}]interface{}, 0)
 
 	s := &Session{
-		provider:     provider,
+		provider:     NewMockProvider(),
 		sid:          sid,
 		lastAccessed: time.Now(),
 		value:        v,

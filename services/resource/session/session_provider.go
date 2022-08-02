@@ -22,7 +22,6 @@ func RegisterProvider(name string, provider SessionProvider) error {
 	if provider == nil {
 		return sessionError("the given SessionProvider is nil")
 	}
-
 	if _, dup := providers[name]; dup {
 		return sessionError("the given SessionProvider %s has already been registered", name)
 	}

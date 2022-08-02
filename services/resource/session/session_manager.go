@@ -16,6 +16,7 @@ type SessionManager struct {
 }
 
 // NewSessionManager initializes and returns a new SessionManager object.
+// ttl in seconds
 func NewSessionManager(providerName string, cookieName string, ttl int64, shouldFinalize bool) (*SessionManager, error) {
 	if provider, ok := providers[providerName]; !ok {
 		return nil, sessionError("unknown provider %s", providerName)
@@ -49,7 +50,7 @@ func (manager *SessionManager) NewSession(w http.ResponseWriter, r *http.Request
 		}
 
 		// Create the new Cookie.
-		cookie := manager.buildCookie(sid)
+		cookie := manager.buildCookie(sid, int(manager.ttl))
 		// Set the Cookie.
 		http.SetCookie(w, &cookie)
 
@@ -66,7 +67,7 @@ func (manager *SessionManager) NewSession(w http.ResponseWriter, r *http.Request
 }
 
 // DestroySession destroys the current Session and updates the corresponding Cookie.
-func (manager *SessionManager) DestroySession(w http.ResponseWriter, r *http.Request) {
+func (manager *SessionManager) DestroySession(w http.ResponseWriter, r *http.Request) error {
 	cookie, err := r.Cookie(manager.cookieName)
 
 	if err == nil && cookie.Value != "" {
@@ -76,12 +77,15 @@ func (manager *SessionManager) DestroySession(w http.ResponseWriter, r *http.Req
 		manager.provider.DestroySession(cookie.Value)
 
 		expiration := time.Now()
-		manager.ttl = -1
-		cookie := manager.buildCookie(cookie.Value)
+		cookie := manager.buildCookie(cookie.Value, -1)
 		cookie.Expires = expiration
 
 		http.SetCookie(w, &cookie)
+
+		return nil
 	}
+
+	return err
 }
 
 func (manager *SessionManager) FinalizeSessions() {
@@ -92,12 +96,12 @@ func (manager *SessionManager) FinalizeSessions() {
 	time.AfterFunc(time.Duration(manager.ttl), func() { manager.FinalizeSessions() })
 }
 
-func (manager *SessionManager) buildCookie(sid string) http.Cookie {
+func (manager *SessionManager) buildCookie(sid string, maxAge int) http.Cookie {
 	return http.Cookie{
 		Name:     manager.cookieName,
 		Value:    sid,
 		Path:     "/",
 		HttpOnly: true,
-		MaxAge:   int(manager.ttl),
+		MaxAge:   maxAge,
 	}
 }
