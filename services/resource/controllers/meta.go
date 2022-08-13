@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"time"
 
-	format "github.com/MatthewZito/gouache/format"
-	srv "github.com/MatthewZito/gouache/services"
+	format "github.com/exbotanical/gouache/format"
+	srv "github.com/exbotanical/gouache/services"
 )
 
 // MetaContext holds shared context for meta endpoints.

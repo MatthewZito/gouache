@@ -4,12 +4,12 @@ import (
 	"encoding/json"
 	"net/http"
 
-	db "github.com/MatthewZito/gouache/db"
-	format "github.com/MatthewZito/gouache/format"
-	models "github.com/MatthewZito/gouache/models"
-	srv "github.com/MatthewZito/gouache/services"
+	db "github.com/exbotanical/gouache/db"
+	format "github.com/exbotanical/gouache/format"
+	models "github.com/exbotanical/gouache/models"
+	srv "github.com/exbotanical/gouache/services"
 
-	"github.com/MatthewZito/turnpike"
+	"github.com/exbotanical/turnpike"
 )
 
 // ResourceContext houses shared state across resource handlers.

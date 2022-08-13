@@ -3,7 +3,7 @@ package db
 import (
 	"time"
 
-	"github.com/MatthewZito/gouache/models"
+	"github.com/exbotanical/gouache/models"
 	"github.com/lib/pq"
 )
 

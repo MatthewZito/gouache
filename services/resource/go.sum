@@ -1,7 +1,7 @@
-github.com/MatthewZito/corset v0.0.0-20220726115451-f395db3e1333 h1:f3meTrQL8/ToL5uXyNBO6QbIJGu0CFLYDMeuubVYz18=
-github.com/MatthewZito/corset v0.0.0-20220726115451-f395db3e1333/go.mod h1:40spaaLhkQeO8yKpt7eEkMmiajrHXWTahEMr2j9XhEU=
-github.com/MatthewZito/turnpike v0.0.0-20220726125838-72922b7aa150 h1:q/rBfpJuozySDHTnF9fM+jtVLC9h6VShy5nYIQ/WZ5w=
-github.com/MatthewZito/turnpike v0.0.0-20220726125838-72922b7aa150/go.mod h1:W7OQSHBWYu10E6zntUbv4O3aRHGnIehyFSxA0kvf5Qc=
+github.com/exbotanical/corset v0.0.0-20220726115451-f395db3e1333 h1:f3meTrQL8/ToL5uXyNBO6QbIJGu0CFLYDMeuubVYz18=
+github.com/exbotanical/corset v0.0.0-20220726115451-f395db3e1333/go.mod h1:40spaaLhkQeO8yKpt7eEkMmiajrHXWTahEMr2j9XhEU=
+github.com/exbotanical/turnpike v0.0.0-20220726125838-72922b7aa150 h1:q/rBfpJuozySDHTnF9fM+jtVLC9h6VShy5nYIQ/WZ5w=
+github.com/exbotanical/turnpike v0.0.0-20220726125838-72922b7aa150/go.mod h1:W7OQSHBWYu10E6zntUbv4O3aRHGnIehyFSxA0kvf5Qc=
 github.com/cespare/xxhash/v2 v2.1.2 h1:YRXhKfTDauu4ajMg1TPgFO5jnlC2HCbmLXMcTG5cbYE=
 github.com/cespare/xxhash/v2 v2.1.2/go.mod h1:VGX0DQ3Q6kWi7AoAeZDth3/j3BFtOZR5XLFGgcrjCOs=
 github.com/chzyer/logex v1.1.10/go.mod h1:+Ywpsq7O8HXn0nuIou7OrIPyXbp3wmkHB+jjWRnGsAI=

@@ -1,7 +1,7 @@
 package db
 
 import (
-	"github.com/MatthewZito/gouache/models"
+	"github.com/exbotanical/gouache/models"
 )
 
 func (db *DB) CreateUser(t *models.NewUserTemplate) (string, error) {

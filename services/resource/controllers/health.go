@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"os"
 
-	format "github.com/MatthewZito/gouache/format"
+	format "github.com/exbotanical/gouache/format"
 )
 
 // Health is a liveness check that returns the server's current status.

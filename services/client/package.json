@@ -17,7 +17,7 @@
     "typecheck": "vue-tsc -p tsconfig.json"
   },
   "keywords": [],
-  "author": "Matthew Zito (goldmund) <matthewtzito@gmail.com>",
+  "author": "Matthew Zito <exbotanical@protonmail.com>",
   "license": "MIT",
   "devDependencies": {
     "@magister_zito/eslint-config-vue": "^0.14.1",

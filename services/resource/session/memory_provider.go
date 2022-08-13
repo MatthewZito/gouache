@@ -23,7 +23,7 @@ func (provider *MemoryProvider) NewSession(sid string) (Session, error) {
 
 	v := make(map[interface{}]interface{}, 0)
 
-	session := Session{sid: sid, lastAccessed: time.Now(), value: v}
+	session := Session{provider: provider, sid: sid, lastAccessed: time.Now(), value: v}
 	node := provider.state.PushBack(session)
 	provider.sessions[sid] = node
 

@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/MatthewZito/gouache/cache"
-	"github.com/MatthewZito/gouache/db"
-	"github.com/MatthewZito/gouache/format"
-	"github.com/MatthewZito/gouache/models"
+	"github.com/exbotanical/gouache/cache"
+	"github.com/exbotanical/gouache/db"
+	"github.com/exbotanical/gouache/format"
+	"github.com/exbotanical/gouache/models"
 
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"

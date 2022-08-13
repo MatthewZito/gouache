@@ -6,14 +6,14 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/MatthewZito/gouache/cache"
-	controllers "github.com/MatthewZito/gouache/controllers"
-	"github.com/MatthewZito/gouache/db"
-	"github.com/MatthewZito/gouache/format"
-	srv "github.com/MatthewZito/gouache/services"
+	"github.com/exbotanical/gouache/cache"
+	controllers "github.com/exbotanical/gouache/controllers"
+	"github.com/exbotanical/gouache/db"
+	"github.com/exbotanical/gouache/format"
+	srv "github.com/exbotanical/gouache/services"
 
-	"github.com/MatthewZito/corset"
-	"github.com/MatthewZito/turnpike"
+	"github.com/exbotanical/corset"
+	"github.com/exbotanical/turnpike"
 	"github.com/joho/godotenv"
 )
 
