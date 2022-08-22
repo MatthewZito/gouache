@@ -26,6 +26,7 @@ export const useSessionStore = defineStore('session', {
     async verifySession() {
       try {
         const { ok, data } = await authApi.renew()
+
         if (!ok) {
           throw Error('@todo')
         }

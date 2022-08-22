@@ -18,15 +18,15 @@ const { formModel, shouldDisable } = useCredentials([
 async function handleSubmitRegister() {
   Loading.show()
   try {
-    const { ok } = await authApi.register(formModel)
+    const { ok, data } = await authApi.register(formModel)
 
-    if (!ok) {
+    if (!ok || !data) {
       throw new ErroneousResponseError(
         'Something went wrong while registering this username.',
       )
     }
 
-    sessionStore.setUserState(formModel)
+    sessionStore.setUserState(data)
     $router.push({ name: 'Dashboard' })
   } catch (ex) {
     useErrorHandler(ex, {

@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -164,6 +165,7 @@ func (ctx SessionContext) RenewSession(w http.ResponseWriter, r *http.Request) {
 // @todo Determine when user exists
 func (ctx SessionContext) Register(w http.ResponseWriter, r *http.Request) {
 	u := &models.NewUserTemplate{}
+	fmt.Println("REGISTER")
 
 	if err := json.NewDecoder(r.Body).Decode(&u); err != nil {
 		format.FormatError(w, http.StatusBadRequest, err.Error())
