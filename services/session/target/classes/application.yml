@@ -11,24 +11,20 @@ spring:
     activate:
       on-profile: dev
 
-  h2:
-    console:
-      enabled: true
-  datasource:
-    url: jdbc:h2:mem:resourcedb
-    driverClassName: org.h2.Driver
-    username: mz
+  redis:
+    host: localhost
     password: password
-  jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
+    port: 6379
+  session:
+    store-type: redis
 
 aws:
-  accessKey: "QXdzQWNjZXNzS2V5Cg=="
-  secretKey: "QXdzU2VjcmV0S2V5Cg=="
+  accessKey: QXdzQWNjZXNzS2V5Cg==
+  secretKey: QXdzU2VjcmV0S2V5Cg==
   dynamodb:
-    host: "http://localhost"
+    host: http://localhost
     port: 8000
-    region: "us-central-1"
+    region: us-central-1
 
 management:
   endpoints:
@@ -46,24 +42,20 @@ spring:
     activate:
       on-profile: qa
 
-  h2:
-    console:
-      enabled: true
-  datasource:
-    url: jdbc:h2:mem:resourcedb
-    driverClassName: org.h2.Driver
-    username: mz
+  redis:
+    host: localhost
     password: password
-  jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
+    port: 6379
+  session:
+    store-type: redis
 
 aws:
-  accessKey: "QXdzQWNjZXNzS2V5Cg=="
-  secretKey: "QXdzU2VjcmV0S2V5Cg=="
+  accessKey: QXdzQWNjZXNzS2V5Cg==
+  secretKey: QXdzU2VjcmV0S2V5Cg==
   dynamodb:
-    host: "http://localhost"
+    host: http://localhost
     port: 8000
-    region: "us-central-1"
+    region: us-central-1
 
 app:
   locale: session-qa
@@ -74,24 +66,20 @@ spring:
     activate:
       on-profile: prod
 
-  h2:
-    console:
-      enabled: true
-  datasource:
-    url: jdbc:h2:mem:resourcedb
-    driverClassName: org.h2.Driver
-    username: mz
+  redis:
+    host: localhost
     password: password
-  jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
+    port: 6379
+  session:
+    store-type: redis
 
 aws:
-  accessKey: "QXdzQWNjZXNzS2V5Cg=="
-  secretKey: "QXdzU2VjcmV0S2V5Cg=="
+  accessKey: QXdzQWNjZXNzS2V5Cg==
+  secretKey: QXdzU2VjcmV0S2V5Cg==
   dynamodb:
-    host: "http://localhost"
+    host: http://localhost
     port: 8000
-    region: "us-central-1"
+    region: us-central-1
 
 app:
   locale: session-prod

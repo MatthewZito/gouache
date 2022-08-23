@@ -6,15 +6,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.server.Cookie;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import com.github.exbotanical.session.config.filters.CookieValidatorFilter;
 import com.github.exbotanical.session.entities.User;
-import com.github.exbotanical.session.models.UserModel;
+import com.github.exbotanical.session.models.UserCredentials;
 import com.github.exbotanical.session.models.UserSessionResponse;
 import com.github.exbotanical.session.services.UserService;
 
 
 @RestController
+@RequestMapping("/user")
 public class UserController {
 
   @Value("${app.locale}")
@@ -25,10 +29,11 @@ public class UserController {
 
   private final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
 
-  @PostMapping("/user/register")
-  public UserSessionResponse register(@Valid @RequestBody UserModel userModel)
+  @PostMapping("/register")
+  public UserSessionResponse register(@Valid @RequestBody UserCredentials credentials)
       throws Exception {
-    UserModel updatedModel = userService.createUser(userModel);
+    System.out.println("DEFAULT HANDLER");
+    User updatedModel = userService.createUser(credentials);
 
     UserSessionResponse res = UserSessionResponse.builder()
         .username(updatedModel.getUsername())
@@ -38,9 +43,21 @@ public class UserController {
     return res;
   }
 
-  @PostMapping("/user/login")
-  public UserSessionResponse login(@Valid @RequestBody UserModel userModel) throws Exception {
-    User user = userService.getUserByUsername(userModel.username);
+  @PostMapping("/login")
+  public UserSessionResponse login(@AuthenticationPrincipal UserCredentials credentials)
+      throws Exception {
+
+    User user = userService.getUserByUsername(credentials.getUsername());
+
+
+    Cookie authCookie =
+        new Cookie(CookieValidatorFilter.COOKIE_NAME, authenticationService.createToken(user));
+
+
+    authCookie.setHttpOnly(true);
+    authCookie.setSecure(true);
+    authCookie.setMaxAge((int) Duration.of(1, ChronoUnit.DAYS).toSeconds());
+    authCookie.setPath("/");
 
     // @todo
     UserSessionResponse res = UserSessionResponse.builder()
@@ -51,12 +68,13 @@ public class UserController {
     return res;
   }
 
-  @PostMapping("/user/logout")
+  @PostMapping("/logout")
   public void logout() {
+    System.out.println("DEFAULT HANDLER");
 
   }
 
-  @PostMapping("/user/renew")
+  @PostMapping("/renew")
   public UserSessionResponse renewSession() {
     return null;
   }

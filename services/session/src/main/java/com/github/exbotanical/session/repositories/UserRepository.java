@@ -6,7 +6,6 @@ import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.github.exbotanical.session.entities.User;
 import com.github.exbotanical.session.errors.UserInvariantViolationException;
 import com.github.exbotanical.session.errors.UserNotFoundException;
-import com.github.exbotanical.session.models.UserModel;
 
 import java.util.HashMap;
 import java.util.List;
@@ -49,12 +48,12 @@ public class UserRepository {
     return result.get(0);
   }
 
-  public UserModel createUser(UserModel userModel) {
-    dynamoDBMapper.save(userModel);
+  public User createUser(User user) {
+    dynamoDBMapper.save(user);
     // @todo use AOP
-    LOGGER.info("saved userModel; value is now {}", userModel);
+    LOGGER.info("saved user; value is now {}", user);
 
-    return userModel;
+    return user;
   }
 
 }
