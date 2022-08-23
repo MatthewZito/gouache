@@ -36,8 +36,7 @@ func FormatError(w http.ResponseWriter, code int, msg string) {
 
 func FormatResponse(w http.ResponseWriter, code int, payload []byte) {
 	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("X-Clacks-Overhead", "pending")
-	w.Header().Set("X-Powered-By", "pending")
+	w.Header().Set("X-Powered-By", "gouache")
 	w.WriteHeader(code)
 	w.Write(payload)
 }

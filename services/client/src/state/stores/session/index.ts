@@ -1,4 +1,4 @@
-import { authApi } from '@/services'
+import { authApi, logger } from '@/services'
 import { defineStore } from 'pinia'
 import router from '@/router'
 import type { SessionStoreState } from './types'
@@ -28,6 +28,7 @@ export const useSessionStore = defineStore('session', {
         const { ok, data } = await authApi.renew()
 
         if (!ok) {
+          logger.error(`renew failed `, { ok, data })
           throw Error('@todo')
         }
 
@@ -55,16 +56,16 @@ export const useSessionStore = defineStore('session', {
     autoRenew() {
       // For whatever reason, the token does not expire.
       if (!this.exp || this.exp <= 0) {
+        logger.error(`exp not set: ${this.exp}`)
         return
       }
 
-      // conv `now` to seconds because exp claim is represented as seconds since UNIX epoch
-      const now = Date.now() / 1000
-
-      // diff between expiration in seconds since epoch and current time in seconds since epoch
-      let timeUntilRenewal = this.exp - now
-      // adjust renewal time to 15 min prior to expiration
-      timeUntilRenewal -= 15 * 60
+      const timeUntilRenewal = this.exp * 0.75
+      logger.info(
+        `renewal task scheduled for ${
+          timeUntilRenewal / 60.0
+        } minutes from now`,
+      )
 
       // set timeout to renewal time in ms
       this.renewalTask = setTimeout(this.verifySession, timeUntilRenewal * 1000)

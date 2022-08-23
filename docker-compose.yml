@@ -18,6 +18,19 @@ services:
       - gouache-db
       - gouache-cache
 
+  gouache-session:
+    container_name: gouache-session
+    restart: always
+    ports:
+      - "4000:4000"
+    # image: maven:3.6.3-jdk-8
+    # command: mvn spring-boot:run
+    build:
+      context: ./services/session/
+      dockerfile: Dockerfile.dev 
+    networks:
+      - gouache-network 
+
   gouache-db:
     container_name: gouache-db
     image: 'postgres:latest'

@@ -70,9 +70,9 @@ func main() {
 
 	/* Resource */
 	r.Handler("/resource", http.HandlerFunc(rctx.GetAllResources)).WithMethods(http.MethodGet).Use(actx.Authorize).Register()
-	r.Handler("/resource/:id[(.+)]", http.HandlerFunc(rctx.GetResource)).WithMethods(http.MethodGet).Register()
-	r.Handler("/resource", http.HandlerFunc(rctx.CreateResource)).WithMethods(http.MethodPost).Register()
-	r.Handler("/resource/:id[(.+)]", http.HandlerFunc(rctx.UpdateResource)).WithMethods(http.MethodPatch).Register()
+	r.Handler("/resource/:id[(.+)]", http.HandlerFunc(rctx.GetResource)).WithMethods(http.MethodGet).Use(actx.Authorize).Register()
+	r.Handler("/resource", http.HandlerFunc(rctx.CreateResource)).WithMethods(http.MethodPost).Use(actx.Authorize).Register()
+	r.Handler("/resource/:id[(.+)]", http.HandlerFunc(rctx.UpdateResource)).WithMethods(http.MethodPatch).Use(actx.Authorize).Register()
 	// r.Handler("/resource/:id[(.+)]", http.HandlerFunc(rctx.DeleteResource)).WithMethods(http.MethodDelete).Register()
 
 	/* Session @todo relocate to separate service */
