@@ -2,14 +2,13 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/exbotanical/gouache/cache"
-	"github.com/exbotanical/gouache/db"
 	"github.com/exbotanical/gouache/format"
 	"github.com/exbotanical/gouache/models"
+	"github.com/exbotanical/gouache/repositories"
 
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -19,7 +18,7 @@ const cookieId = "gouache_session"
 
 type SessionContext struct {
 	cache cache.SerializableStore
-	db    *db.DB
+	repo  *repositories.DB
 }
 
 type Credentials struct {
@@ -27,8 +26,8 @@ type Credentials struct {
 	Password string `json:"password"`
 }
 
-func NewSessionContext(client cache.SerializableStore, db *db.DB) SessionContext {
-	return SessionContext{cache: client, db: db}
+func NewSessionContext(client cache.SerializableStore, repo *repositories.DB) SessionContext {
+	return SessionContext{cache: client, repo: repo}
 }
 
 func (ctx SessionContext) Authorize(next http.Handler) http.Handler {
@@ -68,7 +67,7 @@ func (ctx SessionContext) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	u, err := ctx.db.GetUser(credentials.Username)
+	u, err := ctx.repo.GetUser(credentials.Username)
 	if err != nil {
 		format.FormatError(w, http.StatusBadRequest, err.Error())
 		return
@@ -165,7 +164,6 @@ func (ctx SessionContext) RenewSession(w http.ResponseWriter, r *http.Request) {
 // @todo Determine when user exists
 func (ctx SessionContext) Register(w http.ResponseWriter, r *http.Request) {
 	u := &models.NewUserTemplate{}
-	fmt.Println("REGISTER")
 
 	if err := json.NewDecoder(r.Body).Decode(&u); err != nil {
 		format.FormatError(w, http.StatusBadRequest, err.Error())
@@ -180,7 +178,7 @@ func (ctx SessionContext) Register(w http.ResponseWriter, r *http.Request) {
 
 	u.Password = hash
 
-	_, err = ctx.db.CreateUser(u)
+	_, err = ctx.repo.CreateUser(u)
 	if err != nil {
 		format.FormatError(w, http.StatusBadRequest, err.Error())
 		return

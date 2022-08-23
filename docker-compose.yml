@@ -23,13 +23,13 @@ services:
     restart: always
     ports:
       - "4000:4000"
-    # image: maven:3.6.3-jdk-8
-    # command: mvn spring-boot:run
     build:
       context: ./services/session/
-      dockerfile: Dockerfile.dev 
+      dockerfile: Dockerfile.dev
     networks:
-      - gouache-network 
+      - gouache-network
+    depends_on:
+      - gouache-dynamodb
 
   gouache-db:
     container_name: gouache-db
@@ -46,6 +46,17 @@ services:
     volumes:
       - ./services/db/:/docker-entrypoint-initdb.d/
       # - ./db-data/:/var/lib/postgresql/data/
+
+  gouache-dynamodb:
+    command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
+    image: "amazon/dynamodb-local:latest"
+    container_name: gouache-dynamodb
+    restart: always
+    ports:
+      - "8000:8000"
+    volumes:
+      - "./docker/dynamodb:/home/dynamodblocal/data" # dirty fix: sudo chmod 777 ./docker/dynamodb
+    working_dir: /home/dynamodblocal
 
   gouache-cache:
     container_name: gouache-cache

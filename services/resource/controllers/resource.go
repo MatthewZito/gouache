@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 
-	db "github.com/exbotanical/gouache/db"
-	format "github.com/exbotanical/gouache/format"
-	models "github.com/exbotanical/gouache/models"
+	"github.com/exbotanical/gouache/format"
+	"github.com/exbotanical/gouache/models"
+	"github.com/exbotanical/gouache/repositories"
 	srv "github.com/exbotanical/gouache/services"
 
 	"github.com/exbotanical/turnpike"
@@ -14,13 +14,13 @@ import (
 
 // ResourceContext houses shared state across resource handlers.
 type ResourceContext struct {
-	db *db.DB
-	l  *srv.LoggerClient
+	repo *repositories.DB
+	l    *srv.LoggerClient
 }
 
 // NewResourceContext initializes a shared context object for resource handlers.
-func NewResourceContext(debug bool, db *db.DB) *ResourceContext {
-	ctx := &ResourceContext{db: db}
+func NewResourceContext(debug bool, repo *repositories.DB) *ResourceContext {
+	ctx := &ResourceContext{repo: repo}
 
 	if debug {
 		ctx.l = srv.NewLogger("resource")
@@ -39,7 +39,7 @@ func (ctx *ResourceContext) GetResource(w http.ResponseWriter, r *http.Request) 
 
 	ctx.l.Logf("GetResource - request key %s\n", id)
 
-	if r, err := ctx.db.GetResource(id); err == nil {
+	if r, err := ctx.repo.GetResource(id); err == nil {
 		format.FormatResponse(w, http.StatusOK, format.DefaultOk(r))
 	} else {
 		ctx.l.Logf("GetResource - database error %v\n", err)
@@ -49,7 +49,7 @@ func (ctx *ResourceContext) GetResource(w http.ResponseWriter, r *http.Request) 
 
 // GetAllResources implements a REST handler for retrieving all resource records.
 func (ctx *ResourceContext) GetAllResources(w http.ResponseWriter, r *http.Request) {
-	if rs, err := ctx.db.GetResources(); err == nil {
+	if rs, err := ctx.repo.GetResources(); err == nil {
 		if v, err := json.Marshal(&format.Response{
 			Ok:   true,
 			Data: rs,
@@ -75,7 +75,7 @@ func (ctx *ResourceContext) CreateResource(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if id, err := ctx.db.CreateResource(rs); err != nil {
+	if id, err := ctx.repo.CreateResource(rs); err != nil {
 		ctx.l.Logf("CreateResource - database error %v\n", err)
 		format.FormatError(w, http.StatusBadRequest, err.Error())
 	} else {
@@ -101,7 +101,7 @@ func (ctx *ResourceContext) UpdateResource(w http.ResponseWriter, r *http.Reques
 	}
 
 	rs.Id = id
-	if err := ctx.db.UpdateResource(rs); err != nil {
+	if err := ctx.repo.UpdateResource(rs); err != nil {
 		ctx.l.Logf("UpdateResource - database error %v\n", err)
 		format.FormatError(w, http.StatusBadRequest, err.Error())
 	} else {

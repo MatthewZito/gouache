@@ -1,5 +1,5 @@
 server:
-  port: 5000
+  port: 4000
 
 spring:
   profiles:
@@ -10,6 +10,17 @@ spring:
   config:
     activate:
       on-profile: dev
+
+  h2:
+    console:
+      enabled: true
+  datasource:
+    url: jdbc:h2:mem:resourcedb
+    driverClassName: org.h2.Driver
+    username: mz
+    password: password
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
 
 aws:
   accessKey: "QXdzQWNjZXNzS2V5Cg=="
@@ -35,6 +46,17 @@ spring:
     activate:
       on-profile: qa
 
+  h2:
+    console:
+      enabled: true
+  datasource:
+    url: jdbc:h2:mem:resourcedb
+    driverClassName: org.h2.Driver
+    username: mz
+    password: password
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+
 aws:
   accessKey: "QXdzQWNjZXNzS2V5Cg=="
   secretKey: "QXdzU2VjcmV0S2V5Cg=="
@@ -52,6 +74,17 @@ spring:
     activate:
       on-profile: prod
 
+  h2:
+    console:
+      enabled: true
+  datasource:
+    url: jdbc:h2:mem:resourcedb
+    driverClassName: org.h2.Driver
+    username: mz
+    password: password
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+
 aws:
   accessKey: "QXdzQWNjZXNzS2V5Cg=="
   secretKey: "QXdzU2VjcmV0S2V5Cg=="
@@ -59,6 +92,6 @@ aws:
     host: "http://localhost"
     port: 8000
     region: "us-central-1"
-    
+
 app:
   locale: session-prod

@@ -7,9 +7,9 @@ import (
 	"os"
 
 	"github.com/exbotanical/gouache/cache"
-	controllers "github.com/exbotanical/gouache/controllers"
-	"github.com/exbotanical/gouache/db"
+	"github.com/exbotanical/gouache/controllers"
 	"github.com/exbotanical/gouache/format"
+	"github.com/exbotanical/gouache/repositories"
 	srv "github.com/exbotanical/gouache/services"
 
 	"github.com/exbotanical/corset"
@@ -38,7 +38,7 @@ func main() {
 
 	bl := srv.NewLogger("cmd/serve")
 
-	db, err := db.Connect()
+	db, err := repositories.Connect()
 	if err != nil {
 		log.Fatal(err)
 	}
