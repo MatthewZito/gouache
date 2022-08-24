@@ -1,4 +1,10 @@
 -------------------------------------------------------------------------------
 Test set: com.github.exbotanical.resource.controllers.ResourceControllerTest
 -------------------------------------------------------------------------------
-Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 2.609 s - in com.github.exbotanical.resource.controllers.ResourceControllerTest
+Tests run: 5, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 2.794 s <<< FAILURE! - in com.github.exbotanical.resource.controllers.ResourceControllerTest
+createDeleteResourceById  Time elapsed: 0.014 s  <<< FAILURE!
+java.lang.AssertionError: No value at JSON path "$.data"
+	at com.github.exbotanical.resource.controllers.ResourceControllerTest.createDeleteResourceById(ResourceControllerTest.java:130)
+Caused by: java.lang.IllegalArgumentException: json can not be null or empty
+	at com.github.exbotanical.resource.controllers.ResourceControllerTest.createDeleteResourceById(ResourceControllerTest.java:130)
+

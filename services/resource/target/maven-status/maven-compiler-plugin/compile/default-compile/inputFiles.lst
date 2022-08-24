@@ -1,6 +1,7 @@
 /home/goldmund/repositories/gouache/services/resource/src/main/java/com/github/exbotanical/resource/services/ResourceDataService.java
 /home/goldmund/repositories/gouache/services/resource/src/main/java/com/github/exbotanical/resource/controllers/advice/GouacheExceptionHandler.java
 /home/goldmund/repositories/gouache/services/resource/src/main/java/com/github/exbotanical/resource/config/WebConfig.java
+/home/goldmund/repositories/gouache/services/resource/src/main/java/com/github/exbotanical/resource/errors/OperationFailedException.java
 /home/goldmund/repositories/gouache/services/resource/src/main/java/com/github/exbotanical/resource/config/FeatureEndpointConfig.java
 /home/goldmund/repositories/gouache/services/resource/src/main/java/com/github/exbotanical/resource/controllers/advice/GouacheResponseHandler.java
 /home/goldmund/repositories/gouache/services/resource/src/main/java/com/github/exbotanical/resource/entities/User.java

@@ -20,7 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.Arrays;
 import java.util.Date;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -71,7 +71,7 @@ class ResourceControllerTest {
         post("/resource")
           .contentType(MediaType.APPLICATION_JSON)
           .content(Jackson.toJsonString(inputResource)))
-      .andExpect(status().isOk())
+      .andExpect(status().isCreated())
       .andExpect(jsonPath("$.data").value(testResource));
   }
 
@@ -89,24 +89,58 @@ class ResourceControllerTest {
           .contentType(MediaType.APPLICATION_JSON)
           .content("{\"titl ez\": \"title\", \"tagds\": [\"art\",\"music\"] }"))
       .andExpect(status().isBadRequest())
-      .andExpect(jsonPath("$.internal").value("resourceModel.tags must not be null, resourceModel.title must not be null"))
+      .andExpect(jsonPath("$.internal").isString())
       .andExpect(jsonPath("$.friendly").value("The provided input was not valid."))
       .andExpect(jsonPath("$.data").isEmpty());
   }
-  
-  // @Test
-  // void createResourceUnauthorized() throws Exception {
-  // ResourceModel inputResource = ResourceModel.builder()
-  // .title("title")
-  // .tags(Arrays.asList("art", "music"))
-  // .build();
 
-  // Mockito.when(resourceService.createResource(inputResource)).thenReturn(testResource);
+  @Test
+  void createGetResourceById() throws Exception {
+    String testId = "a66de382-a9df-4fab-9d34-616e01e3e054";
 
-  // mockMvc.perform(
-  // post("/resource")
-  // .contentType(MediaType.APPLICATION_JSON)
-  // .content("{\"title\": \"title\", \"tags\": [\"art\",\"music\"] }"))
-  // .andExpect(status().isOk());
-  // }
+    Mockito.when(resourceService.getResourceById(testId)).thenReturn(testResource);
+
+    mockMvc.perform(
+        get(String.format("/resource/%s", testId)))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.data").value(testResource));
+  }
+
+  @Test
+  void createGetResourceByIdNotFound() throws Exception {
+    String testId = "a66de382-a9df-4fab-9d34-616e01e3e054";
+
+    Mockito.when(resourceService.getResourceById(testId)).thenReturn(testResource);
+
+    mockMvc.perform(
+        get(String.format("/resource/%s", testId + "1")))
+      .andExpect(status().isNoContent())
+      .andExpect(jsonPath("$.data").isEmpty());
+  }
+
+  @Test
+  void createDeleteResourceById() throws Exception {
+    String testId = "a66de382-a9df-4fab-9d34-616e01e3e054";
+
+    Mockito.when(resourceService.getResourceById(testId)).thenReturn(testResource);
+
+    mockMvc.perform(
+        delete(String.format("/resource/%s", testId)))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.data").isEmpty());
+  }
+
+  //  @Test
+  //  void createDeleteResourceByIdNotFound() throws Exception {
+  //    String testId = "a66de382-a9df-4fab-9d34-616e01e3e054";
+  //
+  //    Mockito.when(resourceService.getResourceById(testId)).thenReturn(testResource);
+  //
+  //    mockMvc.perform(
+  //        delete(String.format("/resource/%s", testId + 1)))
+  //      .andExpect(status().isBadRequest())
+  //      .andExpect(jsonPath("$.data").isEmpty())
+  //      .andExpect(jsonPath("$.friendly").value("An exception occurred while deleting the resource with id"))
+  //      .andExpect(jsonPath("$.internal").isString());
+  //  }
 }
