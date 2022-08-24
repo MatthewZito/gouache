@@ -47,7 +47,9 @@ public class SecurityConfig {
             .maximumSessions(1)
             .maxSessionsPreventsLogin(true))
 
+        // Authenticate user if necessary
         .addFilterBefore(new AuthenticationFilter(), BasicAuthenticationFilter.class)
+        // Validate the user's session cookie
         .addFilterBefore(new CookieValidatorFilter(), AuthenticationFilter.class)
 
         .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -92,14 +94,10 @@ public class SecurityConfig {
         .and()
         .httpBasic()
 
-        .and()
-        .authenticationProvider(new CookiesAuthenticationProvider())
-
     ;
 
     return http.build();
   }
-
 
   @Bean
   public AccessDeniedHandler accessDeniedHandler() {

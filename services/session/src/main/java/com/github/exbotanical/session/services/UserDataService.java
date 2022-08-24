@@ -20,6 +20,8 @@ public class UserDataService implements UserService {
 
   @Override
   public User createUser(UserCredentials credentials) {
+    System.out.println("createUser");
+
     User user = User.builder()
         .passwordHash(passwordEncoder.encode(credentials.getPassword()))
         .username(credentials.getUsername())
@@ -31,12 +33,15 @@ public class UserDataService implements UserService {
   @Override
   public User getUserByUsername(String username)
       throws UserNotFoundException, UserInvariantViolationException {
+    System.out.println("getUserByUsername " + username);
     return userRepository.getUserByUsername(username);
   }
 
   @Override
   public boolean authenticate(UserCredentials credentials)
       throws UserNotFoundException, UserInvariantViolationException {
+    System.out.println("authenticate " + credentials);
+
     User user = getUserByUsername(credentials.getUsername());
 
     return passwordEncoder.matches(credentials.getPassword(), user.getPasswordHash());

@@ -2,6 +2,7 @@ package com.github.exbotanical.session.repositories;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.github.exbotanical.session.entities.User;
 import com.github.exbotanical.session.errors.UserInvariantViolationException;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public class UserRepository {
+
   @Autowired
   private DynamoDBMapper dynamoDBMapper;
 
@@ -33,11 +35,12 @@ public class UserRepository {
     Map<String, AttributeValue> eav = new HashMap<>();
     eav.put(":v1", new AttributeValue().withS(username));
 
-    DynamoDBQueryExpression<User> queryExpression = new DynamoDBQueryExpression<User>()
-        .withKeyConditionExpression("Username = :v2")
+    // @todo try/catch
+    DynamoDBScanExpression scanExpression = new DynamoDBScanExpression()
+        .withFilterExpression("Username = :v1")
         .withExpressionAttributeValues(eav);
 
-    List<User> result = dynamoDBMapper.query(User.class, queryExpression);
+    List<User> result = dynamoDBMapper.scan(User.class, scanExpression);
 
     if (result.size() == 0) {
       throw new UserNotFoundException(username);

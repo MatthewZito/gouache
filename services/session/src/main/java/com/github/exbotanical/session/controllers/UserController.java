@@ -6,11 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.server.Cookie;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import com.github.exbotanical.session.config.filters.CookieValidatorFilter;
 import com.github.exbotanical.session.entities.User;
 import com.github.exbotanical.session.models.UserCredentials;
 import com.github.exbotanical.session.models.UserSessionResponse;
@@ -32,7 +29,6 @@ public class UserController {
   @PostMapping("/register")
   public UserSessionResponse register(@Valid @RequestBody UserCredentials credentials)
       throws Exception {
-    System.out.println("DEFAULT HANDLER");
     User updatedModel = userService.createUser(credentials);
 
     UserSessionResponse res = UserSessionResponse.builder()
@@ -44,20 +40,19 @@ public class UserController {
   }
 
   @PostMapping("/login")
-  public UserSessionResponse login(@AuthenticationPrincipal UserCredentials credentials)
+  public UserSessionResponse login(@Valid @RequestBody UserCredentials credentials)
       throws Exception {
-
     User user = userService.getUserByUsername(credentials.getUsername());
 
 
-    Cookie authCookie =
-        new Cookie(CookieValidatorFilter.COOKIE_NAME, authenticationService.createToken(user));
+    // Cookie authCookie =
+    // new Cookie(CookieValidatorFilter.COOKIE_NAME, authenticationService.createToken(user));
 
 
-    authCookie.setHttpOnly(true);
-    authCookie.setSecure(true);
-    authCookie.setMaxAge((int) Duration.of(1, ChronoUnit.DAYS).toSeconds());
-    authCookie.setPath("/");
+    // authCookie.setHttpOnly(true);
+    // authCookie.setSecure(true);
+    // authCookie.setMaxAge((int) Duration.of(1, ChronoUnit.DAYS).toSeconds());
+    // authCookie.setPath("/");
 
     // @todo
     UserSessionResponse res = UserSessionResponse.builder()
@@ -70,7 +65,7 @@ public class UserController {
 
   @PostMapping("/logout")
   public void logout() {
-    System.out.println("DEFAULT HANDLER");
+    System.out.println("logout");
 
   }
 

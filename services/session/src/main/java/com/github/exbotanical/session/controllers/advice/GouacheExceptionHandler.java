@@ -26,7 +26,6 @@ public class GouacheExceptionHandler extends ResponseEntityExceptionHandler {
   @ExceptionHandler({GouacheException.class})
   public ResponseEntity<GouacheResponse> gouacheExceptionHandler(GouacheException e,
       WebRequest req) {
-    System.out.println("DEFAULT HANDLERx");
     // Derive the message data and build a GouacheResponse object.
     GouacheResponse ret = GouacheResponse.builder()
         .friendly(e.getFriendly())
@@ -52,7 +51,6 @@ public class GouacheExceptionHandler extends ResponseEntityExceptionHandler {
   public ResponseEntity<GouacheResponse> defaultExceptionHandler(
       Exception e,
       WebRequest req) throws Exception {
-    System.out.println("DEFAULT HANDLERzd");
 
     // If the exception is annotated with @ResponseStatus rethrow it and let
     // the framework handle it - like the OrderNotFoundException example

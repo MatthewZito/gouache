@@ -31,7 +31,6 @@ public class GouacheResponseHandler implements ResponseBodyAdvice<Object> {
   public Object beforeBodyWrite(Object body, MethodParameter returnType,
       MediaType selectedContentType, Class<? extends HttpMessageConverter<?>> selectedConverterType,
       ServerHttpRequest request, ServerHttpResponse response) {
-    System.out.println("DEFAULT HANDLER");
 
     if (returnType.getContainingClass().isAnnotationPresent(IgnoreGouacheResponseBinding.class)) {
       return body;

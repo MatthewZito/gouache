@@ -21,6 +21,8 @@ public class CookieValidatorFilter extends OncePerRequestFilter {
   protected void doFilterInternal(HttpServletRequest httpServletRequest,
       HttpServletResponse httpServletResponse,
       FilterChain filterChain) throws ServletException, IOException {
+    System.out.println("COOKIE FILTER");
+
     Optional<Cookie> cookieAuth =
         Stream.of(Optional.ofNullable(httpServletRequest.getCookies()).orElse(new Cookie[0]))
             .filter(cookie -> COOKIE_NAME.equals(cookie.getName()))
