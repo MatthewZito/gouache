@@ -5,47 +5,47 @@ services:
     container_name: gouache-resource
     restart: always
     ports:
-      - "5000:5000"
-    build:
-      context: ./services/resource/
-      dockerfile: Dockerfile.dev
-    env_file: ./services/resource/.env
-    volumes:
-      - ./services/resource/:/app
-    networks:
-      - gouache-network
-    depends_on:
-      - gouache-db
-      - gouache-cache
-
-  gouache-session:
-    container_name: gouache-session
-    restart: always
-    ports:
       - "4000:4000"
     build:
-      context: ./services/session/
+      context: ./services/resource/
       dockerfile: Dockerfile.dev
     networks:
       - gouache-network
     depends_on:
       - gouache-dynamodb
+      - gouache-cache
 
-  gouache-db:
-    container_name: gouache-db
-    image: 'postgres:latest'
+  gouache-auth:
+    container_name: gouache-auth
     restart: always
     ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_USER: username
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: test
+      - "5000:5000"
+    build:
+      context: ./services/auth/
+      dockerfile: Dockerfile.dev
+    env_file: ./services/auth/.env
+    volumes:
+      - ./services/auth/:/app
     networks:
       - gouache-network
-    volumes:
-      - ./services/db/:/docker-entrypoint-initdb.d/
-      # - ./db-data/:/var/lib/postgresql/data/
+    depends_on:
+      - gouache-dynamodb
+      - gouache-cache
+
+  # gouache-db:
+  #   container_name: gouache-db
+  #   image: 'postgres:latest'
+  #   restart: always
+  #   ports:
+  #     - "5432:5432"
+  #   environment:
+  #     POSTGRES_USER: username
+  #     POSTGRES_PASSWORD: password
+  #     POSTGRES_DB: test
+  #   networks:
+  #     - gouache-network
+  #   volumes:
+  #     - ./services/db/:/docker-entrypoint-initdb.d/
 
   gouache-dynamodb:
     command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
@@ -83,6 +83,7 @@ services:
     networks:
       - gouache-network
     depends_on:
+      - gouache-auth
       - gouache-resource
 
 

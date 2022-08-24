@@ -1,0 +1,64 @@
+server:
+  port: 4000
+
+spring:
+  profiles:
+    active: dev
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+aws:
+  accessKey: QXdzQWNjZXNzS2V5Cg==
+  secretKey: QXdzU2VjcmV0S2V5Cg==
+  dynamodb:
+    host: http://localhost
+    port: 8000
+    region: us-east-1
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+        exclude: "env,beans"
+
+app:
+  locale: resource-dev
+
+---
+spring:
+  config:
+    activate:
+      on-profile: qa
+
+aws:
+  accessKey: QXdzQWNjZXNzS2V5Cg==
+  secretKey: QXdzU2VjcmV0S2V5Cg==
+  dynamodb:
+    host: http://localhost
+    port: 8000
+    region: us-east-1
+
+app:
+  locale: resource-qa
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+aws:
+  accessKey: QXdzQWNjZXNzS2V5Cg==
+  secretKey: QXdzU2VjcmV0S2V5Cg==
+  dynamodb:
+    host: http://localhost
+    port: 8000
+    region: us-east-1
+
+app:
+  locale: resource-prod
