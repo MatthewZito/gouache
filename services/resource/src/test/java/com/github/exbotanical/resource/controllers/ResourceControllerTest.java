@@ -10,8 +10,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.amazonaws.util.json.Jackson;
 import com.github.exbotanical.resource.DynamoTestUtils;
 import com.github.exbotanical.resource.entities.Resource;
+import com.github.exbotanical.resource.entities.Session;
 import com.github.exbotanical.resource.models.ResourceModel;
 import com.github.exbotanical.resource.services.ResourceService;
+import com.github.exbotanical.resource.services.SessionService;
+
 import java.util.Arrays;
 import java.util.Date;
 import org.junit.jupiter.api.AfterAll;
@@ -19,11 +22,16 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatcher;
 import org.mockito.ArgumentMatchers;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -31,17 +39,29 @@ import org.springframework.test.web.servlet.MockMvc;
 @DisplayName("Test the ResourceController and evaluate its formatted responses")
 class ResourceControllerTest {
 
+  @MockBean
+  public static RedisTemplate<String, String> redisTemplate;
+
+  @Mock
+  private static ValueOperations<String, String> valueOperations;
+
   @Autowired
   private MockMvc mockMvc;
 
   @MockBean
   private ResourceService resourceService;
 
+  @MockBean
+  private SessionService sessionService;
+
   private Resource testResource;
 
-  @BeforeAll
-  public static void setupDynamo() {
-    DynamoTestUtils.setupDynamo();
+  @BeforeEach
+  public void setUp2() {
+    Mockito.when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+
+    Mockito.when(valueOperations.get(ArgumentMatchers.any()))
+        .thenReturn("{\"Username\": \"user\", \"Expiry\": \"\" }");
   }
 
   @AfterAll
@@ -122,7 +142,7 @@ class ResourceControllerTest {
 
     mockMvc.perform(
         get(String.format("/resource/%s", testId + "1")))
-        .andExpect(status().isNoContent())
+        .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.data").isEmpty());
   }
 

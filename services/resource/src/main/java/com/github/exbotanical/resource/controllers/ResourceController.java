@@ -67,7 +67,7 @@ public class ResourceController {
 
     Resource found = resourceService.getResourceById(id);
     if (found == null) {
-      return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+      return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
     }
 
     return new ResponseEntity<>(found, HttpStatus.OK);

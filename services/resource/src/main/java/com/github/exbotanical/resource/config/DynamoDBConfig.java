@@ -21,10 +21,10 @@ public class DynamoDBConfig {
     return new DynamoDBMapper(buildDb());
   }
 
-  @Value("${aws.accessKey")
+  @Value("${aws.access_key")
   private String accessKey;
 
-  @Value("${aws.secretKey")
+  @Value("${aws.secret_key")
   private String secretKey;
 
   @Value("${aws.dynamodb.host}")

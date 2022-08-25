@@ -10,10 +10,14 @@ spring:
   config:
     activate:
       on-profile: dev
+  cache-type: redis
+  redis:
+    host: localhost
+    port: 6379
 
 aws:
-  accessKey: QXdzQWNjZXNzS2V5Cg==
-  secretKey: QXdzU2VjcmV0S2V5Cg==
+  access_key: QXdzQWNjZXNzS2V5Cg==
+  secret_key: QXdzU2VjcmV0S2V5Cg==
   dynamodb:
     host: http://localhost
     port: 8000
@@ -28,16 +32,21 @@ management:
 
 app:
   locale: resource-dev
+  cookie_name: gouache_session
 
 ---
 spring:
   config:
     activate:
       on-profile: qa
+  cache-type: redis
+  redis:
+    host: localhost
+    port: 6379
 
 aws:
-  accessKey: QXdzQWNjZXNzS2V5Cg==
-  secretKey: QXdzU2VjcmV0S2V5Cg==
+  access_key: QXdzQWNjZXNzS2V5Cg==
+  secret_key: QXdzU2VjcmV0S2V5Cg==
   dynamodb:
     host: http://localhost
     port: 8000
@@ -45,16 +54,21 @@ aws:
 
 app:
   locale: resource-qa
+  cookie_name: gouache_session
 
 ---
 spring:
   config:
     activate:
       on-profile: prod
+  cache-type: redis
+  redis:
+    host: localhost
+    port: 6379
 
 aws:
-  accessKey: QXdzQWNjZXNzS2V5Cg==
-  secretKey: QXdzU2VjcmV0S2V5Cg==
+  access_key: QXdzQWNjZXNzS2V5Cg==
+  secret_key: QXdzU2VjcmV0S2V5Cg==
   dynamodb:
     host: http://localhost
     port: 8000
@@ -62,3 +76,4 @@ aws:
 
 app:
   locale: resource-prod
+  cookie_name: gouache_session

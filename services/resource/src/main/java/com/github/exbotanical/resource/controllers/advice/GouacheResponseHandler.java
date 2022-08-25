@@ -31,7 +31,6 @@ public class GouacheResponseHandler implements ResponseBodyAdvice<Object> {
   public Object beforeBodyWrite(Object body, MethodParameter returnType,
       MediaType selectedContentType, Class<? extends HttpMessageConverter<?>> selectedConverterType,
       ServerHttpRequest request, ServerHttpResponse response) {
-    System.out.println("HERE _+" + body);
 
     // If the controller handler bears the @IgnoreGouacheResponseBinding annotation, return the body
     // as-is.
