@@ -1,14 +1,13 @@
 package com.github.exbotanical.resource.repositories;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
-
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBSaveExpression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.ExpectedAttributeValue;
 import com.github.exbotanical.resource.entities.Resource;
 import com.github.exbotanical.resource.models.ResourceModel;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
 @Repository
 public class ResourceRepository {
@@ -27,22 +26,22 @@ public class ResourceRepository {
 
   public void deleteById(String id) {
     Resource resource = dynamoDBMapper.load(Resource.class, id);
+
     dynamoDBMapper.delete(resource);
   }
 
   public void updateById(String id, ResourceModel resourceModel) {
     Resource updatedResource = Resource.builder()
-        .id(id)
-        .title(resourceModel.getTitle())
-        .tags(resourceModel.getTags())
-        .build();
-
+      .id(id)
+      .title(resourceModel.getTitle())
+      .tags(resourceModel.getTags())
+      .build();
 
     dynamoDBMapper.save(
-        updatedResource,
-        new DynamoDBSaveExpression().withExpectedEntry(
-            "Id",
-            new ExpectedAttributeValue(
-                new AttributeValue().withS(id))));
+      updatedResource,
+      new DynamoDBSaveExpression().withExpectedEntry(
+        "Id",
+        new ExpectedAttributeValue(
+          new AttributeValue().withS(id))));
   }
 }

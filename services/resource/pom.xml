@@ -50,6 +50,13 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- @TODO -->
+        <!--        <dependency>-->
+        <!--            <groupId>software.amazon.awssdk</groupId>-->
+        <!--            <artifactId>dynamodb-enhanced</artifactId>-->
+        <!--            <version>2.17.123</version>-->
+        <!--        </dependency>-->
+
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-dynamodb</artifactId>
@@ -93,7 +100,6 @@
     </repositories>
 
     <build>
-
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -103,6 +109,9 @@
                         <systemPropertyVariables>
                             <sqlite4java.library.path>${project.build.directory}/native-libs</sqlite4java.library.path>
                         </systemPropertyVariables>
+                        <argLine>
+                            --add-opens java.base/java.lang=ALL-UNNAMED
+                        </argLine>
                     </configuration>
                 </plugin>
             </plugins>
@@ -119,6 +128,9 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
+                    <jvmArguments>
+                        --add-opens java.base/java.lang=ALL-UNNAMED
+                    </jvmArguments>
                 </configuration>
             </plugin>
 
@@ -159,15 +171,15 @@
                 <configuration>
                     <touchFile>target/classes/watcher.txt</touchFile>
                     <watches>
-                    <watch>
-                        <directory>src/main/java</directory>
-                    </watch>
-                    <watch>
-                        <directory>src/test/java</directory>
-                    </watch>
+                        <watch>
+                            <directory>src/main/java</directory>
+                        </watch>
+                        <watch>
+                            <directory>src/test/java</directory>
+                        </watch>
                     </watches>
                     <goals>
-                    <goal>test</goal>
+                        <goal>test</goal>
                     </goals>
                 </configuration>
             </plugin>

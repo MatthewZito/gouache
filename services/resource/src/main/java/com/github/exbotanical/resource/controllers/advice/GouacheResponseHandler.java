@@ -29,15 +29,19 @@ public class GouacheResponseHandler implements ResponseBodyAdvice<Object> {
   public Object beforeBodyWrite(Object body, MethodParameter returnType,
                                 MediaType selectedContentType, Class<? extends HttpMessageConverter<?>> selectedConverterType,
                                 ServerHttpRequest request, ServerHttpResponse response) {
+    System.out.println("HERE _+" + body);
 
+    // If the controller handler bears the @IgnoreGouacheResponseBinding annotation, return the body as-is.
     if (returnType.getContainingClass().isAnnotationPresent(IgnoreGouacheResponseBinding.class)) {
       return body;
     }
 
+    // If the response body is already normalized as a GouacheResponse, return as-is.
     if (returnType.getParameterType() == GouacheResponse.class) {
       return body;
     }
 
+    // Normalize into a GouacheResponse.
     return new GouacheResponse(null, null, body, 0);
   }
 }

@@ -28,6 +28,17 @@ public class ResourceController {
 
   private final Logger LOGGER = LoggerFactory.getLogger(ResourceController.class);
 
+  @PostMapping("/resource")
+  public ResponseEntity<Resource> createResource(@Valid @RequestBody ResourceModel resourceModel,
+                                                 BindingResult result) throws GouacheException {
+    if (result.hasErrors()) {
+      throw new InvalidInputException(FormatterUtils.formatValidationErrors(result));
+    }
+
+    Resource newResource = resourceService.createResource(resourceModel);
+    return new ResponseEntity<>(newResource, HttpStatus.CREATED);
+  }
+
   @GetMapping("/resource/{id}")
   public ResponseEntity<Resource> getResourceById(@PathVariable("id") String id) {
 
@@ -39,8 +50,29 @@ public class ResourceController {
     return new ResponseEntity<>(found, HttpStatus.OK);
   }
 
+  @PatchMapping("/resource/{id}")
+  public ResponseEntity<Void> updateResourceById(@PathVariable("id") String id,
+                                                 @Valid @RequestBody ResourceModel resourceModel, BindingResult result) throws GouacheException {
+    if (result.hasErrors()) {
+      throw new InvalidInputException(FormatterUtils.formatValidationErrors(result));
+    }
+
+    try {
+      System.out.println("AYY: " + resourceModel);
+      resourceService.updateResourceById(id, resourceModel);
+
+      return new ResponseEntity<>(null, HttpStatus.OK);
+    } catch (Exception e) {
+      throw new OperationFailedException(
+        String.format("An exception occurred while updating the resource with id %s", id),
+        e.getMessage(),
+        e
+      );
+    }
+  }
+
   @DeleteMapping("/resource/{id}")
-  public ResponseEntity<?> deleteResourceById(@PathVariable("id") String id) throws GouacheException {
+  public ResponseEntity<Void> deleteResourceById(@PathVariable("id") String id) throws GouacheException {
     try {
       resourceService.deleteResourceById(id);
       return new ResponseEntity<>(null, HttpStatus.OK);
@@ -51,21 +83,5 @@ public class ResourceController {
         e
       );
     }
-  }
-
-  @PatchMapping("/resource/{id}")
-  public void updateResourceById(@PathVariable("id") String id,
-                                 @Valid @RequestBody ResourceModel resourceModel) {
-    resourceService.updateResourceById(id, resourceModel);
-  }
-
-  @PostMapping("/resource")
-  public ResponseEntity<Resource> createResource(@Valid @RequestBody ResourceModel resourceModel,
-                                                 BindingResult result) throws GouacheException {
-    if (result.hasErrors()) {
-      throw new InvalidInputException(FormatterUtils.formatValidationErrors(result));
-    }
-
-    return new ResponseEntity<>(resourceService.createResource(resourceModel), HttpStatus.CREATED);
   }
 }

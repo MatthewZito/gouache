@@ -5,10 +5,7 @@ import com.github.exbotanical.resource.DynamoTestUtils;
 import com.github.exbotanical.resource.entities.Resource;
 import com.github.exbotanical.resource.models.ResourceModel;
 import com.github.exbotanical.resource.services.ResourceService;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ResourceController.class)
+@DisplayName("Test the ResourceController and evaluate its formatted responses")
 class ResourceControllerTest {
 
   @Autowired
@@ -58,6 +56,7 @@ class ResourceControllerTest {
   }
 
   @Test
+  @DisplayName("Create a resource successfully")
   void createResourceSuccess() throws Exception {
     ResourceModel inputResource = ResourceModel.builder()
       .title("title")
@@ -76,6 +75,7 @@ class ResourceControllerTest {
   }
 
   @Test
+  @DisplayName("Attempt to create a resource with an invalid input model")
   void createResourceInvalidInput() throws Exception {
     ResourceModel inputResource = ResourceModel.builder()
       .title("title")
@@ -95,7 +95,8 @@ class ResourceControllerTest {
   }
 
   @Test
-  void createGetResourceById() throws Exception {
+  @DisplayName("Retrieve a resource by ID")
+  void getResourceById() throws Exception {
     String testId = "a66de382-a9df-4fab-9d34-616e01e3e054";
 
     Mockito.when(resourceService.getResourceById(testId)).thenReturn(testResource);
@@ -107,7 +108,8 @@ class ResourceControllerTest {
   }
 
   @Test
-  void createGetResourceByIdNotFound() throws Exception {
+  @DisplayName("Attempt to retrieve a resource that does not exist")
+  void getResourceByIdNotFound() throws Exception {
     String testId = "a66de382-a9df-4fab-9d34-616e01e3e054";
 
     Mockito.when(resourceService.getResourceById(testId)).thenReturn(testResource);
@@ -119,28 +121,63 @@ class ResourceControllerTest {
   }
 
   @Test
-  void createDeleteResourceById() throws Exception {
-    String testId = "a66de382-a9df-4fab-9d34-616e01e3e054";
-
-    Mockito.when(resourceService.getResourceById(testId)).thenReturn(testResource);
+  @DisplayName("Update a resource by ID")
+  void updateResourceById() throws Exception {
+    ResourceModel inputModel = ResourceModel.builder()
+      .tags(Arrays.asList("test"))
+      .title("test title")
+      .build();
 
     mockMvc.perform(
-        delete(String.format("/resource/%s", testId)))
+        patch(String.format("/resource/%s", testResource.getId()))
+          .contentType(MediaType.APPLICATION_JSON)
+          .content(Jackson.toJsonString(inputModel))
+      )
       .andExpect(status().isOk())
       .andExpect(jsonPath("$.data").isEmpty());
   }
 
-  //  @Test
-  //  void createDeleteResourceByIdNotFound() throws Exception {
-  //    String testId = "a66de382-a9df-4fab-9d34-616e01e3e054";
-  //
-  //    Mockito.when(resourceService.getResourceById(testId)).thenReturn(testResource);
-  //
-  //    mockMvc.perform(
-  //        delete(String.format("/resource/%s", testId + 1)))
-  //      .andExpect(status().isBadRequest())
-  //      .andExpect(jsonPath("$.data").isEmpty())
-  //      .andExpect(jsonPath("$.friendly").value("An exception occurred while deleting the resource with id"))
-  //      .andExpect(jsonPath("$.internal").isString());
-  //  }
+  @Test
+  @DisplayName("Attempt to update a resource by ID with an invalid input model")
+  void updateResourceByIdInvalidInput() throws Exception {
+    ResourceModel inputModel = ResourceModel.builder().build();
+
+    mockMvc.perform(
+        patch(String.format("/resource/%s", testResource.getId()))
+          .contentType(MediaType.APPLICATION_JSON)
+          .content(Jackson.toJsonString(inputModel))
+      )
+      .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.internal").isString())
+      .andExpect(jsonPath("$.friendly").value("The provided input was not valid."))
+      .andExpect(jsonPath("$.data").isEmpty());
+  }
+
+  @Test
+  @DisplayName("Delete a resource by ID")
+  void deleteResourceById() throws Exception {
+    String testId = "a66de382-a9df-4fab-9d34-616e01e3e054";
+
+    mockMvc.perform(
+        delete(String.format("/resource/%s", testId)))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.data").isEmpty())
+      .andExpect(jsonPath("$.friendly").isEmpty())
+      .andExpect(jsonPath("$.internal").isEmpty());
+  }
+
+  @Test
+  @DisplayName("Erroneous delete resource by ID")
+  void deleteResourceByIdError() throws Exception {
+    String testId = "a66de382-a9df-4fab-9d34-616e01e3e055";
+
+    Mockito.doThrow(new RuntimeException("test")).when(resourceService).deleteResourceById(testId);
+
+    mockMvc.perform(
+        delete(String.format("/resource/%s", testId)))
+      .andExpect(status().isBadRequest())
+      .andExpect(jsonPath("$.data").isEmpty())
+      .andExpect(jsonPath("$.friendly").value(String.format("An exception occurred while deleting the resource with id %s", testId)))
+      .andExpect(jsonPath("$.internal").value("test"));
+  }
 }
