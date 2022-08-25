@@ -3,6 +3,9 @@ package com.github.exbotanical.resource.errors;
 import lombok.Builder;
 import lombok.Getter;
 
+/**
+ * A generalized, system-compliant exception. Primarily utilized for `instanceof` evaluations.
+ */
 @Getter
 @Builder
 public class GouacheException extends Exception {

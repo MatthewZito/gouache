@@ -11,6 +11,9 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Internal metadata and health / status endpoint config for Spring Actuator.
+ */
 @Component
 @Endpoint(id = "features")
 public class FeatureEndpointConfig {

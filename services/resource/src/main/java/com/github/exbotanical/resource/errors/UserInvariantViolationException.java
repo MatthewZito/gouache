@@ -3,6 +3,9 @@ package com.github.exbotanical.resource.errors;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+/**
+ * An exception for invariant violations for a User object.
+ */
 @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
 public class UserInvariantViolationException extends GouacheException {
 

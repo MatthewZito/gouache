@@ -10,6 +10,10 @@ import org.hibernate.validator.constraints.Length;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
+/**
+ * A Resource object - the primary data type of the Gouache system as of this moment. Essentially an
+ * exceedingly generic object.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

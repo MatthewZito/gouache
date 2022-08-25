@@ -14,10 +14,15 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
 
+/**
+ * Base Spring config.
+ */
 @Configuration
 @EnableWebMvc
 public class WebConfig implements WebMvcConfigurer {
-
+  /**
+   * CORS max-age setting.
+   */
   private static final Long MAX_AGE = 3600L;
 
   @Autowired

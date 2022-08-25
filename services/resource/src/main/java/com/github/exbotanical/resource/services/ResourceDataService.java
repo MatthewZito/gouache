@@ -6,6 +6,9 @@ import com.github.exbotanical.resource.repositories.ResourceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+/**
+ * An implementation of ResourceService.
+ */
 @Service
 public class ResourceDataService implements ResourceService {
 
@@ -21,9 +24,9 @@ public class ResourceDataService implements ResourceService {
   public Resource createResource(ResourceModel resourceModel) {
 
     Resource newResource = Resource.builder()
-      .title(resourceModel.getTitle())
-      .tags(resourceModel.getTags())
-      .build();
+        .title(resourceModel.getTitle())
+        .tags(resourceModel.getTags())
+        .build();
 
     return resourceRepository.save(newResource);
   }

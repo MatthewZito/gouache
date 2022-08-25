@@ -18,6 +18,9 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
+/**
+ * A REST controller for Resource CRUD operations.
+ */
 @RestController
 public class ResourceController {
   @Value("${app.locale}")
@@ -30,7 +33,7 @@ public class ResourceController {
 
   @PostMapping("/resource")
   public ResponseEntity<Resource> createResource(@Valid @RequestBody ResourceModel resourceModel,
-                                                 BindingResult result) throws GouacheException {
+      BindingResult result) throws GouacheException {
     if (result.hasErrors()) {
       throw new InvalidInputException(FormatterUtils.formatValidationErrors(result));
     }
@@ -52,7 +55,8 @@ public class ResourceController {
 
   @PatchMapping("/resource/{id}")
   public ResponseEntity<Void> updateResourceById(@PathVariable("id") String id,
-                                                 @Valid @RequestBody ResourceModel resourceModel, BindingResult result) throws GouacheException {
+      @Valid @RequestBody ResourceModel resourceModel, BindingResult result)
+      throws GouacheException {
     if (result.hasErrors()) {
       throw new InvalidInputException(FormatterUtils.formatValidationErrors(result));
     }
@@ -64,24 +68,23 @@ public class ResourceController {
       return new ResponseEntity<>(null, HttpStatus.OK);
     } catch (Exception e) {
       throw new OperationFailedException(
-        String.format("An exception occurred while updating the resource with id %s", id),
-        e.getMessage(),
-        e
-      );
+          String.format("An exception occurred while updating the resource with id %s", id),
+          e.getMessage(),
+          e);
     }
   }
 
   @DeleteMapping("/resource/{id}")
-  public ResponseEntity<Void> deleteResourceById(@PathVariable("id") String id) throws GouacheException {
+  public ResponseEntity<Void> deleteResourceById(@PathVariable("id") String id)
+      throws GouacheException {
     try {
       resourceService.deleteResourceById(id);
       return new ResponseEntity<>(null, HttpStatus.OK);
     } catch (Exception e) {
       throw new OperationFailedException(
-        String.format("An exception occurred while deleting the resource with id %s", id),
-        e.getMessage(),
-        e
-      );
+          String.format("An exception occurred while deleting the resource with id %s", id),
+          e.getMessage(),
+          e);
     }
   }
 }
