@@ -6,32 +6,38 @@ import (
 	"time"
 
 	"github.com/exbotanical/gouache/cache"
+	"github.com/exbotanical/gouache/entities"
 	"github.com/exbotanical/gouache/models"
 	"github.com/exbotanical/gouache/repositories"
+	"github.com/exbotanical/gouache/utils"
 
 	"github.com/google/uuid"
-	"golang.org/x/crypto/bcrypt"
 )
 
-const cookieId = "gouache_session"
+// COOKIE_ID represents the session identifier.
+const COOKIE_ID = "gouache_session"
 
+// SessionContext holds the auth controller context, including the redis session cache and dynamodb client.
 type SessionContext struct {
-	cache cache.SerializableStore
-	repo  *repositories.DB
+	cache cache.SessionManager
+	repo  *repositories.UserTable
 }
 
+// Credentials represents a user's input credentials.
 type Credentials struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
 
-func NewSessionContext(client cache.SerializableStore, repo *repositories.DB) SessionContext {
+// NewSessionContext initializes a new SessionContext object.
+func NewSessionContext(client cache.SessionManager, repo *repositories.UserTable) SessionContext {
 	return SessionContext{cache: client, repo: repo}
 }
 
+// Authorize is an endpoint that checks the user's session cookie to evaluate whether they're authorized to access the system.
 func (ctx SessionContext) Authorize(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		cookie, err := r.Cookie(cookieId)
+		cookie, err := r.Cookie(COOKIE_ID)
 
 		if err != nil {
 			if err == http.ErrNoCookie {
@@ -59,6 +65,7 @@ func (ctx SessionContext) Authorize(next http.Handler) http.Handler {
 	})
 }
 
+// Login authenticates a user given correct `Credentials`.
 func (ctx SessionContext) Login(w http.ResponseWriter, r *http.Request) {
 	var credentials Credentials
 	if err := json.NewDecoder(r.Body).Decode(&credentials); err != nil {
@@ -72,7 +79,7 @@ func (ctx SessionContext) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !CheckPasswordHash(credentials.Password, u.Password) {
+	if !utils.CheckPasswordHash(credentials.Password, u.Password) {
 		models.FormatError(w, http.StatusUnauthorized, "password mismatch", "invalid credentials", 0)
 		return
 	}
@@ -91,7 +98,7 @@ func (ctx SessionContext) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.SetCookie(w, &http.Cookie{
-		Name:     cookieId,
+		Name:     COOKIE_ID,
 		Value:    sessionToken,
 		Expires:  expiresAt,
 		HttpOnly: true,
@@ -99,7 +106,7 @@ func (ctx SessionContext) Login(w http.ResponseWriter, r *http.Request) {
 	})
 
 	models.FormatResponse(w, http.StatusOK, models.DefaultOk(
-		models.SessionResponse{
+		entities.SessionResponse{
 			Username: u.Username,
 			Exp:      int(time.Until(session.Expiry).Seconds()),
 		},
@@ -107,8 +114,9 @@ func (ctx SessionContext) Login(w http.ResponseWriter, r *http.Request) {
 	)
 }
 
+// Logout destroys the user's session and removes their session cookie.
 func (ctx SessionContext) Logout(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie(cookieId)
+	cookie, err := r.Cookie(COOKIE_ID)
 	if err != nil {
 		models.FormatError(w, http.StatusUnauthorized, err.Error(), "an unknown exception occurred @todo const", 0)
 		return
@@ -119,7 +127,7 @@ func (ctx SessionContext) Logout(w http.ResponseWriter, r *http.Request) {
 	ctx.cache.Delete(sessionToken)
 
 	http.SetCookie(w, &http.Cookie{
-		Name:     cookieId,
+		Name:     COOKIE_ID,
 		Value:    "",
 		Expires:  time.Now(),
 		HttpOnly: true,
@@ -129,8 +137,9 @@ func (ctx SessionContext) Logout(w http.ResponseWriter, r *http.Request) {
 	models.FormatResponse(w, http.StatusOK, models.DefaultOk(nil))
 }
 
+// RenewSession renews the user's session cookie.
 func (ctx SessionContext) RenewSession(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie(cookieId)
+	cookie, err := r.Cookie(COOKIE_ID)
 	if err != nil {
 		models.FormatError(w, http.StatusUnauthorized, err.Error(), "unauthorized", 0)
 		return
@@ -150,26 +159,27 @@ func (ctx SessionContext) RenewSession(w http.ResponseWriter, r *http.Request) {
 	ctx.cache.Set(sessionToken, *session)
 
 	http.SetCookie(w, &http.Cookie{
-		Name:     cookieId,
+		Name:     COOKIE_ID,
 		Value:    sessionToken,
 		Expires:  expiresAt,
 		HttpOnly: true,
 		Path:     "/",
 	})
 
-	models.FormatResponse(w, http.StatusOK, models.DefaultOk(models.SessionResponse{Username: session.Username, Exp: int(time.Until(session.Expiry).Seconds())}))
+	models.FormatResponse(w, http.StatusOK, models.DefaultOk(entities.SessionResponse{Username: session.Username, Exp: int(time.Until(session.Expiry).Seconds())}))
 }
 
+// Register creates a new user and corresponding session when provided a `NewUserModel`.
 // @todo Determine when user exists
 func (ctx SessionContext) Register(w http.ResponseWriter, r *http.Request) {
-	u := &models.NewUserTemplate{}
+	u := models.NewUserModel{}
 
 	if err := json.NewDecoder(r.Body).Decode(&u); err != nil {
 		models.FormatError(w, http.StatusBadRequest, err.Error(), "invalid credentials provided", 0)
 		return
 	}
 
-	hash, err := HashPassword(u.Password)
+	hash, err := utils.HashPassword(u.Password)
 	if err != nil {
 		models.FormatError(w, http.StatusBadRequest, err.Error(), "invalid credentials provided", 0)
 		return
@@ -177,7 +187,7 @@ func (ctx SessionContext) Register(w http.ResponseWriter, r *http.Request) {
 
 	u.Password = hash
 
-	_, err = ctx.repo.CreateUser(u)
+	err = ctx.repo.CreateUser(u)
 	if err != nil {
 		models.FormatError(w, http.StatusBadRequest, err.Error(), "an unknown exception occurred @todo const", 0)
 		return
@@ -197,7 +207,7 @@ func (ctx SessionContext) Register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.SetCookie(w, &http.Cookie{
-		Name:     cookieId,
+		Name:     COOKIE_ID,
 		Value:    sessionToken,
 		Expires:  time.Now().Add(60 * time.Minute),
 		HttpOnly: true,
@@ -205,21 +215,10 @@ func (ctx SessionContext) Register(w http.ResponseWriter, r *http.Request) {
 	})
 
 	models.FormatResponse(w, http.StatusOK, models.DefaultOk(
-		models.SessionResponse{
+		entities.SessionResponse{
 			Username: u.Username,
 			Exp:      int(time.Until(session.Expiry).Seconds()),
 		},
 	),
 	)
-}
-
-func HashPassword(password string) (string, error) {
-	// GenerateFromPassword auto generates salt
-	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
-	return string(bytes), err
-}
-
-func CheckPasswordHash(password, hash string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
-	return err == nil
 }

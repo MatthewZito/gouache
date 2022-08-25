@@ -2,7 +2,7 @@ import type { CredentialsResponse, UserCredentials } from '@/types'
 import { HttpClient } from '../client'
 
 const client = new HttpClient({
-  baseUrl: `${import.meta.env.VITE_RESOURCE_API}/session`,
+  baseUrl: `${import.meta.env.VITE_AUTH_API}/auth`,
   withCredentials: true,
 })
 

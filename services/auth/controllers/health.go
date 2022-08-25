@@ -7,7 +7,7 @@ import (
 	"github.com/exbotanical/gouache/models"
 )
 
-// Health is a liveness check that returns the server's current status.
+// Health is a liveness check endpoint that returns the server's current status.
 func Health(w http.ResponseWriter, r *http.Request) {
 
 	if name, err := os.Hostname(); err != nil {

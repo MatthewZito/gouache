@@ -3,6 +3,10 @@ module github.com/exbotanical/gouache
 go 1.16
 
 require (
+	github.com/aws/aws-sdk-go-v2 v1.16.11 // indirect
+	github.com/aws/aws-sdk-go-v2/config v1.17.1 // indirect
+	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.9.12 // indirect
+	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.16.0 // indirect
 	github.com/exbotanical/corset v0.0.0-20220813204111-4235b8c5d2a6
 	github.com/exbotanical/turnpike v0.0.0-20220813204047-75ec6958c9e0
 	github.com/go-redis/redis/v9 v9.0.0-beta.2

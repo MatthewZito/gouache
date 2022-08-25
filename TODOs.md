@@ -1,9 +1,8 @@
 # TODOs
 
-## session
+## resource
 
 - [ ] javadoc
 - [ ] checkstyle
 - [ ] AOP for logging
-- [ ] cookies auth
-- [ ] session caching/mgmt via redis
+- [ ] authorization
