@@ -34,7 +34,7 @@ func NewSessionContext(client cache.SessionManager, repo *repositories.UserTable
 	return SessionContext{cache: client, repo: repo}
 }
 
-// Authorize is an endpoint that checks the user's session cookie to evaluate whether they're authorized to access the system.
+// Authorize is a middleware that checks the user's session cookie to evaluate whether they're authorized to access the system.
 func (ctx SessionContext) Authorize(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		cookie, err := r.Cookie(COOKIE_ID)

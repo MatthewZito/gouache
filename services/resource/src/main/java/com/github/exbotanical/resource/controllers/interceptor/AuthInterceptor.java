@@ -12,7 +12,7 @@ public class AuthInterceptor implements HandlerInterceptor {
   public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
       throws Exception {
 
-    System.out.println(request.getSession());
+    System.out.println("{\n" + "\request.getSession():" + request.getSession() + ",\n" + "}");
     return HandlerInterceptor.super.preHandle(request, response, handler);
   }
 }

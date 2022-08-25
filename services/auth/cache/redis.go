@@ -39,12 +39,12 @@ func (s Session) IsExpired() bool {
 func NewRedisStore() (SessionManager, error) {
 	host := os.Getenv("REDIS_HOST")
 	port := os.Getenv("REDIS_PORT")
-	// pass := os.Getenv("REDIS_PASSWORD")
+	pass := os.Getenv("REDIS_PASSWORD")
 
 	client := redis.NewClient(&redis.Options{
-		Addr: utils.ToEndpoint(host, port),
-		// Password: pass,
-		DB: 0, // use default DB
+		Addr:     utils.ToEndpoint(host, port),
+		Password: pass,
+		DB:       0, // use default DB
 	})
 
 	if _, err := client.Ping(ctx).Result(); err != nil {

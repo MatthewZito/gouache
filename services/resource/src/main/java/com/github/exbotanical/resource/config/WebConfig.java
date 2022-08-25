@@ -26,18 +26,18 @@ public class WebConfig implements WebMvcConfigurer {
   @Override
   public void addCorsMappings(CorsRegistry registry) {
     registry.addMapping("/**")
-      .allowedHeaders(
-        HttpHeaders.AUTHORIZATION,
-        HttpHeaders.CONTENT_TYPE,
-        HttpHeaders.ACCEPT)
-      .allowedMethods(
-        HttpMethod.GET.name(),
-        HttpMethod.POST.name(),
-        HttpMethod.PUT.name(),
-        HttpMethod.DELETE.name())
-      .maxAge(MAX_AGE)
-      .allowedOrigins("*")
-      .allowCredentials(false);
+        .allowedHeaders(
+            HttpHeaders.AUTHORIZATION,
+            HttpHeaders.CONTENT_TYPE,
+            HttpHeaders.ACCEPT)
+        .allowedMethods(
+            HttpMethod.GET.name(),
+            HttpMethod.POST.name(),
+            HttpMethod.PUT.name(),
+            HttpMethod.DELETE.name())
+        .maxAge(MAX_AGE)
+        .allowedOrigins("http://localhost:3000")
+        .allowCredentials(true);
   }
 
   @Override
@@ -48,8 +48,10 @@ public class WebConfig implements WebMvcConfigurer {
   @Override
   public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
     WebMvcConfigurer.super.configureMessageConverters(converters);
-    // Instruct Spring to use the following converter in lieu of StringHttpMessageConverter; the latter cannot convert String return types
-    // as they will have been modified to a Response object by the time they're processed in the underlying ByteArrayHttpMessageConverter.
+    // Instruct Spring to use the following converter in lieu of StringHttpMessageConverter; the
+    // latter cannot convert String return types
+    // as they will have been modified to a Response object by the time they're processed in the
+    // underlying ByteArrayHttpMessageConverter.
     // @see https://stackoverflow.com/a/65015720/15159240
     converters.add(0, new MappingJackson2HttpMessageConverter());
   }

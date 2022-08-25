@@ -12,13 +12,13 @@ const { formModel, shouldDisable } = useCredentials()
 async function handleSubmitLogin() {
   Loading.show()
   try {
-    const { ok } = await authApi.login(formModel)
+    const { ok, data } = await authApi.login(formModel)
 
     if (!ok) {
       throw new ErroneousResponseError('Invalid credentials.')
     }
 
-    sessionStore.setUserState(formModel)
+    sessionStore.setUserState(data)
     $router.push({ name: 'Dashboard' })
   } catch (ex) {
     useErrorHandler(ex, {

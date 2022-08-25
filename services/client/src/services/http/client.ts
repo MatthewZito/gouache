@@ -2,16 +2,21 @@ type NormalizedResponse<T> = Promise<
   NormalizedOkResponse<T> | NormalizedErrorResponse
 >
 
-interface NormalizedOkResponse<T> {
+interface NormalizedOkResponse<T> extends GouacheResponse<T> {
   ok: true
   data: T
-  error: null
 }
 
-interface NormalizedErrorResponse {
+interface NormalizedErrorResponse extends GouacheResponse<null> {
   ok: false
   data: null
-  error: string
+}
+
+interface GouacheResponse<T> {
+  internal: string | null
+  friendly: string | null
+  data: T | null
+  flags: number | null
 }
 
 export class HttpClient {
@@ -41,21 +46,7 @@ export class HttpClient {
       method: 'GET',
     })
 
-    if (response.status !== 200) {
-      return {
-        ok: false,
-        data: null,
-        error: 'Something went wrong while making the request.',
-      }
-    }
-
-    const { ok, data, error } = await response.json()
-
-    return {
-      ok,
-      data,
-      error,
-    }
+    return normalize(response, [200])
   }
 
   async post<T, D>(url = '/', payload?: D): NormalizedResponse<T> {
@@ -64,21 +55,7 @@ export class HttpClient {
       ...(payload ? { body: JSON.stringify(payload) } : {}),
     })
 
-    if (![200, 201].includes(response.status)) {
-      return {
-        ok: false,
-        data: null,
-        error: 'Something went wrong while making the request.',
-      }
-    }
-
-    const { ok, data, error } = await response.json()
-
-    return {
-      ok,
-      data,
-      error,
-    }
+    return normalize(response, [200, 201])
   }
 
   async patch<T, D>(url = '/', payload: D): NormalizedResponse<T> {
@@ -87,20 +64,41 @@ export class HttpClient {
       body: JSON.stringify(payload),
     })
 
-    if (response.status !== 200) {
+    return normalize(response, [200])
+  }
+}
+
+async function normalize<T>(
+  response: Response,
+  successCodes: number[],
+): NormalizedResponse<T> {
+  try {
+    const { data, internal, friendly, flags } = await response.json()
+
+    if (!successCodes.includes(response.status)) {
       return {
         ok: false,
         data: null,
-        error: 'Something went wrong while making the request.',
+        internal,
+        friendly,
+        flags,
       }
     }
 
-    const { ok, data, error } = await response.json()
-
     return {
-      ok,
+      ok: true,
       data,
-      error,
+      internal: null,
+      friendly: null,
+      flags: null,
+    }
+  } catch (ex) {
+    return {
+      ok: false,
+      data: null,
+      internal: ex instanceof Error ? ex.message : JSON.stringify(ex),
+      friendly: 'Something went wrong while processing the request.',
+      flags: 0,
     }
   }
 }

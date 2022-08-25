@@ -18,7 +18,7 @@ export const useSessionStore = defineStore('session', {
   actions: {
     setUserState({ username, exp }: CredentialsResponse) {
       this.username = username
-      this.exp = Math.floor(Date.now() / 1000) + exp
+      this.exp = exp
 
       this.isAuthenticated = true
     },

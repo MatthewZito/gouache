@@ -32,28 +32,16 @@ services:
       - gouache-dynamodb
       - gouache-cache
 
-  # gouache-db:
-  #   container_name: gouache-db
-  #   image: 'postgres:latest'
-  #   restart: always
-  #   ports:
-  #     - "5432:5432"
-  #   environment:
-  #     POSTGRES_USER: username
-  #     POSTGRES_PASSWORD: password
-  #     POSTGRES_DB: test
-  #   networks:
-  #     - gouache-network
-  #   volumes:
-  #     - ./services/db/:/docker-entrypoint-initdb.d/
-
   gouache-dynamodb:
     command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
     image: "amazon/dynamodb-local:latest"
     container_name: gouache-dynamodb
     restart: always
+    user: root # otherwise, we need to configure the dynamodb user
     ports:
       - "8000:8000"
+    networks:
+      - gouache-network
     volumes:
       - "./docker/dynamodb:/home/dynamodblocal/data" # dirty fix: sudo chmod 777 ./docker/dynamodb
     working_dir: /home/dynamodblocal
@@ -85,7 +73,6 @@ services:
     depends_on:
       - gouache-auth
       - gouache-resource
-
 
 networks:
   gouache-network:

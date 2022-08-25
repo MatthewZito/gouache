@@ -25,7 +25,7 @@ async function handleSubmitRegister() {
         'Something went wrong while registering this username.',
       )
     }
-
+    console.log({ data })
     sessionStore.setUserState(data)
     $router.push({ name: 'Dashboard' })
   } catch (ex) {
@@ -37,7 +37,7 @@ async function handleSubmitRegister() {
     Loading.hide()
   }
 }
-const onError = console.log
+const handleError = console.error
 </script>
 
 <template>
@@ -46,7 +46,7 @@ const onError = console.log
       <q-form
         class="q-pa-md"
         @submit.prevent
-        @validation-error="onError"
+        @validation-error="handleError"
         greedy
       >
         <q-card-section>
