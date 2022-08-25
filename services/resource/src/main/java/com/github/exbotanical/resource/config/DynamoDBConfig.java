@@ -17,7 +17,7 @@ import org.springframework.context.annotation.Configuration;
 public class DynamoDBConfig {
 
   @Bean
-  public DynamoDBMapper dynamoDBMapper() {
+  public DynamoDBMapper dynamoMapper() {
     return new DynamoDBMapper(buildDb());
   }
 

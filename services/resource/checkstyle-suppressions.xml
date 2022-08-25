@@ -5,5 +5,13 @@
      "https://checkstyle.org/dtds/suppressions_1_0.dtd">
 
 <suppressions>
-
+  <suppress checks="MissingJavadocMethod"
+             files="GouacheException.java"
+             lines="19,26"/>
+  <suppress checks="MissingJavadocMethod"
+             files="GouacheExceptionHandler.java"
+             lines="25,50"/>
+  <suppress checks="AbbreviationAsWordInName"
+             files="DynamoDBConfig.java"
+             lines="17"/>
 </suppressions>

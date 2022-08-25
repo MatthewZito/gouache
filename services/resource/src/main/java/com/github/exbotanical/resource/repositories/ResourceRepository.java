@@ -16,7 +16,7 @@ import org.springframework.stereotype.Repository;
 public class ResourceRepository {
 
   @Autowired
-  private DynamoDBMapper dynamoDBMapper;
+  private DynamoDBMapper dynamoMapper;
 
   /**
    * Persist a given Resource.
@@ -25,7 +25,7 @@ public class ResourceRepository {
    * @return The new Resource, with updated Dynamo-generated fields.
    */
   public Resource save(Resource newResource) {
-    dynamoDBMapper.save(newResource);
+    dynamoMapper.save(newResource);
 
     return newResource;
   }
@@ -37,7 +37,7 @@ public class ResourceRepository {
    * @return A Resource, or null if not found.
    */
   public Resource getById(String id) {
-    return dynamoDBMapper.load(Resource.class, id);
+    return dynamoMapper.load(Resource.class, id);
   }
 
   /**
@@ -46,9 +46,9 @@ public class ResourceRepository {
    * @param id A unique Resource id identifying the Resource to delete.
    */
   public void deleteById(String id) {
-    Resource resource = dynamoDBMapper.load(Resource.class, id);
+    Resource resource = dynamoMapper.load(Resource.class, id);
 
-    dynamoDBMapper.delete(resource);
+    dynamoMapper.delete(resource);
   }
 
   /**
@@ -65,7 +65,7 @@ public class ResourceRepository {
         .tags(resourceModel.getTags())
         .build();
 
-    dynamoDBMapper.save(
+    dynamoMapper.save(
         updatedResource,
         new DynamoDBSaveExpression().withExpectedEntry(
             "Id",

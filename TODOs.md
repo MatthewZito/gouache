@@ -2,7 +2,8 @@
 
 ## resource
 
-- [ ] javadoc
-- [ ] checkstyle
+- [x] javadoc
+- [x] checkstyle
 - [ ] AOP for logging
 - [ ] authorization
+- [ ] upgrade to aws dynamo sdk v2

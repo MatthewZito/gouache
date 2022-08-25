@@ -22,15 +22,15 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @ResponseStatus
 public class GouacheExceptionHandler extends ResponseEntityExceptionHandler {
 
-  @ExceptionHandler({ GouacheException.class })
+  @ExceptionHandler({GouacheException.class})
   public ResponseEntity<GouacheResponse> gouacheExceptionHandler(GouacheException e,
-                                                                 WebRequest req) {
+      WebRequest req) {
     System.out.println("XX: " + e);
     // Derive the message data and build a GouacheResponse object.
     GouacheResponse ret = GouacheResponse.builder()
-      .friendly(e.getFriendly())
-      .internal(e.getInternal())
-      .build();
+        .friendly(e.getFriendly())
+        .internal(e.getInternal())
+        .build();
 
     HttpStatus status;
 
@@ -43,14 +43,14 @@ public class GouacheExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     return ResponseEntity
-      .status(status)
-      .body(ret);
+        .status(status)
+        .body(ret);
   }
 
-  @ExceptionHandler({ Exception.class })
+  @ExceptionHandler({Exception.class})
   public ResponseEntity<GouacheResponse> defaultExceptionHandler(
-    Exception e,
-    WebRequest req) throws Exception {
+      Exception e,
+      WebRequest req) throws Exception {
     System.out.println("XX: " + e);
 
     // If the exception is annotated with @ResponseStatus rethrow it and let
@@ -63,9 +63,9 @@ public class GouacheExceptionHandler extends ResponseEntityExceptionHandler {
 
     // Build the fallback GouacheResponse object.
     GouacheResponse ret = GouacheResponse.builder()
-      .friendly("An unknown exception occurred. @todo const")
-      .internal(e.getMessage())
-      .build();
+        .friendly("An unknown exception occurred. @todo const")
+        .internal(e.getMessage())
+        .build();
 
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ret);
   }

@@ -7,6 +7,7 @@ import com.github.exbotanical.resource.errors.OperationFailedException;
 import com.github.exbotanical.resource.models.ResourceModel;
 import com.github.exbotanical.resource.services.ResourceService;
 import com.github.exbotanical.resource.utils.FormatterUtils;
+import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,9 +15,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
 
 /**
  * A REST controller for Resource CRUD operations.
@@ -29,8 +35,16 @@ public class ResourceController {
   @Autowired
   private ResourceService resourceService;
 
-  private final Logger LOGGER = LoggerFactory.getLogger(ResourceController.class);
+  private final Logger logger = LoggerFactory.getLogger(ResourceController.class);
 
+  /**
+   * Create Resource endpoint.
+   *
+   * @param resourceModel Client-provided data with which the system will create the Resource.
+   * @param result An input validation result.
+   * @return A ResponseEntity containing the newly-created Resource.
+   * @throws GouacheException Resource creation errors.
+   */
   @PostMapping("/resource")
   public ResponseEntity<Resource> createResource(@Valid @RequestBody ResourceModel resourceModel,
       BindingResult result) throws GouacheException {
@@ -42,6 +56,12 @@ public class ResourceController {
     return new ResponseEntity<>(newResource, HttpStatus.CREATED);
   }
 
+  /**
+   * Get Resource by id endpoint.
+   *
+   * @param id Client provided id.
+   * @return A ResponseEntity containing the found Resource, or null if not extant.
+   */
   @GetMapping("/resource/{id}")
   public ResponseEntity<Resource> getResourceById(@PathVariable("id") String id) {
 
@@ -53,6 +73,15 @@ public class ResourceController {
     return new ResponseEntity<>(found, HttpStatus.OK);
   }
 
+  /**
+   * Update a Resource by id endpoint.
+   *
+   * @param id Client provided id.
+   * @param resourceModel Client provided ResourceModel for patching.
+   * @param result An input validation result.
+   * @return An empty ResponseEntity.
+   * @throws GouacheException Operation error.
+   */
   @PatchMapping("/resource/{id}")
   public ResponseEntity<Void> updateResourceById(@PathVariable("id") String id,
       @Valid @RequestBody ResourceModel resourceModel, BindingResult result)
@@ -74,6 +103,14 @@ public class ResourceController {
     }
   }
 
+
+  /**
+   * Delete a Resource by id endpoint.
+   *
+   * @param id Client provided id.
+   * @return An empty ResponseEntity.
+   * @throws GouacheException Operation error.
+   */
   @DeleteMapping("/resource/{id}")
   public ResponseEntity<Void> deleteResourceById(@PathVariable("id") String id)
       throws GouacheException {

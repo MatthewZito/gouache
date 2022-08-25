@@ -1,22 +1,34 @@
 package com.github.exbotanical.resource.services;
 
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import com.github.exbotanical.resource.DynamoTestUtils;
 import com.github.exbotanical.resource.entities.Resource;
 import com.github.exbotanical.resource.models.ResourceModel;
 import com.github.exbotanical.resource.repositories.ResourceRepository;
-import org.junit.jupiter.api.*;
+import java.util.Arrays;
+import java.util.Date;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
-import java.util.Arrays;
-import java.util.Date;
-
-import static org.junit.jupiter.api.Assertions.*;
-
+/**
+ * Test ResourceService.
+ */
 @SpringBootTest
+@DisplayName("Test ResourceService")
 public class ResourceServiceTest {
+
   @Autowired
   private ResourceService resourceService;
 
@@ -39,26 +51,26 @@ public class ResourceServiceTest {
   void setUp() {
 
     testResource = Resource.builder()
-      .id("a66de382-a9df-4fab-9d34-616e01e3e054")
-      .title("title")
-      .tags(Arrays.asList("art", "music"))
-      .createdAt(new Date().toString())
-      .updatedAt(new Date().toString())
-      .build();
+        .id("a66de382-a9df-4fab-9d34-616e01e3e054")
+        .title("title")
+        .tags(Arrays.asList("art", "music"))
+        .createdAt(new Date().toString())
+        .updatedAt(new Date().toString())
+        .build();
   }
 
   @Test
   @DisplayName("Create a resource")
   void createResourceSuccess() {
     ResourceModel inputResource = ResourceModel.builder()
-      .title("title")
-      .tags(Arrays.asList("art", "music"))
-      .build();
+        .title("title")
+        .tags(Arrays.asList("art", "music"))
+        .build();
 
     Resource newResource = Resource.builder()
-      .title(inputResource.getTitle())
-      .tags(inputResource.getTags())
-      .build();
+        .title(inputResource.getTitle())
+        .tags(inputResource.getTags())
+        .build();
 
     Mockito.when(resourceRepository.save(newResource)).thenReturn(testResource);
 
@@ -89,9 +101,9 @@ public class ResourceServiceTest {
   @DisplayName("Update a resource by ID")
   void updateResourceById() {
     ResourceModel inputModel = ResourceModel.builder()
-      .tags(Arrays.asList("test"))
-      .title("test title")
-      .build();
+        .tags(Arrays.asList("test"))
+        .title("test title")
+        .build();
 
     assertDoesNotThrow(() -> resourceService.updateResourceById(testResource.getId(), inputModel));
   }

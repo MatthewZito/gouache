@@ -1,9 +1,7 @@
 package com.github.exbotanical.resource.models;
 
 import java.util.List;
-
 import javax.validation.constraints.NotNull;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
