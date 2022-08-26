@@ -16,10 +16,10 @@ export const resourceApi = {
   },
 
   async createResource<R = UUID, D = MutableResource>(payload: D) {
-    return client.post<R, D>(`/`, payload)
+    return client.post<R, D>(`/`, payload, true)
   },
 
   async updateResource<D = MutableResource>(resourceId: UUID, payload: D) {
-    return client.patch<null, D>(`/${resourceId}`, payload)
+    return client.patch<null, D>(`/${resourceId}`, payload, true)
   },
 }

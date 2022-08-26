@@ -32,6 +32,10 @@ public class AuthInterceptor implements HandlerInterceptor {
   public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
       throws Exception {
 
+    if ("OPTIONS".equals(request.getMethod())) {
+      return HandlerInterceptor.super.preHandle(request, response, handler);
+    }
+
     // @todo add ignore auth annotation
     Cookie cookie = WebUtils.getCookie(request, cookieName);
 
@@ -56,10 +60,17 @@ public class AuthInterceptor implements HandlerInterceptor {
           sid, session.username, session.expiry));
     }
 
+
     return HandlerInterceptor.super.preHandle(request, response, handler);
   }
 
-  private static String newRecord(String key, Object value) {
-    return "\t" + key + ": " + value + ",\n";
-  }
 }
+// if(CorsUtils.isPreFlightRequest(request)){
+
+// HandlerInterceptor[] interceptors = chain.getInterceptors();
+// // here
+// chain=new HandlerExecutionChain(new
+// AbstractHandlerMapping.PreFlightHandler(config),interceptors);
+// }else{
+
+// chain.addInterceptor(new AbstractHandlerMapping.CorsInterceptor(config));}

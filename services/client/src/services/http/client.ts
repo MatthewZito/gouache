@@ -23,6 +23,7 @@ export class HttpClient {
   baseUrl: string
   withCredentials: boolean
   cors: boolean
+
   constructor({
     baseUrl = '/',
     withCredentials = true,
@@ -53,18 +54,28 @@ export class HttpClient {
     return normalize(response, [200])
   }
 
-  async post<T, D>(url = '/', payload?: D): NormalizedResponse<T> {
+  async post<T, D>(
+    url = '/',
+    payload?: D,
+    json = false,
+  ): NormalizedResponse<T> {
     const response = await this.request(url, {
       method: 'POST',
+      ...(json ? { headers: { 'Content-Type': 'application/json' } } : {}),
       ...(payload ? { body: JSON.stringify(payload) } : {}),
     })
 
     return normalize(response, [200, 201])
   }
 
-  async patch<T, D>(url = '/', payload: D): NormalizedResponse<T> {
+  async patch<T, D>(
+    url = '/',
+    payload: D,
+    json = false,
+  ): NormalizedResponse<T> {
     const response = await this.request(url, {
       method: 'PATCH',
+      ...(json ? { headers: { 'Content-Type': 'application/json' } } : {}),
       body: JSON.stringify(payload),
     })
 
