@@ -2,10 +2,16 @@ package com.github.exbotanical.resource.repositories;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBSaveExpression;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
+import com.amazonaws.services.dynamodbv2.datamodeling.PaginatedScanList;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.ExpectedAttributeValue;
 import com.github.exbotanical.resource.entities.Resource;
 import com.github.exbotanical.resource.models.ResourceModel;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -38,6 +44,23 @@ public class ResourceRepository {
    */
   public Resource getById(String id) {
     return dynamoMapper.load(Resource.class, id);
+  }
+
+  /**
+   * Retrieve all Resources.
+   *
+   *
+   * @return List of Resources.
+   * @todo Paginate
+   */
+  public ArrayList<Resource> getAll() {
+    PaginatedScanList<Resource> ret =
+        dynamoMapper.scan(Resource.class, new DynamoDBScanExpression());
+
+    ArrayList<Resource> list = new ArrayList();
+    list.addAll(ret);
+
+    return list;
   }
 
   /**

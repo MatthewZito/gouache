@@ -22,20 +22,24 @@ interface GouacheResponse<T> {
 export class HttpClient {
   baseUrl: string
   withCredentials: boolean
+  cors: boolean
   constructor({
     baseUrl = '/',
-    withCredentials = false,
+    withCredentials = true,
+    cors = true,
   }: {
     baseUrl: string
-    withCredentials: boolean
+    withCredentials?: boolean
+    cors?: boolean
   }) {
     this.baseUrl = baseUrl
     this.withCredentials = withCredentials
+    this.cors = cors
   }
 
   private request(url = '/', opts: RequestInit) {
     return fetch(this.baseUrl + url, {
-      mode: 'cors',
+      mode: this.cors ? 'cors' : 'no-cors',
       ...(this.withCredentials ? { credentials: 'include' } : {}),
       ...opts,
     })
@@ -73,7 +77,9 @@ async function normalize<T>(
   successCodes: number[],
 ): NormalizedResponse<T> {
   try {
-    const { data, internal, friendly, flags } = await response.json()
+    const d = await response.json()
+
+    const { data, internal, friendly, flags } = d
 
     if (!successCodes.includes(response.status)) {
       return {
@@ -93,6 +99,7 @@ async function normalize<T>(
       flags: null,
     }
   } catch (ex) {
+    console.log({ ex })
     return {
       ok: false,
       data: null,

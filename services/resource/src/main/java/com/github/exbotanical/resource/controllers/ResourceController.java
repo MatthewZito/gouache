@@ -7,6 +7,9 @@ import com.github.exbotanical.resource.errors.OperationFailedException;
 import com.github.exbotanical.resource.models.ResourceModel;
 import com.github.exbotanical.resource.services.ResourceService;
 import com.github.exbotanical.resource.utils.FormatterUtils;
+
+import java.util.ArrayList;
+
 import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +29,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * A REST controller for Resource CRUD operations.
+ *
+ * @todo Paginate get all.
+ * @todo Restrict resources to current user.
  */
 @RestController
 public class ResourceController {
@@ -74,6 +80,18 @@ public class ResourceController {
   }
 
   /**
+   * Get all Resources.
+   *
+   * @return A list of Resources.
+   */
+  @GetMapping("/resource")
+  public ResponseEntity<ArrayList<Resource>> getAllResources() {
+    ArrayList<Resource> allResources = resourceService.getAllResources();
+
+    return new ResponseEntity<>(allResources, HttpStatus.OK);
+  }
+
+  /**
    * Update a Resource by id endpoint.
    *
    * @param id Client provided id.
@@ -102,7 +120,6 @@ public class ResourceController {
           e);
     }
   }
-
 
   /**
    * Delete a Resource by id endpoint.

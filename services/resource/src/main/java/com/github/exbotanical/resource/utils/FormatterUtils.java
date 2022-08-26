@@ -22,4 +22,22 @@ public class FormatterUtils {
             f.getDefaultMessage()))
         .collect(Collectors.joining(", "));
   }
+
+  /**
+   * Format a hostname and port to a qualified endpoint identifier.
+   *
+   * @param host The host name.
+   * @param port The port number.
+   * @return Qualified endpoint identifier e.g. https://test.com:443
+   */
+  public static String toEndpoint(String host, String port) {
+    return String.format("%s:%s", host, port);
+  }
+
+  /**
+   * @see FormatterUtils#toEndpoint(String, String)
+   */
+  public static String toEndpoint(String host, int port) {
+    return toEndpoint(host, String.valueOf(port));
+  }
 }

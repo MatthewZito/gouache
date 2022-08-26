@@ -29,9 +29,9 @@ async function fetchResources() {
   isLoading.value = true
 
   try {
-    const { ok, data, error } = await resourceApi.getResources()
+    const { ok, data } = await resourceApi.getResources()
     if (!ok) {
-      throw Error(error)
+      throw Error()
     }
 
     resourceStore.setResources(data ?? [])

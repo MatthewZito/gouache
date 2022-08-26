@@ -35,6 +35,10 @@ public class AuthInterceptor implements HandlerInterceptor {
     // @todo add ignore auth annotation
     Cookie cookie = WebUtils.getCookie(request, cookieName);
 
+    if (cookie == null) {
+      throw new UnauthorizedException("No cookie found");
+    }
+
     String sid = cookie.getValue();
 
     if (sid == null) {

@@ -1,5 +1,7 @@
 package com.github.exbotanical.resource.services;
 
+import java.util.ArrayList;
+
 import com.github.exbotanical.resource.entities.Resource;
 import com.github.exbotanical.resource.models.ResourceModel;
 
@@ -15,6 +17,13 @@ public interface ResourceService {
    * @return A Resource, or null if not found.
    */
   Resource getResourceById(String id);
+
+  /**
+   * Retrieve all Resources.
+   *
+   * @return A list of Resources.
+   */
+  ArrayList<Resource> getAllResources();
 
   /**
    * Create a new Resource.

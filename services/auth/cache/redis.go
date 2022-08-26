@@ -12,7 +12,7 @@ import (
 
 // RedisStore holds a redis client connection object.
 type RedisStore struct {
-	client *redis.Client
+	Client *redis.Client
 }
 
 // SessionManager defines the contract for a `RedisStore` instance.
@@ -51,12 +51,12 @@ func NewRedisStore() (SessionManager, error) {
 		return nil, err
 	}
 
-	return &RedisStore{client: client}, nil
+	return &RedisStore{Client: client}, nil
 }
 
 // Delete - when provided a session ID `sid` - deletes the corresponding `Session` from the cache.
 func (r *RedisStore) Delete(sid string) error {
-	if _, err := r.client.Del(ctx, sid).Result(); err != nil {
+	if _, err := r.Client.Del(ctx, sid).Result(); err != nil {
 		return err
 	}
 
@@ -65,7 +65,7 @@ func (r *RedisStore) Delete(sid string) error {
 
 // Get - when provided a session ID `sid` - retrieves the corresponding `Session` from the cache.
 func (r *RedisStore) Get(sid string) (*Session, error) {
-	if v, err := r.client.Get(ctx, sid).Bytes(); err != nil {
+	if v, err := r.Client.Get(ctx, sid).Bytes(); err != nil {
 		return nil, err
 	} else {
 		session := &Session{}
@@ -85,7 +85,7 @@ func (r *RedisStore) Set(sid string, session Session) error {
 		return err
 	}
 
-	if err := r.client.Set(ctx, sid, v, time.Until(session.Expiry)).Err(); err != nil {
+	if err := r.Client.Set(ctx, sid, v, time.Until(session.Expiry)).Err(); err != nil {
 		return err
 	}
 

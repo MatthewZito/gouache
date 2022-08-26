@@ -4,7 +4,6 @@ import { HttpClient } from '../client'
 
 const client = new HttpClient({
   baseUrl: `${import.meta.env.VITE_RESOURCE_API}/resource`,
-  withCredentials: true,
 })
 
 export const resourceApi = {

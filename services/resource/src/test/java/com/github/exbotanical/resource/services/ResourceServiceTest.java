@@ -5,15 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.github.exbotanical.resource.DynamoTestUtils;
 import com.github.exbotanical.resource.SessionTestUtils;
 import com.github.exbotanical.resource.entities.Resource;
 import com.github.exbotanical.resource.models.ResourceModel;
 import com.github.exbotanical.resource.repositories.ResourceRepository;
 import java.util.Arrays;
 import java.util.Date;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,7 +27,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 @DisplayName("Test ResourceService")
 public class ResourceServiceTest {
 
-
   @Autowired
   private ResourceService resourceService;
 
@@ -41,16 +37,6 @@ public class ResourceServiceTest {
   private ResourceRepository resourceRepository;
 
   private Resource testResource;
-
-  @BeforeAll
-  public static void setupDynamo() {
-    DynamoTestUtils.setupDynamo();
-  }
-
-  @AfterAll
-  public static void teardownDynamo() {
-    DynamoTestUtils.teardownDynamo();
-  }
 
   @BeforeEach
   void setUp() {

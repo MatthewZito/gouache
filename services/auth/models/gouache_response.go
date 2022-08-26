@@ -2,7 +2,6 @@ package models
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 )
 
@@ -17,10 +16,23 @@ type GouacheResponse struct {
 // DefaultOk generates a fallback 200 OK `GouacheResponse`.
 func DefaultOk(data interface{}) []byte {
 	v, _ := json.Marshal(GouacheResponse{
-		Data: data,
+		Data:     data,
+		Internal: "",
+		Friendly: "",
+		Flags:    0,
 	})
 
-	fmt.Println(data)
+	return v
+}
+
+// DefaultError generates a fallback erroneous `GouacheResponse`.
+func DefaultError(internal string, friendly string, flags int) []byte {
+	v, _ := json.Marshal(GouacheResponse{
+		Data:     nil,
+		Internal: internal,
+		Friendly: friendly,
+		Flags:    flags,
+	})
 
 	return v
 }
@@ -29,11 +41,7 @@ func DefaultOk(data interface{}) []byte {
 func FormatError(w http.ResponseWriter, code int, internal string, friendly string, flags int) {
 
 	// @todo handle
-	v, _ := json.Marshal(GouacheResponse{
-		Internal: internal,
-		Friendly: friendly,
-		Flags:    flags,
-	})
+	v := DefaultError(internal, friendly, flags)
 
 	FormatResponse(w, code, v)
 }
