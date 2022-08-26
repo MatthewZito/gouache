@@ -50,7 +50,7 @@ onErrorCaptured((ex: any) => {
             <q-list>
               <q-item>
                 <q-item-section avatar>
-                  <q-icon name="mdi-account" size="md" color="accent" />
+                  <q-icon name="mdi-account" size="md" color="secondary" />
                 </q-item-section>
 
                 <q-item-section class="text-subtitle1">
@@ -65,7 +65,7 @@ onErrorCaptured((ex: any) => {
 
               <q-item>
                 <q-item-section avatar>
-                  <q-icon name="mdi-clock" size="md" color="accent" />
+                  <q-icon name="mdi-clock" size="md" color="secondary" />
                 </q-item-section>
 
                 <q-item-section class="text-subtitle1">
@@ -77,6 +77,15 @@ onErrorCaptured((ex: any) => {
                       }}
                     </span>
                   </q-item-label>
+                </q-item-section>
+              </q-item>
+
+              <q-item clickable @click="sessionStore.logout">
+                <q-item-section avatar>
+                  <q-icon name="mdi-logout" size="md" color="secondary" />
+                </q-item-section>
+                <q-item-section class="text-subtitle1">
+                  <q-item-label>Logout</q-item-label>
                 </q-item-section>
               </q-item>
             </q-list>

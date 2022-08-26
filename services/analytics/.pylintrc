@@ -1,0 +1,23 @@
+[MASTER]
+
+ignore=__tests__
+persistent=no
+jobs=4
+unsafe-load-any-extension=no
+
+[FORMAT]
+
+indent-string='    '
+expected-line-ending-format=LF
+no-space-check=empty-line
+
+[BASIC]
+
+good-names=cb,fn,n
+
+[SIMILARITIES]
+
+min-similarity-lines=300
+
+[MESSAGES CONTROL]
+disable=
