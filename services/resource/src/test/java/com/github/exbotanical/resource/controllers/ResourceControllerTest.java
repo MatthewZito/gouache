@@ -9,14 +9,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.amazonaws.util.json.Jackson;
 import com.github.exbotanical.resource.DynamoTestUtils;
+import com.github.exbotanical.resource.SessionTestUtils;
 import com.github.exbotanical.resource.entities.Resource;
 import com.github.exbotanical.resource.entities.Session;
 import com.github.exbotanical.resource.models.ResourceModel;
 import com.github.exbotanical.resource.services.ResourceService;
 import com.github.exbotanical.resource.services.SessionService;
 
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
+
+import javax.servlet.http.Cookie;
+
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,20 +37,19 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(ResourceController.class)
 @DisplayName("Test the ResourceController and evaluate its formatted responses")
-class ResourceControllerTest {
-
-  @MockBean
-  public static RedisTemplate<String, String> redisTemplate;
-
-  @Mock
-  private static ValueOperations<String, String> valueOperations;
+class ResourceControllerTest { 
 
   @Autowired
   private MockMvc mockMvc;
@@ -55,22 +61,17 @@ class ResourceControllerTest {
   private SessionService sessionService;
 
   private Resource testResource;
-
-  @BeforeEach
-  public void setUp2() {
-    Mockito.when(redisTemplate.opsForValue()).thenReturn(valueOperations);
-
-    Mockito.when(valueOperations.get(ArgumentMatchers.any()))
-        .thenReturn("{\"Username\": \"user\", \"Expiry\": \"\" }");
-  }
-
-  @AfterAll
-  public static void teardownDynamo() {
-    DynamoTestUtils.teardownDynamo();
-  }
+ 
+  // @AfterAll
+  // public static void teardownDynamo() {
+  //   DynamoTestUtils.teardownDynamo();
+  // }
 
   @BeforeEach
   void setUp() {
+    Mockito
+    .when(sessionService.getSessionBySessionId(ArgumentMatchers.anyString()))
+    .thenReturn(SessionTestUtils.session);
 
     testResource = Resource.builder()
         .id("a66de382-a9df-4fab-9d34-616e01e3e054")
@@ -95,7 +96,9 @@ class ResourceControllerTest {
     mockMvc.perform(
         post("/resource")
             .contentType(MediaType.APPLICATION_JSON)
-            .content(Jackson.toJsonString(inputResource)))
+            .content(Jackson.toJsonString(inputResource))
+            .cookie(SessionTestUtils.cookie)
+            )
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.data").value(testResource));
   }
@@ -113,7 +116,9 @@ class ResourceControllerTest {
     mockMvc.perform(
         post("/resource")
             .contentType(MediaType.APPLICATION_JSON)
-            .content("{\"titl ez\": \"title\", \"tagds\": [\"art\",\"music\"] }"))
+            .content("{\"titl ez\": \"title\", \"tagds\": [\"art\",\"music\"] }")
+            .cookie(SessionTestUtils.cookie)
+            )
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.internal").isString())
         .andExpect(jsonPath("$.friendly").value("The provided input was not valid."))
@@ -128,7 +133,10 @@ class ResourceControllerTest {
     Mockito.when(resourceService.getResourceById(testId)).thenReturn(testResource);
 
     mockMvc.perform(
-        get(String.format("/resource/%s", testId)))
+        get(String.format("/resource/%s", testId))
+        
+        .cookie(SessionTestUtils.cookie)
+        )
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.data").value(testResource));
   }
@@ -141,7 +149,10 @@ class ResourceControllerTest {
     Mockito.when(resourceService.getResourceById(testId)).thenReturn(testResource);
 
     mockMvc.perform(
-        get(String.format("/resource/%s", testId + "1")))
+        get(String.format("/resource/%s", testId + "1"))
+        
+        .cookie(SessionTestUtils.cookie)
+        )
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.data").isEmpty());
   }
@@ -157,7 +168,10 @@ class ResourceControllerTest {
     mockMvc.perform(
         patch(String.format("/resource/%s", testResource.getId()))
             .contentType(MediaType.APPLICATION_JSON)
-            .content(Jackson.toJsonString(inputModel)))
+            .content(Jackson.toJsonString(inputModel))
+            
+            .cookie(SessionTestUtils.cookie)
+            )
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.data").isEmpty());
   }
@@ -170,7 +184,9 @@ class ResourceControllerTest {
     mockMvc.perform(
         patch(String.format("/resource/%s", testResource.getId()))
             .contentType(MediaType.APPLICATION_JSON)
-            .content(Jackson.toJsonString(inputModel)))
+            .content(Jackson.toJsonString(inputModel))
+            .cookie(SessionTestUtils.cookie)
+            )
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.internal").isString())
         .andExpect(jsonPath("$.friendly").value("The provided input was not valid."))
@@ -183,7 +199,9 @@ class ResourceControllerTest {
     String testId = "a66de382-a9df-4fab-9d34-616e01e3e054";
 
     mockMvc.perform(
-        delete(String.format("/resource/%s", testId)))
+        delete(String.format("/resource/%s", testId))
+        .cookie(SessionTestUtils.cookie)
+        )
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.data").isEmpty())
         .andExpect(jsonPath("$.friendly").isEmpty())
@@ -198,7 +216,9 @@ class ResourceControllerTest {
     Mockito.doThrow(new RuntimeException("test")).when(resourceService).deleteResourceById(testId);
 
     mockMvc.perform(
-        delete(String.format("/resource/%s", testId)))
+        delete(String.format("/resource/%s", testId))
+        .cookie(SessionTestUtils.cookie)
+        )
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.data").isEmpty())
         .andExpect(jsonPath("$.friendly").value(

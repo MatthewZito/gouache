@@ -1,12 +1,12 @@
 package com.github.exbotanical.resource.services;
 
-
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.github.exbotanical.resource.DynamoTestUtils;
+import com.github.exbotanical.resource.SessionTestUtils;
 import com.github.exbotanical.resource.entities.Resource;
 import com.github.exbotanical.resource.models.ResourceModel;
 import com.github.exbotanical.resource.repositories.ResourceRepository;
@@ -17,6 +17,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,9 +29,13 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 @SpringBootTest
 @DisplayName("Test ResourceService")
 public class ResourceServiceTest {
+ 
 
   @Autowired
   private ResourceService resourceService;
+
+  @MockBean
+  private SessionService sessionService;
 
   @MockBean
   private ResourceRepository resourceRepository;
@@ -49,6 +54,9 @@ public class ResourceServiceTest {
 
   @BeforeEach
   void setUp() {
+    Mockito
+    .when(sessionService.getSessionBySessionId(ArgumentMatchers.anyString()))
+    .thenReturn(SessionTestUtils.session);
 
     testResource = Resource.builder()
         .id("a66de382-a9df-4fab-9d34-616e01e3e054")
