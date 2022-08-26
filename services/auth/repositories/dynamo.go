@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/exbotanical/gouache/utils"
+
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 
@@ -22,8 +24,8 @@ type UserTable struct {
 func InitUserTable() (*UserTable, error) {
 	accessKey := os.Getenv("DYNAMO_ACCESS_KEY")
 	secretKey := os.Getenv("DYNAMO_SECRET_KEY")
-	// host := os.Getenv("DYNAMO_HOST")
-	// port := os.Getenv("DYNAMO_PORT")
+	host := os.Getenv("DYNAMO_HOST")
+	port := os.Getenv("DYNAMO_PORT")
 	region := os.Getenv("DYNAMO_REGION")
 	tableName := os.Getenv("DYNAMO_TABLE_NAME")
 
@@ -34,7 +36,7 @@ func InitUserTable() (*UserTable, error) {
 
 		config.WithEndpointResolverWithOptions(aws.EndpointResolverWithOptionsFunc(
 			func(service, region string, options ...interface{}) (aws.Endpoint, error) {
-				return aws.Endpoint{URL: "http://gouache-dynamodb:8000"}, nil
+				return aws.Endpoint{URL: utils.ToEndpoint(host, port)}, nil
 			})),
 	)
 

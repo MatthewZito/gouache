@@ -29,7 +29,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 @SpringBootTest
 @DisplayName("Test ResourceService")
 public class ResourceServiceTest {
- 
+
 
   @Autowired
   private ResourceService resourceService;
@@ -54,31 +54,22 @@ public class ResourceServiceTest {
 
   @BeforeEach
   void setUp() {
-    Mockito
-    .when(sessionService.getSessionBySessionId(ArgumentMatchers.anyString()))
-    .thenReturn(SessionTestUtils.session);
+    Mockito.when(sessionService.getSessionBySessionId(ArgumentMatchers.anyString()))
+        .thenReturn(SessionTestUtils.session);
 
-    testResource = Resource.builder()
-        .id("a66de382-a9df-4fab-9d34-616e01e3e054")
-        .title("title")
-        .tags(Arrays.asList("art", "music"))
-        .createdAt(new Date().toString())
-        .updatedAt(new Date().toString())
-        .build();
+    testResource = Resource.builder().id("a66de382-a9df-4fab-9d34-616e01e3e054").title("title")
+        .tags(Arrays.asList("art", "music")).createdAt(new Date().toString())
+        .updatedAt(new Date().toString()).build();
   }
 
   @Test
   @DisplayName("Create a resource")
   void createResourceSuccess() {
-    ResourceModel inputResource = ResourceModel.builder()
-        .title("title")
-        .tags(Arrays.asList("art", "music"))
-        .build();
+    ResourceModel inputResource =
+        ResourceModel.builder().title("title").tags(Arrays.asList("art", "music")).build();
 
-    Resource newResource = Resource.builder()
-        .title(inputResource.getTitle())
-        .tags(inputResource.getTags())
-        .build();
+    Resource newResource =
+        Resource.builder().title(inputResource.getTitle()).tags(inputResource.getTags()).build();
 
     Mockito.when(resourceRepository.save(newResource)).thenReturn(testResource);
 
@@ -108,10 +99,8 @@ public class ResourceServiceTest {
   @Test
   @DisplayName("Update a resource by ID")
   void updateResourceById() {
-    ResourceModel inputModel = ResourceModel.builder()
-        .tags(Arrays.asList("test"))
-        .title("test title")
-        .build();
+    ResourceModel inputModel =
+        ResourceModel.builder().tags(Arrays.asList("test")).title("test title").build();
 
     assertDoesNotThrow(() -> resourceService.updateResourceById(testResource.getId(), inputModel));
   }
