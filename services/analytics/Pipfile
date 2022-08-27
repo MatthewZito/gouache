@@ -5,6 +5,8 @@ name = "pypi"
 
 [packages] 
 flask = "*"
+boto3 = "*"
+redis = "*"
 
 [dev-packages]
 pylint = "*" 

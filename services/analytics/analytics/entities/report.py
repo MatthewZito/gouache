@@ -12,7 +12,7 @@ class Report:
         self.caller = caller
         self.data = data
         self.ts = datetime.now(timezone.utc).timestamp() * 1000
-        self.id = id
+        self.id = str(id)
 
     def __str__(self) -> str:
         data = {
