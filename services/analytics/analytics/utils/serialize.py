@@ -6,6 +6,9 @@ def serialize():
         def dd(*args, **kwargs):
             result = f(*args, **kwargs)
 
+            if result is None:
+                return jsonify('{}')
+
             return jsonify(str(result))
 
         return dd

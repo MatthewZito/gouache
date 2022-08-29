@@ -5,8 +5,10 @@ from botocore.exceptions import ClientError, ParamValidationError
 import boto3
 from botocore.config import Config
 
+from .base_repository import BaseRepository
 
-class ReportRepository:
+
+class ReportRepository(BaseRepository):
     def __init__(self, table_name: str) -> None:
         host = os.getenv('DYNAMO_HOST', 'http://localhost')
         port = os.getenv('DYNAMO_PORT', '8000')

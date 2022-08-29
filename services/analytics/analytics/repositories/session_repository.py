@@ -1,8 +1,10 @@
 import os
 import redis
 
+from .base_repository import BaseRepository
 
-class SessionRepository:
+
+class SessionRepository(BaseRepository):
     def __init__(self) -> None:
         host = os.getenv('REDIS_HOST', 'localhost')
         port = os.getenv('REDIS_PORT', '6379')

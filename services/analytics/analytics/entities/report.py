@@ -1,18 +1,14 @@
 from datetime import datetime, timezone
-
-id = 0
+import uuid
 
 
 class Report:
     def __init__(self, name: str, caller: str, data: str) -> None:
-        global id
-        id += 1
-
         self.name = name
         self.caller = caller
         self.data = data
         self.ts = datetime.now(timezone.utc).timestamp() * 1000
-        self.id = str(id)
+        self.id = uuid.uuid4()
 
     def __str__(self) -> str:
         data = {
@@ -24,3 +20,18 @@ class Report:
         }
 
         return str(data)
+
+
+class ReportMatcher:
+    expected: Report
+
+    def __init__(self, expected):
+        self.expected = expected
+
+    def __eq__(self, other):
+        return (
+            type(other.id) is uuid.UUID
+            and type(other.ts) is float
+            and self.expected.name == other.name
+            and self.expected.caller == other.caller
+        )
