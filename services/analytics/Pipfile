@@ -10,6 +10,7 @@ redis = "*"
 
 [dev-packages]
 pylint = "*"
+blinker = "*"
 
 [requires]
 python_version = "3.10"

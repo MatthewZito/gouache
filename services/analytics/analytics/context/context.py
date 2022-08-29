@@ -12,6 +12,6 @@ def get_report_ctx():
 
 def get_session_ctx():
     if 'session' not in g:
-        g.session = SessionRepository("session")
+        g.session = SessionRepository()
 
     return g.session

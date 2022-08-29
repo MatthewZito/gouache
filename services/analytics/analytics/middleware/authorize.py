@@ -4,6 +4,7 @@ import json
 import os
 from types import SimpleNamespace
 from flask import abort, request
+from werkzeug.local import LocalProxy
 
 from analytics.context.context import get_session_ctx
 
@@ -16,19 +17,20 @@ def authorize(f):
         if not sid:
             abort(401)
 
-        redis = get_session_ctx()
-        session = redis.get(sid)
+        db = LocalProxy(get_session_ctx)
+
+        session = db.get(sid)
 
         if not session:
             abort(401)
 
         session_json = json.loads(session, object_hook=lambda d: SimpleNamespace(**d))
 
-        ts = datetime.utcfromtimestamp(session_json.Expiry)
+        ts = datetime.fromisoformat(session_json.Expiry).timestamp()
 
-        present = datetime.now()
+        present = datetime.now().timestamp()
 
-        if ts < present.date():
+        if ts < present:
             abort(401)
 
         return f(*args, **kws)

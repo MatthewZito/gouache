@@ -14,3 +14,6 @@ class SessionRepository(BaseRepository):
 
     def get(self, key: str):
         return self.client.get(key)
+
+    def put(self, **kwargs):
+        pass

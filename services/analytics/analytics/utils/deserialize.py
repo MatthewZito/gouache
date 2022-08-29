@@ -8,6 +8,7 @@ def deserialize(class_):
                 obj = class_(**request.get_json())
                 return f(obj)
             except Exception as e:
+                # @todo check in caller
                 return f(None)
 
         return decorator

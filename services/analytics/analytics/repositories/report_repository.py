@@ -26,6 +26,14 @@ class ReportRepository(BaseRepository):
         # we can store this as a field given it is lazy-loaded
         self.table = self.client.Table(table_name)
 
+    def get(self, key: str):
+        try:
+            response = self.table.get_item(Key={'Id': key})
+            return response
+
+        except ClientError or ParamValidationError or Exception as ex:
+            return str(ex)
+
     def put(self, name: str, caller: str, data: str, id: str):
         try:
             response = self.table.put_item(
@@ -40,18 +48,5 @@ class ReportRepository(BaseRepository):
 
             return response
 
-        except ClientError as error:
-            return str(error)
-        except ParamValidationError as error:
-            return str(error)
-
-    def get(self, id: str):
-
-        try:
-            response = self.table.get_item(Key={'Id': id})
-            return response
-
-        except ClientError as error:
-            return str(error)
-        except ParamValidationError as error:
-            return str(error)
+        except ClientError or ParamValidationError or Exception as ex:
+            return str(ex)
