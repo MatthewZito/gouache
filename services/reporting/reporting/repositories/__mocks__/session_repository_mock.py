@@ -1,5 +1,5 @@
 from datetime import datetime
-from analytics.repositories.base_repository import BaseRepository
+from reporting.repositories.base_repository import BaseRepository
 
 
 class MockSessionRepository(BaseRepository):

@@ -10,7 +10,6 @@ import com.github.exbotanical.resource.entities.Resource;
 import com.github.exbotanical.resource.models.ResourceModel;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -57,7 +56,7 @@ public class ResourceRepository {
     PaginatedScanList<Resource> ret =
         dynamoMapper.scan(Resource.class, new DynamoDBScanExpression());
 
-    ArrayList<Resource> list = new ArrayList();
+    ArrayList<Resource> list = new ArrayList<>();
     list.addAll(ret);
 
     return list;

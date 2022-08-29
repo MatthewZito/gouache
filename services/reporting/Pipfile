@@ -16,7 +16,6 @@ blinker = "*"
 python_version = "3.10"
 
 [scripts]
-test = "python3 -m unittest discover -s analytics -p \"*_test.py\" -f"
-lint = "pylint analytics/"
-analytics = " flask --app analytics.main run -p 6000"
-dev = " flask --app analytics.main run -p 6000 "
+test = "python3 -m unittest discover -s reporting -p \"*_test.py\" -f"
+lint = "pylint reporting/"
+dev = "flask --app reporting.main run -p 6000"

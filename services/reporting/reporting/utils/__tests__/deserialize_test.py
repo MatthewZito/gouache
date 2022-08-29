@@ -1,7 +1,7 @@
 import unittest
 
 from ..deserialize import deserialize
-from analytics.entities.report import Report, ReportMatcher
+from reporting.entities.report import Report, ReportMatcher
 from flask import Flask, request
 
 

@@ -1,0 +1,23 @@
+FROM python:3.10-alpine
+
+# Set locale
+ENV LANG C.UTF-8
+ENV LC_ALL C.UTF-8
+
+# Stop Python from writing .pyc files
+ENV PYTHONDONTWRITEBYTECODE 1
+
+# Enable Python tracebacks on segfaults
+ENV PYTHONFAULTHANDLER 1
+
+WORKDIR /app
+
+COPY ./Pipfile.lock /app
+COPY ./ /app
+
+RUN ls -la ./reporting
+
+RUN pip install pipenv
+RUN pipenv install --ignore-pipfile
+
+CMD ["pipenv", "run", "dev"]

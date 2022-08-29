@@ -2,9 +2,9 @@ from datetime import datetime
 import unittest
 from unittest import mock
 
-from analytics.main import app
-from analytics.repositories.base_repository import BaseRepository
-from analytics.repositories.session_repository import SessionRepository
+from reporting.main import app
+from reporting.repositories.base_repository import BaseRepository
+from reporting.repositories.session_repository import SessionRepository
 
 
 class MockReportRepository(BaseRepository):

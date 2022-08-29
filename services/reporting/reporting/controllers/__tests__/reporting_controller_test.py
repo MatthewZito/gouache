@@ -3,32 +3,38 @@ from types import SimpleNamespace
 import unittest
 from unittest import mock
 
-from analytics.entities.report import Report, ReportMatcher
+from reporting.entities.report import Report, ReportMatcher
+from reporting.meta.const import (
+    E_REPORT_CREATE,
+    E_REPORT_CREATE_INVALID_INPUT,
+    E_REPORT_GET,
+    E_UNAUTHORIZED,
+)
 
-from analytics.repositories.__mocks__.session_repository_mock import (
+from reporting.repositories.__mocks__.session_repository_mock import (
     MockSessionRepository,
     MockSessionRepositoryUnauthorized,
 )
-from analytics.main import app
-from analytics.repositories.report_repository import ReportRepository
+from reporting.main import app
+from reporting.repositories.report_repository import ReportRepository
 
 
 class TestReportingController(unittest.TestCase):
     def setUp(self):
         self.app = app
+        self.test_key = 'c22c1173-93be-4550-9200-afe7df28bf2f'
 
     def tearDown(self):
         pass
 
     @mock.patch(
-        'analytics.context.context.SessionRepository',
+        'reporting.context.context.SessionRepository',
         new=MockSessionRepository,
     )
     @mock.patch(
-        'analytics.context.context.ReportRepository',
+        'reporting.context.context.ReportRepository',
     )
     def test_get_report_ok(self, m: mock.Mock):
-        test_key = 'c22c1173-93be-4550-9200-afe7df28bf2f'
         expected = Report(caller='t', data='t', name='t')
 
         m.return_value = ReportRepository('test')
@@ -38,7 +44,7 @@ class TestReportingController(unittest.TestCase):
             return_value={
                 'Item': {
                     'Data': expected.data,
-                    'Id': test_key,
+                    'Id': self.test_key,
                     'Caller': expected.caller,
                     'Name': expected.name,
                     'TS': '1661786507886.366',
@@ -62,7 +68,7 @@ class TestReportingController(unittest.TestCase):
         with self.app.app_context():
             with self.app.test_client() as c:
                 c.set_cookie('gouache_session', 'gouache_session', '123')
-                res = c.get(f'/api/report/{test_key}')
+                res = c.get(f'/api/report/{self.test_key}')
 
                 self.assertEqual(res.status_code, 200)
 
@@ -72,25 +78,23 @@ class TestReportingController(unittest.TestCase):
                 ).data
 
                 actual = Report(
-                    # @todo normalize
-                    name=res_payload_data.Name,
-                    caller=res_payload_data.Caller,
-                    data=res_payload_data.Data,
+                    name=res_payload_data.name,
+                    caller=res_payload_data.caller,
+                    data=res_payload_data.data,
                 )
 
                 self.assertEqual(ReportMatcher(expected=expected), actual)
 
-                m.return_value.get.assert_called_once_with(test_key)
+                m.return_value.get.assert_called_once_with(self.test_key)
 
     @mock.patch(
-        'analytics.context.context.SessionRepository',
+        'reporting.context.context.SessionRepository',
         new=MockSessionRepository,
     )
     @mock.patch(
-        'analytics.context.context.ReportRepository',
+        'reporting.context.context.ReportRepository',
     )
     def test_get_report_not_found(self, m: mock.Mock):
-        test_key = 'c22c1173-93be-4550-9200-afe7df28bf2f'
 
         m.return_value = ReportRepository('test')
         # Avoid calling the constructor logic
@@ -116,7 +120,7 @@ class TestReportingController(unittest.TestCase):
         with self.app.app_context():
             with self.app.test_client() as c:
                 c.set_cookie('gouache_session', 'gouache_session', '123')
-                res = c.get(f'/api/report/{test_key}')
+                res = c.get(f'/api/report/{self.test_key}')
 
                 self.assertEqual(res.status_code, 404)
 
@@ -127,17 +131,16 @@ class TestReportingController(unittest.TestCase):
 
                 self.assertIsNone(res_payload_data)
 
-                m.return_value.get.assert_called_once_with(test_key)
+                m.return_value.get.assert_called_once_with(self.test_key)
 
     @mock.patch(
-        'analytics.context.context.SessionRepository',
+        'reporting.context.context.SessionRepository',
         new=MockSessionRepository,
     )
     @mock.patch(
-        'analytics.context.context.ReportRepository',
+        'reporting.context.context.ReportRepository',
     )
     def test_get_report_error(self, m: mock.Mock):
-        test_key = 'c22c1173-93be-4550-9200-afe7df28bf2f'
 
         m.return_value = ReportRepository('test')
         # Avoid calling the constructor logic
@@ -149,7 +152,7 @@ class TestReportingController(unittest.TestCase):
         with self.app.app_context():
             with self.app.test_client() as c:
                 c.set_cookie('gouache_session', 'gouache_session', '123')
-                res = c.get(f'/api/report/{test_key}')
+                res = c.get(f'/api/report/{self.test_key}')
 
                 self.assertEqual(res.status_code, 400)
 
@@ -164,22 +167,20 @@ class TestReportingController(unittest.TestCase):
                     res_payload.internal,
                 )
                 self.assertEqual(
-                    # @todo as const
-                    'An exception occurred while retrieving the report',
+                    E_REPORT_GET,
                     res_payload.friendly,
                 )
 
-                m.return_value.get.assert_called_once_with(test_key)
+                m.return_value.get.assert_called_once_with(self.test_key)
 
     @mock.patch(
-        'analytics.context.context.SessionRepository',
+        'reporting.context.context.SessionRepository',
         new=MockSessionRepositoryUnauthorized,
     )
     @mock.patch(
-        'analytics.context.context.ReportRepository',
+        'reporting.context.context.ReportRepository',
     )
     def test_get_report_unauthorized(self, m: mock.Mock):
-        test_key = 'c22c1173-93be-4550-9200-afe7df28bf2f'
 
         m.return_value = ReportRepository('test')
         # Avoid calling the constructor logic
@@ -189,7 +190,7 @@ class TestReportingController(unittest.TestCase):
         with self.app.app_context():
             with self.app.test_client() as c:
                 c.set_cookie('gouache_session', 'gouache_session', '123')
-                res = c.get(f'/api/report/{test_key}')
+                res = c.get(f'/api/report/{self.test_key}')
 
                 self.assertEqual(res.status_code, 401)
 
@@ -200,18 +201,18 @@ class TestReportingController(unittest.TestCase):
 
                 self.assertIsNone(res_payload.data)
                 self.assertEqual(
-                    'You must be authorized to access this resource',
+                    E_UNAUTHORIZED,
                     res_payload.friendly,
                 )
 
                 m.return_value.get.assert_not_called()
 
     @mock.patch(
-        'analytics.context.context.SessionRepository',
+        'reporting.context.context.SessionRepository',
         new=MockSessionRepository,
     )
     @mock.patch(
-        'analytics.context.context.ReportRepository',
+        'reporting.context.context.ReportRepository',
     )
     def test_create_report_ok(self, m: mock.Mock):
         m.return_value = ReportRepository('test')
@@ -251,11 +252,50 @@ class TestReportingController(unittest.TestCase):
                 )
 
     @mock.patch(
-        'analytics.context.context.SessionRepository',
+        'reporting.context.context.SessionRepository',
+        new=MockSessionRepository,
+    )
+    @mock.patch(
+        'reporting.context.context.ReportRepository',
+    )
+    def test_create_report_invalid_input(self, m: mock.Mock):
+        m.return_value = ReportRepository('test')
+        # Avoid calling the constructor logic
+        m.return_value.__init__ = mock.MagicMock()
+        m.return_value.put = mock.MagicMock(
+            return_value={'ResponseMetadata': {'HTTPStatusCode': 200}}
+        )
+
+        raw_report = {
+            'namex': 'test report',
+            'caller': 'gouache_test',
+            'data': 'data',
+        }
+
+        with self.app.app_context():
+            with self.app.test_client() as c:
+                c.set_cookie('gouache_session', 'gouache_session', '123')
+                res = c.post('/api/report', json=raw_report)
+
+                self.assertEqual(res.status_code, 400)
+
+                res_payload = json.loads(
+                    res.data,
+                    object_hook=lambda d: SimpleNamespace(**d),
+                )
+
+                self.assertIsNone(res_payload.data)
+                self.assertEqual(res_payload.friendly, E_REPORT_CREATE_INVALID_INPUT)
+                self.assertIsInstance(res_payload.internal, str)
+
+                m.return_value.put.assert_not_called()
+
+    @mock.patch(
+        'reporting.context.context.SessionRepository',
         new=MockSessionRepositoryUnauthorized,
     )
     @mock.patch(
-        'analytics.context.context.ReportRepository',
+        'reporting.context.context.ReportRepository',
     )
     def test_create_report_unauthorized(self, m: mock.Mock):
         raw_report = {
@@ -283,17 +323,17 @@ class TestReportingController(unittest.TestCase):
 
                 self.assertIsNone(res_payload.data)
                 self.assertEqual(
-                    'You must be authorized to access this resource',
+                    E_UNAUTHORIZED,
                     res_payload.friendly,
                 )
 
                 m.return_value.put.assert_not_called()
 
     @mock.patch(
-        'analytics.context.context.SessionRepository',
+        'reporting.context.context.SessionRepository',
         new=MockSessionRepository,
     )
-    @mock.patch('analytics.context.context.ReportRepository')
+    @mock.patch('reporting.context.context.ReportRepository')
     def test_create_report_error(self, m: mock.Mock):
         m.return_value = ReportRepository('test')
         # Avoid calling the constructor logic
@@ -326,8 +366,7 @@ class TestReportingController(unittest.TestCase):
                     res_payload.internal,
                 )
                 self.assertEqual(
-                    # @todo as const
-                    'An exception occurred while creating the report',
+                    E_REPORT_CREATE,
                     res_payload.friendly,
                 )
 

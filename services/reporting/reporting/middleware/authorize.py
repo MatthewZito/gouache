@@ -6,7 +6,7 @@ from types import SimpleNamespace
 from flask import abort, request
 from werkzeug.local import LocalProxy
 
-from analytics.context.context import get_session_ctx
+from reporting.context.context import get_session_ctx
 
 
 def authorize(f):

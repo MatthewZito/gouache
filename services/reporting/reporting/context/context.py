@@ -1,6 +1,6 @@
 from flask import g
-from analytics.repositories.report_repository import ReportRepository
-from analytics.repositories.session_repository import SessionRepository
+from reporting.repositories.report_repository import ReportRepository
+from reporting.repositories.session_repository import SessionRepository
 
 
 def get_report_ctx():

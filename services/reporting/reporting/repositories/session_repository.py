@@ -1,5 +1,5 @@
 import os
-import redis
+from redis import Redis
 
 from .base_repository import BaseRepository
 
@@ -10,7 +10,8 @@ class SessionRepository(BaseRepository):
         port = os.getenv('REDIS_PORT', '6379')
         password = os.getenv('REDIS_PASSWORD', 'password')
 
-        self.client = redis.Redis(host=host, port=port, db=0, password=password)
+        # self.client = Redis(host=host, port=port, db=0, password=password)
+        self.client = Redis(host=host, port=port, db=0)
 
     def get(self, key: str):
         return self.client.get(key)
