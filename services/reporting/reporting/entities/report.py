@@ -1,9 +1,19 @@
+"""
+This module exposes datatypes for the system's omnipresent "reports".
+"""
 from datetime import datetime, timezone
 import uuid
 
 
 class Report:
     def __init__(self, name: str, caller: str, data: str) -> None:
+        """A system analytics log or report.
+
+        Args:
+            name (str): The report name, for user-facing display and querying.
+            caller (str): The reporting system or module.
+            data (str): The serialized report data.
+        """
         self.name = name
         self.caller = caller
         self.data = data
@@ -23,6 +33,12 @@ class Report:
 
 
 class ReportMatcher:
+    """Implements equality comparison behavior for a given Report.
+
+    Args:
+        expected (Report): The expected Report type.
+    """
+
     expected: Report
 
     def __init__(self, expected):
@@ -30,8 +46,8 @@ class ReportMatcher:
 
     def __eq__(self, other):
         return (
-            type(other.id) is str
-            and type(other.ts) is float
+            isinstance(other.id, str)
+            and isinstance(other.ts, float)
             and self.expected.name == other.name
             and self.expected.caller == other.caller
         )

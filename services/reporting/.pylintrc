@@ -13,11 +13,11 @@ no-space-check=empty-line
 
 [BASIC]
 
-good-names=cb,fn,n
+good-names=id,ts
 
 [SIMILARITIES]
 
 min-similarity-lines=300
 
 [MESSAGES CONTROL]
-disable=
+disable=R0903

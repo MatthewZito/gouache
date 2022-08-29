@@ -1,3 +1,9 @@
+"""
+API endpoints for the reporting service.
+"""
+from flask import Blueprint, request
+from werkzeug.local import LocalProxy
+
 from reporting.context.context import get_report_ctx
 from reporting.meta.const import (
     E_REPORT_CREATE,
@@ -7,12 +13,8 @@ from reporting.meta.const import (
 from reporting.middleware.authorize import authorize
 from reporting.models.gouache_response import err_response, ok_response
 from reporting.utils.deserialize import deserialize
-from flask import Blueprint, request
-from reporting.entities.report import Report
-
-from werkzeug.local import LocalProxy
-
 from reporting.utils.normalize import normalize_dynamo_report
+from reporting.entities.report import Report
 
 
 reporting = Blueprint(
@@ -23,11 +25,19 @@ reporting = Blueprint(
 
 @reporting.route('/report/<id>', methods=['GET'])
 @authorize
-def get_report(id: str):
-    db = LocalProxy(get_report_ctx)
-    result = db.get(id)
+def get_report(report_id: str):
+    """Retrieve a Report by its id `report_id`.
 
-    if type(result) == str:
+    Args:
+        report_id (str): The UUID corresponding to the desired report.
+
+    Returns:
+        _type_: @todo
+    """
+    db = LocalProxy(get_report_ctx)
+    result = db.get(report_id)
+
+    if isinstance(result, str):
         return (
             err_response(E_REPORT_GET, result),
             400,
@@ -43,6 +53,14 @@ def get_report(id: str):
 @deserialize(Report)
 @authorize
 def create_report(report: Report):
+    """Create report endpoint. Creates a new Report in persistent storage and returns its system-generated UUID.
+
+    Args:
+        report (Report): The deserialized Report. This object is auto-generated using the request body, which should fulfill the public contract of the Report constructor.
+
+    Returns:
+        _type_: @todo
+    """
     db = LocalProxy(get_report_ctx)
 
     if report is None:
@@ -61,7 +79,7 @@ def create_report(report: Report):
         name=report.name,
     )
 
-    if type(result) == str:
+    if isinstance(result, str):
         return (
             err_response(E_REPORT_CREATE, result),
             400,
