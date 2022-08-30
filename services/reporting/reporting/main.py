@@ -1,6 +1,8 @@
 """Flask app initialization logic.
 """
-from flask import Flask
+from typing import Tuple
+
+from flask import Flask, Response
 
 from reporting.controllers.reporting_controller import reporting
 from reporting.meta.const import E_ROUTE_NOT_FOUND, E_UNAUTHORIZED
@@ -11,27 +13,27 @@ app = Flask(__name__)
 
 
 @app.errorhandler(404)
-def not_found(ex):
+def not_found(ex) -> Tuple[Response, int]:
     """Route not found handler.
 
     Args:
         ex (_type_): @todo
 
     Returns:
-        _type_: @todo
+        Tuple[Response, int]: A normalized response object; an HTTP status code.
     """
     return err_response(E_ROUTE_NOT_FOUND, str(ex)), 404
 
 
 @app.errorhandler(401)
-def unauthorized(ex):
+def unauthorized(ex) -> Tuple[Response, int]:
     """Unauthorized request handler.
 
     Args:
         ex (_type_): @todo
 
     Returns:
-        _type_: @todo
+        Tuple[Response, int]: A normalized response object; an HTTP status code.
     """
     return err_response(E_UNAUTHORIZED, str(ex)), 401
 

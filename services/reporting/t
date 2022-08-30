@@ -18,6 +18,12 @@ get_report() {
   curl localhost:6000/api/report/$1 --cookie "gouache_session=$SESSION" -v
 }
 
+# get all reports
+get_all_reports() {
+  curl localhost:6000/api/report --cookie "gouache_session=$SESSION" -v
+}
+
+
 main () {
   # start redis
   sudo service redis-server start

@@ -6,15 +6,17 @@ import os
 from datetime import datetime
 from functools import wraps
 from types import SimpleNamespace
-from typing import Callable
+from typing import Callable, TypeVar
 
 from flask import abort, request
 from werkzeug.local import LocalProxy
 
 from reporting.context.context import get_session_ctx
 
+RT = TypeVar('RT')
 
-def authorize(fn: Callable):
+
+def authorize(fn: Callable[..., RT]) -> Callable[..., RT]:
     """Authorization middleware.
        When decorating a request handler, this middleware validates
        the user session.
@@ -23,11 +25,11 @@ def authorize(fn: Callable):
         fn (Callable): The authorization-guarded request.
 
     Returns:
-        _type_: @todo
+        Response: A normalized response object.
     """
 
     @wraps(fn)
-    def decorator(*args, **kws):
+    def decorator(*args, **kws) -> RT:
         sid = request.cookies.get(os.getenv('GOUACHE_SESSION_KEY', 'gouache_session'))
 
         if not sid:
@@ -35,7 +37,7 @@ def authorize(fn: Callable):
 
         db = LocalProxy(get_session_ctx)
 
-        session = db.get(sid)
+        session = db.get(sid)  # type: ignore
 
         if not session:
             abort(401)

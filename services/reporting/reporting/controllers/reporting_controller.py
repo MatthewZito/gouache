@@ -1,7 +1,9 @@
 """
 API endpoints for the reporting service.
 """
-from flask import Blueprint, request
+from typing import Tuple
+
+from flask import Blueprint, Response, request
 from werkzeug.local import LocalProxy
 
 from reporting.context.context import get_report_ctx
@@ -9,6 +11,7 @@ from reporting.meta.const import (
     E_REPORT_CREATE,
     E_REPORT_CREATE_INVALID_INPUT,
     E_REPORT_GET,
+    E_REPORT_GET_ALL,
 )
 from reporting.middleware.authorize import authorize
 from reporting.models.gouache_response import err_response, ok_response
@@ -23,16 +26,46 @@ reporting = Blueprint(
 )
 
 
+@reporting.route('/report', methods=['GET'])
+@authorize
+def get_all_reports() -> Tuple[Response, int]:
+    """Retrieve all reports.
+
+    Returns:
+        Tuple[Response, int]: A normalized response object potentially
+        containing the retrieved Reports or page thereof; an HTTP status code.
+    """
+    last_page_key: str | None = request.args.get('last_page_key')
+    db = LocalProxy(get_report_ctx)
+
+    result = db.get_all(last_page_key)  # type: ignore
+
+    if isinstance(result, str):
+        return (
+            err_response(E_REPORT_GET_ALL, result),
+            400,
+        )
+
+    if (
+        'ResponseMetadata' in result
+        and result['ResponseMetadata'].get('HTTPStatusCode') == 200
+    ):
+    # LastEvaluatedKey
+    print(result)
+    return ok_response(result), 200
+
+
 @reporting.route('/report/<report_id>', methods=['GET'])
 @authorize
-def get_report(report_id: str):
+def get_report(report_id: str) -> Tuple[Response, int]:
     """Retrieve a Report by its id `report_id`.
 
     Args:
         report_id (str): The UUID corresponding to the desired report.
 
     Returns:
-        _type_: @todo
+        Tuple[Response, int]: A normalized response object potentially
+        containing the retrieved Report; an HTTP status code.
     """
     db = LocalProxy(get_report_ctx)
     result = db.get(report_id)  # type: ignore
@@ -52,7 +85,7 @@ def get_report(report_id: str):
 @reporting.route('/report', methods=['POST'])
 @deserialize(Report)
 @authorize
-def create_report(report: Report):
+def create_report(report: Report) -> Tuple[Response, int]:
     """Create report endpoint. Creates a new Report in
     persistent storage and returns its system-generated UUID.
 
@@ -62,7 +95,8 @@ def create_report(report: Report):
         which should fulfill the public contract of the Report constructor.
 
     Returns:
-        _type_: @todo
+        Tuple[Response, int]: A normalized response object potentially
+        containing the id of the newly-created Report; an HTTP status code.
     """
     db = LocalProxy(get_report_ctx)
 
