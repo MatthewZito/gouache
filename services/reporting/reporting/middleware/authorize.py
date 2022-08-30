@@ -44,7 +44,7 @@ def authorize(fn: Callable[..., RT]) -> Callable[..., RT]:
 
         session_json = json.loads(session, object_hook=lambda d: SimpleNamespace(**d))
 
-        ts = datetime.fromisoformat(session_json.Expiry).timestamp()
+        ts = datetime.fromisoformat(session_json.expiry).timestamp()
 
         present = datetime.now().timestamp()
 

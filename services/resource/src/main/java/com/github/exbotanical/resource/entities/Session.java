@@ -14,9 +14,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class Session {
-  @JsonProperty("Username")
+  @JsonProperty("username")
   public String username;
 
-  @JsonProperty("Expiry")
+  @JsonProperty("expiry")
   public Date expiry;
 }

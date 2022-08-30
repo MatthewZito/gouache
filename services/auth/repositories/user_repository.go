@@ -43,7 +43,7 @@ func (t UserTable) GetUser(username string) (*entities.User, error) {
 	response, err := t.DynamoDbClient.GetItem(context.TODO(), &dynamodb.GetItemInput{
 		TableName: aws.String(t.TableName),
 		Key: map[string]types.AttributeValue{
-			"Username": &types.AttributeValueMemberS{Value: username},
+			"username": &types.AttributeValueMemberS{Value: username},
 		},
 	})
 

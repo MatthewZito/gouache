@@ -24,8 +24,8 @@ type SessionManager interface {
 
 // Session represents session metadata as stored in the redis session cache.
 type Session struct {
-	Username string
-	Expiry   time.Time
+	Username string    `json:"username"`
+	Expiry   time.Time `json:"expiry"`
 }
 
 var ctx = context.Background()

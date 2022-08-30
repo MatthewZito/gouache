@@ -7,9 +7,9 @@ import (
 
 // User represents a user object.
 type User struct {
-	Id       string `json:"id" dynamodbav:"Id"`
-	Username string `json:"username" dynamodbav:"Username"`
-	Password string `json:"password" dynamodbav:"Password"`
+	Id       string `json:"id" dynamodbav:"id"`
+	Username string `json:"username" dynamodbav:"username"`
+	Password string `json:"password" dynamodbav:"password"`
 }
 
 // GetKey retrieves the primary key from a `User` object.
@@ -19,5 +19,5 @@ func (user User) GetKey() map[string]types.AttributeValue {
 		panic(err)
 	}
 
-	return map[string]types.AttributeValue{"Username": username}
+	return map[string]types.AttributeValue{"username": username}
 }

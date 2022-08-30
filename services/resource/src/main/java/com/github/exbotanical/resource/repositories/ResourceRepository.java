@@ -90,7 +90,7 @@ public class ResourceRepository {
     dynamoMapper.save(
         updatedResource,
         new DynamoDBSaveExpression().withExpectedEntry(
-            "Id",
+            "id",
             new ExpectedAttributeValue(
                 new AttributeValue().withS(id))));
   }

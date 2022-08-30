@@ -115,9 +115,9 @@ public class DynamoTestUtils {
 
       client.createTable(CreateTableRequest.builder()
           .keySchema(
-              KeySchemaElement.builder().keyType(KeyType.HASH).attributeName("Id").build())
+              KeySchemaElement.builder().keyType(KeyType.HASH).attributeName("id").build())
           .attributeDefinitions(
-              AttributeDefinition.builder().attributeName("Id")
+              AttributeDefinition.builder().attributeName("id")
                   .attributeType(ScalarAttributeType.S).build())
 
           .provisionedThroughput(ProvisionedThroughput.builder().readCapacityUnits(100L)

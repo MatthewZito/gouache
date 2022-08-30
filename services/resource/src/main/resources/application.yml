@@ -2,6 +2,9 @@ server:
   port: 4000
 
 spring:
+  mvc:
+    # prevent requests that would yield a 404 from being forwarded to the default servlet so we can handle ourselves
+    throwExceptionIfNoHandlerFound: true
   profiles:
     active: dev
 
