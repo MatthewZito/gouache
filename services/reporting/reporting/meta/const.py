@@ -1,3 +1,4 @@
+"""Application constants and error messages."""
 from typing import Final
 
 

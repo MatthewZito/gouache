@@ -1,16 +1,32 @@
-from datetime import datetime
-from functools import wraps
+"""This module houses authorization middleware.
+"""
 import json
 import os
+
+from datetime import datetime
+from functools import wraps
 from types import SimpleNamespace
+from typing import Callable
+
 from flask import abort, request
 from werkzeug.local import LocalProxy
 
 from reporting.context.context import get_session_ctx
 
 
-def authorize(f):
-    @wraps(f)
+def authorize(fn: Callable):
+    """Authorization middleware.
+       When decorating a request handler, this middleware validates
+       the user session.
+
+    Args:
+        fn (Callable): The authorization-guarded request.
+
+    Returns:
+        _type_: @todo
+    """
+
+    @wraps(fn)
     def decorator(*args, **kws):
         sid = request.cookies.get(os.getenv('GOUACHE_SESSION_KEY', 'gouache_session'))
 
@@ -33,6 +49,6 @@ def authorize(f):
         if ts < present:
             abort(401)
 
-        return f(*args, **kws)
+        return fn(*args, **kws)
 
     return decorator

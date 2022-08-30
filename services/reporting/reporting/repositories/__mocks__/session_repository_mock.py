@@ -1,8 +1,12 @@
+"""Repository mocks for testing.
+"""
+
 from datetime import datetime
-from reporting.repositories.base_repository import BaseRepository
 
 
-class MockSessionRepository(BaseRepository):
+class MockSessionRepository:
+    """A SessionRepository mock that returns an infinite session."""
+
     def get(self, key: str):
 
         return f'{{"Username":"user","Expiry":"{datetime.max}"}}'
@@ -11,7 +15,9 @@ class MockSessionRepository(BaseRepository):
         pass
 
 
-class MockSessionRepositoryUnauthorized(BaseRepository):
+class MockSessionRepositoryUnauthorized:
+    """A SessionRepository mock that returns a null session."""
+
     def get(self, key: str):
 
         return None

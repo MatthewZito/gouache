@@ -39,8 +39,8 @@ class TestReportingController(unittest.TestCase):
 
         m.return_value = ReportRepository('test')
         # Avoid calling the constructor logic
-        m.return_value.__init__ = mock.MagicMock()
-        m.return_value.get = mock.MagicMock(
+        m.return_value.__init__ = mock.MagicMock()  # type: ignore
+        m.return_value.get = mock.MagicMock(  # type: ignore
             return_value={
                 'Item': {
                     'Data': expected.data,
@@ -98,8 +98,8 @@ class TestReportingController(unittest.TestCase):
 
         m.return_value = ReportRepository('test')
         # Avoid calling the constructor logic
-        m.return_value.__init__ = mock.MagicMock()
-        m.return_value.get = mock.MagicMock(
+        m.return_value.__init__ = mock.MagicMock()  # type: ignore
+        m.return_value.get = mock.MagicMock(  # type: ignore
             return_value={
                 'ResponseMetadata': {
                     'RequestId': '682a0c3b-0b08-48a6-85d4-7f8486123758',
@@ -144,8 +144,8 @@ class TestReportingController(unittest.TestCase):
 
         m.return_value = ReportRepository('test')
         # Avoid calling the constructor logic
-        m.return_value.__init__ = mock.MagicMock()
-        m.return_value.get = mock.MagicMock(
+        m.return_value.__init__ = mock.MagicMock()  # type: ignore
+        m.return_value.get = mock.MagicMock(  # type: ignore
             return_value=str(Exception('test get error'))
         )
 
@@ -184,8 +184,8 @@ class TestReportingController(unittest.TestCase):
 
         m.return_value = ReportRepository('test')
         # Avoid calling the constructor logic
-        m.return_value.__init__ = mock.MagicMock()
-        m.return_value.get = mock.MagicMock()
+        m.return_value.__init__ = mock.MagicMock()  # type: ignore
+        m.return_value.get = mock.MagicMock()  # type: ignore
 
         with self.app.app_context():
             with self.app.test_client() as c:
@@ -217,8 +217,8 @@ class TestReportingController(unittest.TestCase):
     def test_create_report_ok(self, m: mock.Mock):
         m.return_value = ReportRepository('test')
         # Avoid calling the constructor logic
-        m.return_value.__init__ = mock.MagicMock()
-        m.return_value.put = mock.MagicMock(
+        m.return_value.__init__ = mock.MagicMock()  # type: ignore
+        m.return_value.put = mock.MagicMock(  # type: ignore
             return_value={'ResponseMetadata': {'HTTPStatusCode': 200}}
         )
 
@@ -247,7 +247,7 @@ class TestReportingController(unittest.TestCase):
                 m.return_value.put.assert_called_once_with(
                     caller=raw_report['caller'],
                     data=raw_report['data'],
-                    id=mock.ANY,
+                    report_id=mock.ANY,
                     name=raw_report['name'],
                 )
 
@@ -261,8 +261,8 @@ class TestReportingController(unittest.TestCase):
     def test_create_report_invalid_input(self, m: mock.Mock):
         m.return_value = ReportRepository('test')
         # Avoid calling the constructor logic
-        m.return_value.__init__ = mock.MagicMock()
-        m.return_value.put = mock.MagicMock(
+        m.return_value.__init__ = mock.MagicMock()  # type: ignore
+        m.return_value.put = mock.MagicMock(  # type: ignore
             return_value={'ResponseMetadata': {'HTTPStatusCode': 200}}
         )
 
@@ -306,8 +306,8 @@ class TestReportingController(unittest.TestCase):
 
         m.return_value = ReportRepository('test')
         # Avoid calling the constructor logic
-        m.return_value.__init__ = mock.MagicMock()
-        m.return_value.put = mock.MagicMock()
+        m.return_value.__init__ = mock.MagicMock()  # type: ignore
+        m.return_value.put = mock.MagicMock()  # type: ignore
 
         with self.app.app_context():
             with self.app.test_client() as c:
@@ -337,8 +337,8 @@ class TestReportingController(unittest.TestCase):
     def test_create_report_error(self, m: mock.Mock):
         m.return_value = ReportRepository('test')
         # Avoid calling the constructor logic
-        m.return_value.__init__ = mock.MagicMock()
-        m.return_value.put = mock.MagicMock(
+        m.return_value.__init__ = mock.MagicMock()  # type: ignore
+        m.return_value.put = mock.MagicMock(  # type: ignore
             return_value=str(Exception('test put error'))
         )
 
@@ -373,7 +373,7 @@ class TestReportingController(unittest.TestCase):
                 m.return_value.put.assert_called_once_with(
                     caller=raw_report['caller'],
                     data=raw_report['data'],
-                    id=mock.ANY,
+                    report_id=mock.ANY,
                     name=raw_report['name'],
                 )
 

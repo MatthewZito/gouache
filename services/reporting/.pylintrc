@@ -9,15 +9,14 @@ unsafe-load-any-extension=no
 
 indent-string='    '
 expected-line-ending-format=LF
-no-space-check=empty-line
 
 [BASIC]
 
-good-names=id,ts
+good-names=id,ts,db,ex,fn
 
 [SIMILARITIES]
 
 min-similarity-lines=300
 
 [MESSAGES CONTROL]
-disable=R0903
+disable=R0903,W0703,W0221

@@ -1,7 +1,7 @@
 import unittest
 
 from ..serialize import serialize
-from flask import Flask, request
+from flask import Flask
 
 
 class Obj:

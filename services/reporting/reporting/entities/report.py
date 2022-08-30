@@ -6,14 +6,15 @@ import uuid
 
 
 class Report:
-    def __init__(self, name: str, caller: str, data: str) -> None:
-        """A system analytics log or report.
+    """A system analytics log or report.
 
-        Args:
-            name (str): The report name, for user-facing display and querying.
-            caller (str): The reporting system or module.
-            data (str): The serialized report data.
-        """
+    Args:
+        name (str): The report name, for user-facing display and querying.
+        caller (str): The reporting system or module.
+        data (str): The serialized report data.
+    """
+
+    def __init__(self, name: str, caller: str, data: str) -> None:
         self.name = name
         self.caller = caller
         self.data = data

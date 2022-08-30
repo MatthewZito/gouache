@@ -23,7 +23,7 @@ reporting = Blueprint(
 )
 
 
-@reporting.route('/report/<id>', methods=['GET'])
+@reporting.route('/report/<report_id>', methods=['GET'])
 @authorize
 def get_report(report_id: str):
     """Retrieve a Report by its id `report_id`.
@@ -35,7 +35,7 @@ def get_report(report_id: str):
         _type_: @todo
     """
     db = LocalProxy(get_report_ctx)
-    result = db.get(report_id)
+    result = db.get(report_id)  # type: ignore
 
     if isinstance(result, str):
         return (
@@ -53,10 +53,13 @@ def get_report(report_id: str):
 @deserialize(Report)
 @authorize
 def create_report(report: Report):
-    """Create report endpoint. Creates a new Report in persistent storage and returns its system-generated UUID.
+    """Create report endpoint. Creates a new Report in
+    persistent storage and returns its system-generated UUID.
 
     Args:
-        report (Report): The deserialized Report. This object is auto-generated using the request body, which should fulfill the public contract of the Report constructor.
+        report (Report): The deserialized Report.
+        This object is auto-generated using the request body,
+        which should fulfill the public contract of the Report constructor.
 
     Returns:
         _type_: @todo
@@ -72,10 +75,10 @@ def create_report(report: Report):
             400,
         )
 
-    result = db.put(
+    result = db.put(  # type: ignore
         caller=report.caller,
         data=report.data,
-        id=report.id,
+        report_id=report.id,
         name=report.name,
     )
 

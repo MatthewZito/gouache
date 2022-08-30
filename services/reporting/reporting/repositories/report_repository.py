@@ -1,14 +1,21 @@
-from datetime import datetime, timezone
+"""Reporting data repositories.
+"""
 import os
+from datetime import datetime, timezone
 
-from botocore.exceptions import ClientError, ParamValidationError
 import boto3
+from botocore.exceptions import ClientError, ParamValidationError
 from botocore.config import Config
 
-from .base_repository import BaseRepository
 
+class ReportRepository:
+    """A data repository for reporting data.
+    Uses DynamoDB as a data source.
 
-class ReportRepository(BaseRepository):
+    Args:
+        table_name (str): The dynamodb table name.
+    """
+
     def __init__(self, table_name: str) -> None:
         host = os.getenv('DYNAMO_HOST', 'http://localhost')
         port = os.getenv('DYNAMO_PORT', '8000')
@@ -31,10 +38,10 @@ class ReportRepository(BaseRepository):
             response = self.table.get_item(Key={'Id': key})
             return response
 
-        except ClientError or ParamValidationError or Exception as ex:
+        except (ClientError, ParamValidationError, Exception) as ex:
             return str(ex)
 
-    def put(self, name: str, caller: str, data: str, id: str):
+    def put(self, name: str, caller: str, data: str, report_id: str):
         try:
             response = self.table.put_item(
                 Item={
@@ -42,11 +49,11 @@ class ReportRepository(BaseRepository):
                     'Caller': caller,
                     'Data': data,
                     'TS': str(datetime.now(timezone.utc).timestamp() * 1000),
-                    'Id': id,
+                    'Id': report_id,
                 }
             )
 
             return response
 
-        except ClientError or ParamValidationError or Exception as ex:
+        except (ClientError, ParamValidationError, Exception) as ex:
             return str(ex)
