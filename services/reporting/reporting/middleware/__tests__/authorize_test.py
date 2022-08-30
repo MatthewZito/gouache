@@ -24,7 +24,7 @@ class TestAuthorizationMiddleware(unittest.TestCase):
         # Avoid calling the constructor logic
         m.return_value.__init__ = mock.MagicMock()  # type: ignore
         m.return_value.get = mock.MagicMock(  # type: ignore
-            return_value='{"username":"user","expiry":"1022-08-29 21:59:59.999999"}'
+            return_value='{"username":"user","expiry":"1000-08-26T15:28:03.683Z"}'
         )
 
         with self.app.app_context():
@@ -62,7 +62,7 @@ class TestAuthorizationMiddleware(unittest.TestCase):
         # Avoid calling the constructor logic
         m.return_value.__init__ = mock.MagicMock()  # type: ignore
         m.return_value.get = mock.MagicMock(  # type: ignore
-            return_value=f'{{"username":"user","expiry":"{datetime.max}"}}'
+            return_value='{"username":"user","expiry":"9999-08-26T15:28:03.683Z"}'
         )
 
         with self.app.app_context():

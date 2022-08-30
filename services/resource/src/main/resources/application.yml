@@ -9,6 +9,7 @@ spring:
     active: dev
 
 ---
+# mvn spring-boot:run -Dspring-boot.run.arguments="--spring.profiles.active=local"
 spring:
   config:
     activate:
@@ -22,6 +23,11 @@ aws:
     host: http://localhost
     port: 8000
     region: us-east-1
+  sqs:
+    report_queue: report-queue
+    host: http://localhost
+    port: 9324
+    region: us-east-1
 
 management:
   endpoints:
@@ -31,7 +37,7 @@ management:
         exclude: "env,beans"
 
 app:
-  locale: resource-dev
+  locale: resource-local
   cookie_name: gouache_session
   client_host: http://localhost
   client_port: 3000
@@ -53,6 +59,11 @@ aws:
   dynamodb:
     host: http://gouache-dynamodb
     port: 8000
+    region: us-east-1
+  sqs:
+    report_queue: report-queue
+    host: http://qouache-queue
+    port: 9324
     region: us-east-1
 
 management:
@@ -86,6 +97,11 @@ aws:
     host: http://gouache-dynamodb
     port: 8000
     region: us-east-1
+  sqs:
+    report_queue: report-queue
+    host: http://qouache-queue
+    port: 9324
+    region: us-east-1
 
 app:
   locale: resource-qa
@@ -110,6 +126,11 @@ aws:
   dynamodb:
     host: http://gouache-dynamodb
     port: 8000
+    region: us-east-1
+  sqs:
+    report_queue: report-queue
+    host: http://qouache-queue
+    port: 9324
     region: us-east-1
 
 app:

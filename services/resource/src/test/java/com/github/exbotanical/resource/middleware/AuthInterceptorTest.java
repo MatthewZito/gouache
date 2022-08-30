@@ -4,6 +4,7 @@ import com.github.exbotanical.resource.SessionTestUtils;
 import com.github.exbotanical.resource.controllers.ResourceController;
 import com.github.exbotanical.resource.entities.Session;
 import com.github.exbotanical.resource.meta.Constants;
+import com.github.exbotanical.resource.services.QueueSenderService;
 import com.github.exbotanical.resource.services.ResourceService;
 import com.github.exbotanical.resource.services.SessionService;
 import org.junit.jupiter.api.DisplayName;
@@ -12,6 +13,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.cloud.aws.messaging.listener.QueueMessageHandler;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -39,11 +41,19 @@ class AuthInterceptorTest {
   @MockBean
   private ResourceController resourceController;
 
+  // No-op mock to prevent connection attempts.
+  @MockBean
+  private QueueMessageHandler queueMessageHandler;
+
+  // No-op mock to prevent connection attempts.
+  @MockBean
+  private QueueSenderService queueSenderService;
+
   @Test
   @DisplayName("Establish a baseline and expect authorized")
   void shouldAuthorizeRequestWithValidSession() throws Exception {
     Cookie sessionCookie = SessionTestUtils.cookie;
-    
+
     Mockito
       .when(sessionService.getSessionBySessionId(sessionCookie.getValue()))
       .thenReturn(SessionTestUtils.session);

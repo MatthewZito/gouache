@@ -3,6 +3,7 @@
 import json
 import os
 
+from dateutil.parser import parse
 from datetime import datetime
 from functools import wraps
 from types import SimpleNamespace
@@ -44,7 +45,7 @@ def authorize(fn: Callable[..., RT]) -> Callable[..., RT]:
 
         session_json = json.loads(session, object_hook=lambda d: SimpleNamespace(**d))
 
-        ts = datetime.fromisoformat(session_json.expiry).timestamp()
+        ts = parse(session_json.expiry).timestamp()
 
         present = datetime.now().timestamp()
 

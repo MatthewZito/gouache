@@ -59,7 +59,10 @@ main () {
   sudo service redis-server start
 
   # set session
-  echo "SET "$SESSION" '{\"username\":\"user\",\"expiry\":\"9999-08-29 21:59:59.999999\"}'" | redis-cli
+  echo "SET "$SESSION" '{\"username\":\"user\",\"expiry\":\"9999-08-26T15:28:03.683Z\"}'" | redis-cli
+
+	# set redis password 
+	echo "SET CONFIG requirepass password" | redis-cli
 
   # start local db
   docker run -p 8000:8000 amazon/dynamodb-local   -jar DynamoDBLocal.jar -sharedDb &

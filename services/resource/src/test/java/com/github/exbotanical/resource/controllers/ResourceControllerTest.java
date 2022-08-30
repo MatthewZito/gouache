@@ -5,6 +5,7 @@ import com.github.exbotanical.resource.SessionTestUtils;
 import com.github.exbotanical.resource.entities.Resource;
 import com.github.exbotanical.resource.meta.Constants;
 import com.github.exbotanical.resource.models.ResourceModel;
+import com.github.exbotanical.resource.services.QueueSenderService;
 import com.github.exbotanical.resource.services.ResourceService;
 import com.github.exbotanical.resource.services.SessionService;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,6 +16,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.cloud.aws.messaging.listener.QueueMessageHandler;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -38,6 +40,14 @@ class ResourceControllerTest {
   @MockBean
   private SessionService sessionService;
 
+  // No-op mock to prevent connection attempts.
+  @MockBean
+  private QueueMessageHandler queueMessageHandler;
+
+  // No-op mock to prevent connection attempts.
+  @MockBean
+  private QueueSenderService queueSenderService;
+  
   private Resource testResource;
 
   @BeforeEach
@@ -58,7 +68,7 @@ class ResourceControllerTest {
   @Test
   @DisplayName("Create a resource successfully")
   void createResourceSuccess() throws Exception {
-    ResourceModel inputResource = ResourceModel.builder()
+    ResourceModel inputModel = ResourceModel.builder()
       .title("title")
       .tags(Arrays.asList("art", "music"))
       .build();
@@ -69,7 +79,7 @@ class ResourceControllerTest {
     mockMvc.perform(
         post("/resource")
           .contentType(MediaType.APPLICATION_JSON)
-          .content(Jackson.toJsonString(inputResource))
+          .content(Jackson.toJsonString(inputModel))
           .cookie(SessionTestUtils.cookie))
       .andExpect(status().isCreated())
       .andExpect(jsonPath("$.data").value(testResource));
@@ -78,12 +88,12 @@ class ResourceControllerTest {
   @Test
   @DisplayName("Attempt to create a resource with an invalid input model")
   void createResourceInvalidInput() throws Exception {
-    ResourceModel inputResource = ResourceModel.builder()
+    ResourceModel inputModel = ResourceModel.builder()
       .title("title")
       .tags(Arrays.asList("art", "music"))
       .build();
 
-    Mockito.when(resourceService.createResource(inputResource)).thenReturn(testResource);
+    Mockito.when(resourceService.createResource(inputModel)).thenReturn(testResource);
 
     mockMvc.perform(
         post("/resource")

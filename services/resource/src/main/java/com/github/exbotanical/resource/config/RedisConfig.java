@@ -1,5 +1,6 @@
 package com.github.exbotanical.resource.config;
 
+import com.github.exbotanical.resource.entities.Session;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,8 +10,6 @@ import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-
-import com.github.exbotanical.resource.entities.Session;
 
 /**
  * Redis configuration.
@@ -35,7 +34,8 @@ public class RedisConfig {
   @Bean
   public RedisConnectionFactory redisConnectionFactory() {
     RedisStandaloneConfiguration connectionConfig =
-        new RedisStandaloneConfiguration(redisHost, Integer.parseInt(redisPort));
+      new RedisStandaloneConfiguration(redisHost, Integer.parseInt(redisPort));
+
     connectionConfig.setPassword(redisPassword);
 
     return new LettuceConnectionFactory(connectionConfig);
@@ -53,5 +53,4 @@ public class RedisConfig {
 
     return template;
   }
-
 }

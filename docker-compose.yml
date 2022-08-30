@@ -32,30 +32,6 @@ services:
       - gouache-dynamodb
       - gouache-cache
 
-  gouache-dynamodb:
-    command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
-    image: "amazon/dynamodb-local:latest"
-    container_name: gouache-dynamodb
-    restart: always
-    user: root # otherwise, we need to configure the dynamodb user
-    ports:
-      - "8000:8000"
-    networks:
-      - gouache-network
-    volumes:
-      - "./docker/dynamodb:/home/dynamodblocal/data" # dirty fix: sudo chmod 777 ./docker/dynamodb
-    working_dir: /home/dynamodblocal
-
-  gouache-cache:
-    container_name: gouache-cache
-    image: redis
-    restart: always
-    ports:
-     - "6379:6379"
-    networks:
-      - gouache-network
-    command: redis-server --save 20 1 --loglevel warning --requirepass password
-
   gouache-client:
     container_name: gouache-client
     restart: always
@@ -73,6 +49,41 @@ services:
     depends_on:
       - gouache-auth
       - gouache-resource
+
+  gouache-dynamodb:
+    command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
+    image: "amazon/dynamodb-local:latest"
+    container_name: gouache-dynamodb
+    restart: always
+    user: root # otherwise, we need to configure the dynamodb user
+    ports:
+      - "8000:8000"
+    networks:
+      - gouache-network
+    volumes:
+      - "./docker/dynamodb:/home/dynamodblocal/data" # dirty fix: sudo chmod 777 ./docker/dynamodb
+    working_dir: /home/dynamodblocal
+
+  gouache-cache:
+    image: redis
+    container_name: gouache-cache
+    restart: always
+    ports:
+     - "6379:6379"
+    networks:
+      - gouache-network
+    command: redis-server --save 20 1 --loglevel warning --requirepass password
+
+  qouache-queue:
+    image: s12v/elasticmq
+    container_name: gouache-queue
+    restart: always
+    ports:
+      - "9324:9324"
+    networks:
+      - gouache-network
+    volumes:
+      - ./src/main/resources/sqs/elasticmq.conf:/etc/elasticmq/elasticmq.conf
 
 networks:
   gouache-network:

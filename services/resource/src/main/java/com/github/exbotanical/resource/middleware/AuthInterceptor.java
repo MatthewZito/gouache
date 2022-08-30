@@ -3,6 +3,8 @@ package com.github.exbotanical.resource.middleware;
 import com.github.exbotanical.resource.entities.Session;
 import com.github.exbotanical.resource.errors.UnauthorizedException;
 import com.github.exbotanical.resource.meta.Constants;
+import com.github.exbotanical.resource.models.ReportName;
+import com.github.exbotanical.resource.services.QueueSenderService;
 import com.github.exbotanical.resource.services.SessionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,41 +26,56 @@ public class AuthInterceptor implements HandlerInterceptor {
   @Autowired
   private SessionService sessionService;
 
+  @Autowired
+  private QueueSenderService queueSenderService;
+
   @Value("${app.cookie_name}")
   String cookieName;
 
   @Override
-  public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
+  public boolean preHandle(HttpServletRequest req, HttpServletResponse res, Object handler)
     throws Exception {
 
-    if ("OPTIONS".equals(request.getMethod())) {
-      return HandlerInterceptor.super.preHandle(request, response, handler);
+    if ("OPTIONS".equals(req.getMethod())) {
+      return HandlerInterceptor.super.preHandle(req, res, handler);
     }
 
     // @todo add ignore auth annotation
-    Cookie cookie = WebUtils.getCookie(request, cookieName);
+    Cookie cookie = WebUtils.getCookie(req, cookieName);
 
     if (cookie == null) {
-      throw new UnauthorizedException(Constants.E_COOKIE_NOT_FOUND);
+
+      throw deriveUnauthorizedExceptionAndSendReport(Constants.E_COOKIE_NOT_FOUND);
     }
 
     String sid = cookie.getValue();
 
     if (sid == null) {
-      throw new UnauthorizedException(Constants.E_SESSION_ID_NOT_FOUND);
+      throw deriveUnauthorizedExceptionAndSendReport(Constants.E_SESSION_ID_NOT_FOUND);
     }
 
-    Session session = sessionService.getSessionBySessionId(sid);
+    Session session = null;
+    try {
+      session = sessionService.getSessionBySessionId(sid);
+    } catch (Exception ex) {
+      throw deriveUnauthorizedExceptionAndSendReport(String.format(Constants.E_SESSION_NOT_FOUND_FMT, sid));
+    }
 
     if (session == null) {
-      throw new UnauthorizedException(String.format(Constants.E_SESSION_NOT_FOUND_FMT, sid));
+      throw deriveUnauthorizedExceptionAndSendReport(String.format(Constants.E_SESSION_NOT_FOUND_FMT, sid));
     }
 
     if (session.expiry.before(new Date())) {
-      throw new UnauthorizedException(String.format(Constants.E_SESSION_EXPIRED_FMT,
+      throw deriveUnauthorizedExceptionAndSendReport(String.format(Constants.E_SESSION_EXPIRED_FMT,
         sid, session.username, session.expiry));
     }
 
-    return HandlerInterceptor.super.preHandle(request, response, handler);
+    return HandlerInterceptor.super.preHandle(req, res, handler);
+  }
+
+  private UnauthorizedException deriveUnauthorizedExceptionAndSendReport(String message) {
+    queueSenderService.sendMessage(message, ReportName.UNAUTHORIZED_ACCESS);
+
+    return new UnauthorizedException(message);
   }
 }

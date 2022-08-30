@@ -5,6 +5,7 @@ import com.github.exbotanical.resource.controllers.ResourceController;
 import com.github.exbotanical.resource.errors.GouacheException;
 import com.github.exbotanical.resource.errors.OperationFailedException;
 import com.github.exbotanical.resource.meta.Constants;
+import com.github.exbotanical.resource.services.QueueSenderService;
 import com.github.exbotanical.resource.services.ResourceService;
 import com.github.exbotanical.resource.services.SessionService;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,6 +16,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.cloud.aws.messaging.listener.QueueMessageHandler;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.client.HttpServerErrorException.InternalServerError;
@@ -38,6 +40,14 @@ class GouacheExceptionHandlerTest {
 
   @MockBean
   private ResourceController resourceController;
+
+  // No-op mock to prevent connection attempts.
+  @MockBean
+  private QueueMessageHandler queueMessageHandler;
+
+  // No-op mock to prevent connection attempts.
+  @MockBean
+  private QueueSenderService queueSenderService;
 
   @BeforeEach
   void setUp() {

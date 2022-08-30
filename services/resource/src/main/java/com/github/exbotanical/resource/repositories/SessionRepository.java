@@ -1,12 +1,11 @@
 package com.github.exbotanical.resource.repositories;
 
-import javax.annotation.Resource;
-
+import com.amazonaws.util.json.Jackson;
+import com.github.exbotanical.resource.entities.Session;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Repository;
 
-import com.amazonaws.util.json.Jackson;
-import com.github.exbotanical.resource.entities.Session;
+import javax.annotation.Resource;
 
 /**
  * A repository for managing readonly Session data via Redis.
@@ -21,11 +20,12 @@ public class SessionRepository {
    * Retrieve a Session by its session id.
    *
    * @param sid The session id.
+   *
    * @return The deserialized Session, or null if not extant.
    */
   public Session getById(String sid) {
     String jsonSession = valueOperations.get(sid);
-
+    System.out.println(jsonSession);
 
     return Jackson.fromJsonString(jsonSession, Session.class);
   }

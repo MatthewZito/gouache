@@ -16,7 +16,7 @@ class MockSessionRepository:
         Returns:
             dict: Infinite session. @todo type
         """
-        return f'{{"username":"user","expiry":"{datetime.max}"}}'
+        return '{"username":"user","expiry":"9999-08-26T15:28:03.683Z"}'
 
 
 class MockSessionRepositoryUnauthorized:
