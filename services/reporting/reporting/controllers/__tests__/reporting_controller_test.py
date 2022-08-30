@@ -8,6 +8,7 @@ from reporting.meta.const import (
     E_REPORT_CREATE,
     E_REPORT_CREATE_INVALID_INPUT,
     E_REPORT_GET,
+    E_REPORT_GET_ALL,
     E_UNAUTHORIZED,
 )
 
@@ -15,17 +16,266 @@ from reporting.repositories.__mocks__.session_repository_mock import (
     MockSessionRepository,
     MockSessionRepositoryUnauthorized,
 )
-from reporting.main import app
+from reporting.main import create_app
 from reporting.repositories.report_repository import ReportRepository
 
 
 class TestReportingController(unittest.TestCase):
     def setUp(self):
-        self.app = app
+        self.app = create_app()
         self.test_key = 'c22c1173-93be-4550-9200-afe7df28bf2f'
 
     def tearDown(self):
         pass
+
+    @mock.patch(
+        'reporting.context.context.SessionRepository',
+        new=MockSessionRepository,
+    )
+    @mock.patch(
+        'reporting.context.context.ReportRepository',
+    )
+    def test_get_all_reports_ok(self, m: mock.Mock):
+        m.return_value = ReportRepository('test')
+        # Avoid calling the constructor logic
+        m.return_value.__init__ = mock.MagicMock()  # type: ignore
+        m.return_value.get_all = mock.MagicMock(  # type: ignore
+            return_value={
+                "Count": 3,
+                "Items": [
+                    {
+                        "caller": "x1",
+                        "data": "y1",
+                        "id": "73e0f8ad-4b01-44a2-a450-d62129c85675",
+                        "name": "z1",
+                        "ts": "1661839391418.198",
+                    },
+                    {
+                        "caller": "x2",
+                        "data": "y2",
+                        "id": "3d84b7fc-fcf7-4cc0-a79e-7e1602893978",
+                        "name": "z2",
+                        "ts": "1661839402457.305",
+                    },
+                    {
+                        "caller": "x",
+                        "data": "y",
+                        "id": "551f4ec2-3438-477e-a3db-d136a1269c3e",
+                        "name": "z",
+                        "ts": "1661839377285.796",
+                    },
+                ],
+                "ResponseMetadata": {
+                    "HTTPStatusCode": 200,
+                },
+                "ScannedCount": 3,
+            }
+        )
+
+        with self.app.app_context():
+            with self.app.test_client() as c:
+                c.set_cookie('gouache_session', 'gouache_session', '123')
+                res = c.get('/api/report')
+
+                self.assertEqual(res.status_code, 200)
+
+                res_payload_data = json.loads(
+                    res.data,
+                    object_hook=lambda d: SimpleNamespace(**d),
+                ).data
+
+                self.assertEqual(len(res_payload_data.items), 3)
+                self.assertEqual(res_payload_data.next, '')
+
+                m.return_value.get_all.assert_called_once_with(None)
+
+    @mock.patch(
+        'reporting.context.context.SessionRepository',
+        new=MockSessionRepository,
+    )
+    @mock.patch(
+        'reporting.context.context.ReportRepository',
+    )
+    def test_get_all_reports_paginated_ok(self, m: mock.Mock):
+        test_last_page_key = 'test'
+        test_next_page_key = 'test2'
+
+        m.return_value = ReportRepository('test')
+        # Avoid calling the constructor logic
+        m.return_value.__init__ = mock.MagicMock()  # type: ignore
+        m.return_value.get_all = mock.MagicMock(  # type: ignore
+            return_value={
+                "LastEvaluatedKey": {"id": test_next_page_key},
+                "Count": 3,
+                "Items": [
+                    {
+                        "caller": "x",
+                        "data": "y",
+                        "id": "551f4ec2-3438-477e-a3db-d136a1269c3e",
+                        "name": "z",
+                        "ts": "1661839377285.796",
+                    },
+                ],
+                "ResponseMetadata": {
+                    "HTTPStatusCode": 200,
+                },
+                "ScannedCount": 3,
+            }
+        )
+
+        with self.app.app_context():
+            with self.app.test_client() as c:
+                c.set_cookie('gouache_session', 'gouache_session', '123')
+                res = c.get(f'/api/report?last_page_key={test_last_page_key}')
+
+                self.assertEqual(res.status_code, 200)
+
+                res_payload_data = json.loads(
+                    res.data,
+                    object_hook=lambda d: SimpleNamespace(**d),
+                ).data
+
+                self.assertEqual(len(res_payload_data.items), 1)
+                self.assertEqual(res_payload_data.next, test_next_page_key)
+
+                m.return_value.get_all.assert_called_once_with(test_last_page_key)
+
+    @mock.patch(
+        'reporting.context.context.SessionRepository',
+        new=MockSessionRepository,
+    )
+    @mock.patch(
+        'reporting.context.context.ReportRepository',
+    )
+    def test_get_all_reports_empty(self, m: mock.Mock):
+        m.return_value = ReportRepository('test')
+        # Avoid calling the constructor logic
+        m.return_value.__init__ = mock.MagicMock()  # type: ignore
+        m.return_value.get_all = mock.MagicMock(  # type: ignore
+            return_value={
+                "Count": 0,
+                "Items": [],
+                "ResponseMetadata": {
+                    "HTTPStatusCode": 200,
+                },
+                "ScannedCount": 3,
+            }
+        )
+
+        with self.app.app_context():
+            with self.app.test_client() as c:
+                c.set_cookie('gouache_session', 'gouache_session', '123')
+                res = c.get('/api/report')
+
+                self.assertEqual(res.status_code, 200)
+
+                res_payload_data = json.loads(
+                    res.data,
+                    object_hook=lambda d: SimpleNamespace(**d),
+                ).data
+
+                self.assertEqual(res_payload_data.items, [])
+                self.assertEqual(res_payload_data.next, '')
+
+                m.return_value.get_all.assert_called_once_with(None)
+
+    @mock.patch(
+        'reporting.context.context.SessionRepository',
+        new=MockSessionRepository,
+    )
+    @mock.patch(
+        'reporting.context.context.ReportRepository',
+    )
+    def test_get_all_reports_bad_code(self, m: mock.Mock):
+        m.return_value = ReportRepository('test')
+        # Avoid calling the constructor logic
+        m.return_value.__init__ = mock.MagicMock()  # type: ignore
+        m.return_value.get_all = mock.MagicMock(return_value={})  # type: ignore
+
+        with self.app.app_context():
+            with self.app.test_client() as c:
+                c.set_cookie('gouache_session', 'gouache_session', '123')
+                res = c.get('/api/report')
+
+                self.assertEqual(res.status_code, 400)
+
+                res_payload = json.loads(
+                    res.data,
+                    object_hook=lambda d: SimpleNamespace(**d),
+                )
+
+                self.assertIsNone(res_payload.data)
+                self.assertEqual(res_payload.friendly, E_REPORT_GET_ALL)
+                self.assertEqual(res_payload.internal, SimpleNamespace())
+
+                m.return_value.get_all.assert_called_once()
+
+    @mock.patch(
+        'reporting.context.context.SessionRepository',
+        new=MockSessionRepository,
+    )
+    @mock.patch(
+        'reporting.context.context.ReportRepository',
+    )
+    def test_get_all_reports_error(self, m: mock.Mock):
+        m.return_value = ReportRepository('test')
+        # Avoid calling the constructor logic
+        m.return_value.__init__ = mock.MagicMock()  # type: ignore
+        m.return_value.get_all = mock.MagicMock(  # type: ignore
+            return_value=str(Exception('test'))
+        )
+
+        with self.app.app_context():
+            with self.app.test_client() as c:
+                c.set_cookie('gouache_session', 'gouache_session', '123')
+                res = c.get('/api/report')
+
+                self.assertEqual(res.status_code, 400)
+
+                res_payload = json.loads(
+                    res.data,
+                    object_hook=lambda d: SimpleNamespace(**d),
+                )
+
+                self.assertIsNone(res_payload.data)
+                self.assertEqual(res_payload.friendly, E_REPORT_GET_ALL)
+                self.assertEqual(res_payload.internal, 'test')
+
+                m.return_value.get_all.assert_called_once()
+
+    @mock.patch(
+        'reporting.context.context.SessionRepository',
+        new=MockSessionRepositoryUnauthorized,
+    )
+    @mock.patch(
+        'reporting.context.context.ReportRepository',
+    )
+    def test_get_all_reports_unauthorized(self, m: mock.Mock):
+
+        m.return_value = ReportRepository('test')
+        # Avoid calling the constructor logic
+        m.return_value.__init__ = mock.MagicMock()  # type: ignore
+        m.return_value.get_all = mock.MagicMock()  # type: ignore
+
+        with self.app.app_context():
+            with self.app.test_client() as c:
+                c.set_cookie('gouache_session', 'gouache_session', '123')
+                res = c.get('/api/report')
+
+                self.assertEqual(res.status_code, 401)
+
+                res_payload = json.loads(
+                    res.data,
+                    object_hook=lambda d: SimpleNamespace(**d),
+                )
+
+                self.assertIsNone(res_payload.data)
+                self.assertEqual(
+                    E_UNAUTHORIZED,
+                    res_payload.friendly,
+                )
+
+                m.return_value.get_all.assert_not_called()
 
     @mock.patch(
         'reporting.context.context.SessionRepository',
@@ -43,24 +293,14 @@ class TestReportingController(unittest.TestCase):
         m.return_value.get = mock.MagicMock(  # type: ignore
             return_value={
                 'Item': {
-                    'Data': expected.data,
-                    'Id': self.test_key,
-                    'Caller': expected.caller,
-                    'Name': expected.name,
-                    'TS': '1661786507886.366',
+                    'data': expected.data,
+                    'id': self.test_key,
+                    'caller': expected.caller,
+                    'name': expected.name,
+                    'ts': '1661786507886.366',
                 },
                 'ResponseMetadata': {
-                    'RequestId': 'f850f0b0-6b1f-460f-b48d-acd82054ef53',
                     'HTTPStatusCode': 200,
-                    'HTTPHeaders': {
-                        'date': 'Mon, 29 Aug 2022 15:24:18 GMT',
-                        'content-type': 'application/x-amz-json-1.0',
-                        'x-amz-crc32': '198904004',
-                        'x-amzn-requestid': 'f850f0b0-6b1f-460f-b48d-acd82054ef53',
-                        'content-length': '177',
-                        'server': 'Jetty(9.4.43.v20210629)',
-                    },
-                    'RetryAttempts': 0,
                 },
             }
         )
@@ -102,17 +342,7 @@ class TestReportingController(unittest.TestCase):
         m.return_value.get = mock.MagicMock(  # type: ignore
             return_value={
                 'ResponseMetadata': {
-                    'RequestId': '682a0c3b-0b08-48a6-85d4-7f8486123758',
                     'HTTPStatusCode': 200,
-                    'HTTPHeaders': {
-                        'date': 'Mon, 29 Aug 2022 15:36:04 GMT',
-                        'content-type': 'application/x-amz-json-1.0',
-                        'x-amz-crc32': '2745614147',
-                        'x-amzn-requestid': '682a0c3b-0b08-48a6-85d4-7f8486123758',
-                        'content-length': '2',
-                        'server': 'Jetty(9.4.43.v20210629)',
-                    },
-                    'RetryAttempts': 0,
                 }
             }
         )

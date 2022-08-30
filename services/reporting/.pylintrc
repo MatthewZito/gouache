@@ -19,4 +19,4 @@ good-names=id,ts,db,ex,fn
 min-similarity-lines=300
 
 [MESSAGES CONTROL]
-disable=R0903,W0703,W0221
+disable=R0903,W0703,W0221,C0415

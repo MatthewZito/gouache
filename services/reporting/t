@@ -20,6 +20,7 @@ get_report() {
 
 # get all reports
 get_all_reports() {
+  # curl localhost:6000/api/report?last_page_key=72e372b4-deec-4f08-806e-90e0112d9289 --cookie "gouache_session=$SESSION" -v
   curl localhost:6000/api/report --cookie "gouache_session=$SESSION" -v
 }
 
@@ -35,7 +36,7 @@ main () {
   docker run -p 8000:8000 amazon/dynamodb-local   -jar DynamoDBLocal.jar -sharedDb &
 
   # create table
-  aws dynamodb --endpoint-url http://localhost:8000 --region us-east-1 create-table --table-name report  --attribute-definitions AttributeName=Id,AttributeType=S --key-schema AttributeName=Id,KeyType=HASH --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5
+  aws dynamodb --endpoint-url http://localhost:8000 --region us-east-1 create-table --table-name report  --attribute-definitions AttributeName=id,AttributeType=S --key-schema AttributeName=id,KeyType=HASH --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5
 }
 
 # stop here if being sourced

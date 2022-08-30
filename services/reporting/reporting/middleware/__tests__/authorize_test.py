@@ -2,24 +2,14 @@ from datetime import datetime
 import unittest
 from unittest import mock
 
-from reporting.main import app
+from reporting.main import create_app
+from reporting.repositories.__mocks__.report_repository_mock import MockReportRepository
 from reporting.repositories.session_repository import SessionRepository
-
-
-class MockReportRepository:
-    def __init__(self, table_name: str) -> None:
-        self.tr = ""
-
-    def get(self, key: str):
-        pass
-
-    def put(self, **kwargs):
-        pass
 
 
 class TestAuthorizationMiddleware(unittest.TestCase):
     def setUp(self):
-        self.app = app
+        self.app = create_app()
 
     def tearDown(self):
         pass

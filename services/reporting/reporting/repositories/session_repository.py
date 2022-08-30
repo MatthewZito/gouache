@@ -12,8 +12,7 @@ class SessionRepository:
         port = os.getenv('REDIS_PORT', '6379')
         password = os.getenv('REDIS_PASSWORD', 'password')
 
-        # self.client = Redis(host=host, port=int(port), db=0, password=password) @todo
-        self.client = Redis(host=host, port=int(port), db=0)
+        self.client = Redis(host=host, port=int(port), db=0, password=password)
 
     def get(self, key: str):
         """Get a session by its session id.
@@ -25,6 +24,3 @@ class SessionRepository:
             Session: @todo
         """
         return self.client.get(key)
-
-    def put(self, **kwargs):
-        pass

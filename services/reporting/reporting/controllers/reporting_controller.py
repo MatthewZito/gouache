@@ -16,7 +16,7 @@ from reporting.meta.const import (
 from reporting.middleware.authorize import authorize
 from reporting.models.gouache_response import err_response, ok_response
 from reporting.utils.deserialize import deserialize
-from reporting.utils.normalize import normalize_dynamo_report
+from reporting.utils.resolve import resolve_page_key
 from reporting.entities.report import Report
 
 
@@ -50,9 +50,13 @@ def get_all_reports() -> Tuple[Response, int]:
         'ResponseMetadata' in result
         and result['ResponseMetadata'].get('HTTPStatusCode') == 200
     ):
-    # LastEvaluatedKey
-    print(result)
-    return ok_response(result), 200
+
+        return (
+            ok_response({'items': result['Items'], 'next': resolve_page_key(result)}),
+            200,
+        )
+
+    return err_response(E_REPORT_GET_ALL, result), 400
 
 
 @reporting.route('/report/<report_id>', methods=['GET'])
@@ -77,7 +81,7 @@ def get_report(report_id: str) -> Tuple[Response, int]:
         )
 
     if 'Item' in result:
-        return ok_response(normalize_dynamo_report(result.get('Item'))), 200
+        return ok_response(result.get('Item')), 200
 
     return ok_response(None), 404
 
