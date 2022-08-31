@@ -107,7 +107,6 @@ public class ResourceController {
     }
 
     try {
-      System.out.println("AYY: " + resourceModel);
       resourceService.updateResourceById(id, resourceModel);
 
       return new ResponseEntity<>(null, HttpStatus.OK);

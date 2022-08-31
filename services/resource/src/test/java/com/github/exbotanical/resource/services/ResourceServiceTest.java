@@ -14,8 +14,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cloud.aws.messaging.listener.QueueMessageHandler;
 
+import java.time.Instant;
 import java.util.Arrays;
-import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -51,8 +51,8 @@ public class ResourceServiceTest {
       .thenReturn(SessionTestUtils.session);
 
     testResource = Resource.builder().id("a66de382-a9df-4fab-9d34-616e01e3e054").title("title")
-      .tags(Arrays.asList("art", "music")).createdAt(new Date().toString())
-      .updatedAt(new Date().toString()).build();
+      .tags(Arrays.asList("art", "music")).createdAt(Instant.now())
+      .updatedAt(Instant.now()).build();
   }
 
   @Test
@@ -61,10 +61,7 @@ public class ResourceServiceTest {
     ResourceModel inputResource =
       ResourceModel.builder().title("title").tags(Arrays.asList("art", "music")).build();
 
-    Resource newResource =
-      Resource.builder().title(inputResource.getTitle()).tags(inputResource.getTags()).build();
-
-    Mockito.when(resourceRepository.save(newResource)).thenReturn(testResource);
+    Mockito.when(resourceRepository.save(ArgumentMatchers.any(Resource.class))).thenReturn(testResource);
 
     assertEquals(testResource, resourceService.createResource(inputResource));
   }

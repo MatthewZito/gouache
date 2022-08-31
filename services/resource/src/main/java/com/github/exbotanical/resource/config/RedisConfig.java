@@ -1,9 +1,14 @@
 package com.github.exbotanical.resource.config;
 
 import com.github.exbotanical.resource.entities.Session;
+
+import java.util.stream.Stream;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
@@ -16,6 +21,9 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
  */
 @Configuration
 public class RedisConfig {
+
+  @Autowired
+  private Environment env;
 
   @Value("${app.redis.host}")
   private String redisHost;
@@ -34,9 +42,11 @@ public class RedisConfig {
   @Bean
   public RedisConnectionFactory redisConnectionFactory() {
     RedisStandaloneConfiguration connectionConfig =
-      new RedisStandaloneConfiguration(redisHost, Integer.parseInt(redisPort));
+        new RedisStandaloneConfiguration(redisHost, Integer.parseInt(redisPort));
 
-    connectionConfig.setPassword(redisPassword);
+    if (Stream.of(env.getActiveProfiles()).noneMatch(v -> v.equals("local"))) {
+      connectionConfig.setPassword(redisPassword);
+    }
 
     return new LettuceConnectionFactory(connectionConfig);
   }

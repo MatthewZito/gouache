@@ -44,7 +44,6 @@ public class AuthInterceptor implements HandlerInterceptor {
     Cookie cookie = WebUtils.getCookie(req, cookieName);
 
     if (cookie == null) {
-
       throw deriveUnauthorizedExceptionAndSendReport(Constants.E_COOKIE_NOT_FOUND);
     }
 
@@ -58,11 +57,14 @@ public class AuthInterceptor implements HandlerInterceptor {
     try {
       session = sessionService.getSessionBySessionId(sid);
     } catch (Exception ex) {
-      throw deriveUnauthorizedExceptionAndSendReport(String.format(Constants.E_SESSION_NOT_FOUND_FMT, sid));
+      System.out.println(ex);
+      throw deriveUnauthorizedExceptionAndSendReport(
+        String.format(Constants.E_SESSION_NOT_FOUND_FMT, sid));
     }
 
     if (session == null) {
-      throw deriveUnauthorizedExceptionAndSendReport(String.format(Constants.E_SESSION_NOT_FOUND_FMT, sid));
+      throw deriveUnauthorizedExceptionAndSendReport(
+        String.format(Constants.E_SESSION_NOT_FOUND_FMT, sid));
     }
 
     if (session.expiry.before(new Date())) {

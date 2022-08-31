@@ -1,7 +1,6 @@
 package com.github.exbotanical.resource.aspects;
 
 import com.amazonaws.util.json.Jackson;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.exbotanical.resource.models.ReportName;
 import com.github.exbotanical.resource.models.logs.ErrorLog;
 import com.github.exbotanical.resource.models.logs.RequestLog;
@@ -12,8 +11,6 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.CodeSignature;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -25,14 +22,9 @@ import java.util.Map;
 
 @Aspect
 @Component
-public class LoggingAspect {
+public class ReportingAspect {
   @Autowired
   private QueueSenderService queueSenderService;
-
-  @Autowired
-  private ObjectMapper mapper;
-
-  private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
   @Pointcut("within(@org.springframework.web.bind.annotation.RestController *)")
   private void restControllerPointcut() {
@@ -40,7 +32,7 @@ public class LoggingAspect {
   }
 
   @AfterThrowing(pointcut = "restControllerPointcut()", throwing = "ex")
-  private void logException(JoinPoint joinPoint, Throwable ex) {
+  private void logRestControllerException(JoinPoint joinPoint, Throwable ex) {
     final HttpServletRequest req =
       ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
 
@@ -64,8 +56,6 @@ public class LoggingAspect {
 
     String data = Jackson.toJsonString(el);
 
-    logger.info(data);
-
     queueSenderService.sendMessage(data, ReportName.HTTP_HANDLER_EX);
   }
 
@@ -83,9 +73,8 @@ public class LoggingAspect {
       .parameters(parameters)
       .build();
 
+    // @todo fix nested JSON
     String data = Jackson.toJsonString(rl);
-
-    logger.info(data);
 
     queueSenderService.sendMessage(data, ReportName.HTTP_REQUEST_RECV);
   }
@@ -95,8 +84,9 @@ public class LoggingAspect {
     CodeSignature signature = (CodeSignature) joinPoint.getSignature();
 
     String[] parameterNames = signature.getParameterNames();
+
     for (int i = 0; i < parameterNames.length; i++) {
-      map.put(parameterNames[i], joinPoint.getArgs()[i]);
+      map.put(parameterNames[i], joinPoint.getArgs()[i].toString());
     }
 
     return map;

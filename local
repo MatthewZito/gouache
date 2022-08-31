@@ -1,14 +1,41 @@
 #!/usr/bin/env bash
 SESSION='123'
+RESOURCE_PORT=4000
 AUTH_PORT=5000
 REPORTING_PORT=6000
 DYNAMO_PORT=8000
+SQS_PORT=9324
+
+# add resource
+add_resource () {
+  local title="${1:-"title"}"
+  local tags="${2:-["\"art\""]}"
+
+  curl localhost:$RESOURCE_PORT/resource -d "{\"title\": \"$title\", \"tags\": $tags}" -H 'Content-Type: application/json' --cookie "gouache_session=$SESSION" -v
+}
+
+# get resource
+get_resource () {
+  local id="$1"
+
+  curl localhost:$RESOURCE_PORT/resource/$id --cookie "gouache_session=$SESSION" -v
+}
+
+# update resource
+update_resource () {
+  local id="$1"
+
+  local title="${2:-"updated title"}"
+  local tags="${3:-["\"music\""]}"
+
+  curl -X PATCH localhost:$RESOURCE_PORT/resource/$id -d "{\"title\": \"$title\", \"tags\": $tags}" -H 'Content-Type: application/json' --cookie "gouache_session=$SESSION" -v
+}
 
 # add report
 add_report() {
-  local caller="${1:-'x'}"
-  local data="${2:-'y'}"
-  local name="${3:-'z'}"
+  local caller="${1:-"x"}"
+  local data="${2:-"y"}"
+  local name="${3:-"z"}"
 
   curl localhost:$REPORTING_PORT/api/report -d "{\"caller\": \"$caller\", \"data\": \"$data\", \"name\": \"$name\"}" -H 'Content-Type: application/json' --cookie "gouache_session=$SESSION" -v
 }
@@ -47,19 +74,35 @@ login() {
   curl localhost:$AUTH_PORT/auth/login -d "{\"username\":\"$username\",\"password\":\"$password\"}" -H "Content-Type: application/json"
 }
 
-# cleanup resources and services
-cleanup() {
-  local container_id="${1:-$(docker container ls | awk 'NR > 1 {print $1; exit}')}"
-
-  docker container stop $container_id
-  sudo service redis-server stop
-}
-
+# create dynamodb table
 create_table () {
   local table_name="$1"
   local hash_key="$2"
 
   aws dynamodb --endpoint-url http://localhost:$DYNAMO_PORT --region us-east-1 create-table --table-name $table_name --attribute-definitions AttributeName=$hash_key,AttributeType=S --key-schema AttributeName=$hash_key,KeyType=HASH --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5
+}
+
+# create sqs queue
+create_queue () {
+  local queue_name="${1:-"report-queue"}"
+
+  curl -v localhost:$SQS_PORT -d "Action=CreateQueue&QueueName=$queue_name"
+}
+
+# get sqs queue messages
+get_queue () {
+  local queue_name="${1:-"report-queue"}"
+
+  curl -v localhost:$SQS_PORT/queue/$queue_name -d "Action=ReceiveMessage"
+}
+
+# cleanup resources and services
+cleanup() {
+  # stop all containers
+  docker stop $(docker ps -a -q)
+
+  # stop redis
+  sudo service redis-server stop
 }
 
 # initialize resources and services needed for local targeting
@@ -76,10 +119,16 @@ main () {
   # start local db
   docker run -p $DYNAMO_PORT:$DYNAMO_PORT amazon/dynamodb-local -jar DynamoDBLocal.jar -sharedDb &
 
+  # start local queue
+  docker run -p 9324:9324 -p 9325:9325 softwaremill/elasticmq &
+
   # create tables
   create_table resource id
   create_table report id
   create_table user username
+
+  # create queues
+  create_queue 'report-queue'
 }
 
 # stop here if being sourced
@@ -90,3 +139,8 @@ set -o errexit
 set -o nounset
 
 main $*
+
+
+# curl -v localhost:9324/queue/report-queue -d "Action=SendMessage&Version=2011-10-01&MessageBody=example"
+# curl -v localhost:9324/queue/report-queue -d "Action=ReceiveMessage"
+# mvn spring-boot:run -Dspring-boot.run.arguments="--spring.profiles.active=local"

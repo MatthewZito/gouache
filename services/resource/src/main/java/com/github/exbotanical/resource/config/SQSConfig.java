@@ -1,6 +1,7 @@
 package com.github.exbotanical.resource.config;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.AnonymousAWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.sqs.AmazonSQSAsync;
@@ -19,12 +20,6 @@ import java.util.Collections;
 
 @Configuration
 public class SQSConfig {
-
-  @Value("${aws.access_key")
-  private String accessKey;
-
-  @Value("${aws.secret_key")
-  private String secretKey;
 
   @Value("${aws.sqs.host}")
   private String host;
@@ -45,13 +40,9 @@ public class SQSConfig {
         .standard()
         .withEndpointConfiguration(
             new AwsClientBuilder.EndpointConfiguration(
-                FormatterUtils.toEndpoint(host, port),
-                region))
+                FormatterUtils.toEndpoint(host, port), region))
         .withCredentials(
-            new AWSStaticCredentialsProvider(
-                new BasicAWSCredentials(
-                    accessKey,
-                    secretKey)))
+            new AWSStaticCredentialsProvider(new AnonymousAWSCredentials()))
         .build();
   }
 

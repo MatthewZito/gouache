@@ -8,6 +8,14 @@ spring:
   profiles:
     active: dev
 
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+
+restart:
+  include:
+    dynamodb: /dynamodb-[\\w\\d-\.]+\.jar
+
 ---
 # mvn spring-boot:run -Dspring-boot.run.arguments="--spring.profiles.active=local"
 spring:
@@ -27,7 +35,7 @@ aws:
     report_queue: report-queue
     host: http://localhost
     port: 9324
-    region: us-east-1
+    region: elasticmq
 
 management:
   endpoints:
@@ -64,7 +72,7 @@ aws:
     report_queue: report-queue
     host: http://qouache-queue
     port: 9324
-    region: us-east-1
+    region: elasticmq
 
 management:
   endpoints:
@@ -101,7 +109,7 @@ aws:
     report_queue: report-queue
     host: http://qouache-queue
     port: 9324
-    region: us-east-1
+    region: elasticmq
 
 app:
   locale: resource-qa
@@ -131,7 +139,7 @@ aws:
     report_queue: report-queue
     host: http://qouache-queue
     port: 9324
-    region: us-east-1
+    region: elasticmq
 
 app:
   locale: resource-prod

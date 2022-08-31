@@ -1,6 +1,7 @@
 package com.github.exbotanical.resource.controllers;
 
 import com.amazonaws.util.json.Jackson;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.exbotanical.resource.SessionTestUtils;
 import com.github.exbotanical.resource.entities.Resource;
 import com.github.exbotanical.resource.meta.Constants;
@@ -20,8 +21,8 @@ import org.springframework.cloud.aws.messaging.listener.QueueMessageHandler;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.Instant;
 import java.util.Arrays;
-import java.util.Date;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -30,6 +31,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(ResourceController.class)
 @DisplayName("Test the ResourceController and evaluate its formatted responses")
 class ResourceControllerTest {
+  @Autowired
+  ObjectMapper objectMapper;
 
   @Autowired
   private MockMvc mockMvc;
@@ -47,7 +50,7 @@ class ResourceControllerTest {
   // No-op mock to prevent connection attempts.
   @MockBean
   private QueueSenderService queueSenderService;
-  
+
   private Resource testResource;
 
   @BeforeEach
@@ -60,8 +63,8 @@ class ResourceControllerTest {
       .id("a66de382-a9df-4fab-9d34-616e01e3e054")
       .title("title")
       .tags(Arrays.asList("art", "music"))
-      .createdAt(new Date().toString())
-      .updatedAt(new Date().toString())
+      .createdAt(Instant.now())
+      .updatedAt(Instant.now())
       .build();
   }
 
@@ -82,7 +85,10 @@ class ResourceControllerTest {
           .content(Jackson.toJsonString(inputModel))
           .cookie(SessionTestUtils.cookie))
       .andExpect(status().isCreated())
-      .andExpect(jsonPath("$.data").value(testResource));
+      .andExpect(jsonPath("$.data.id").value(testResource.getId()))
+      .andExpect(jsonPath("$.data.title").value(testResource.getTitle())
+
+      );
   }
 
   @Test
@@ -118,7 +124,10 @@ class ResourceControllerTest {
 
           .cookie(SessionTestUtils.cookie))
       .andExpect(status().isOk())
-      .andExpect(jsonPath("$.data").value(testResource));
+      .andExpect(jsonPath("$.data.id").value(testResource.getId()))
+      .andExpect(jsonPath("$.data.title").value(testResource.getTitle())
+
+      );
   }
 
   @Test

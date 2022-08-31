@@ -1,18 +1,18 @@
 package com.github.exbotanical.resource.repositories;
 
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBSaveExpression;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
-import com.amazonaws.services.dynamodbv2.datamodeling.PaginatedScanList;
-import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.amazonaws.services.dynamodbv2.model.ExpectedAttributeValue;
 import com.github.exbotanical.resource.entities.Resource;
 import com.github.exbotanical.resource.models.ResourceModel;
-
-import java.util.ArrayList;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
+import software.amazon.awssdk.enhanced.dynamodb.Key;
+import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * A repository for managing Resource data via DynamoDB.
@@ -20,17 +20,24 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class ResourceRepository {
 
-  @Autowired
-  private DynamoDBMapper dynamoMapper;
+  private final DynamoDbTable<Resource> resourceTable;
+
+  public ResourceRepository(@Autowired DynamoDbEnhancedClient dynamo) {
+    this.resourceTable = dynamo.table(Resource.TABLE_NAME, TableSchema.fromBean(Resource.class));
+  }
 
   /**
    * Persist a given Resource.
    *
    * @param newResource The new Resource to persist.
+   *
    * @return The new Resource, with updated Dynamo-generated fields.
    */
   public Resource save(Resource newResource) {
-    dynamoMapper.save(newResource);
+    newResource.setId(UUID.randomUUID().toString());
+    setTimeStampMutable(newResource, true);
+
+    resourceTable.putItem(newResource);
 
     return newResource;
   }
@@ -39,27 +46,23 @@ public class ResourceRepository {
    * Retrieve a Resource by its id.
    *
    * @param id A unique Resource id identifying the Resource to retrieve.
+   *
    * @return A Resource, or null if not found.
    */
   public Resource getById(String id) {
-    return dynamoMapper.load(Resource.class, id);
+    return resourceTable.getItem(Key.builder().partitionValue(id).build());
   }
 
   /**
    * Retrieve all Resources.
    *
-   *
    * @return List of Resources.
+   *
    * @todo Paginate
    */
   public ArrayList<Resource> getAll() {
-    PaginatedScanList<Resource> ret =
-        dynamoMapper.scan(Resource.class, new DynamoDBScanExpression());
-
-    ArrayList<Resource> list = new ArrayList<>();
-    list.addAll(ret);
-
-    return list;
+    // @todo improve
+    return new ArrayList<>(resourceTable.scan().stream().flatMap(i -> i.items().stream()).collect(Collectors.toList()));
   }
 
   /**
@@ -68,30 +71,44 @@ public class ResourceRepository {
    * @param id A unique Resource id identifying the Resource to delete.
    */
   public void deleteById(String id) {
-    Resource resource = dynamoMapper.load(Resource.class, id);
-
-    dynamoMapper.delete(resource);
+    resourceTable.deleteItem(Key.builder().partitionValue(id).build());
   }
 
   /**
    * Update a Resource by its id.
    *
-   * @param id A unique Resource id identifying the Resource to update.
+   * @param id            A unique Resource id identifying the Resource to update.
    * @param resourceModel A ResourceModel containing the data to patch into the id-resolved
-   *        Resource.
+   *                      Resource.
    */
   public void updateById(String id, ResourceModel resourceModel) {
     Resource updatedResource = Resource.builder()
-        .id(id)
-        .title(resourceModel.getTitle())
-        .tags(resourceModel.getTags())
-        .build();
+      .id(id)
+      .title(resourceModel.getTitle())
+      .tags(resourceModel.getTags())
+      .build();
 
-    dynamoMapper.save(
-        updatedResource,
-        new DynamoDBSaveExpression().withExpectedEntry(
-            "id",
-            new ExpectedAttributeValue(
-                new AttributeValue().withS(id))));
+    setTimeStampMutable(updatedResource, false);
+
+    resourceTable.updateItem(updatedResource);
+  }
+
+  /**
+   * Set timestamps on the Resource, mutating the original object.
+   *
+   * @param resource The Resource on which to write the timestamp(s).
+   * @param isCreate Whether the `createdAt` timestamp value should be set.
+   *
+   * @apiNote Dynamodb currently does not execute the autogenerate timestamps annotations, and their documentation thereof is very sparse.
+   * @todo Leverage auto generation.
+   */
+  private void setTimeStampMutable(Resource resource, boolean isCreate) {
+    Instant now = Instant.now();
+
+    if (isCreate) {
+      resource.setCreatedAt(now);
+    }
+
+    resource.setUpdatedAt(now);
   }
 }

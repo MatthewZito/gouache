@@ -55,15 +55,12 @@ public class QueueSenderDataService implements QueueSenderService {
   private SendMessageResult sendNormalizedMessage(String reportData, ReportName name) {
     try {
       GouacheReport report = GouacheReport.builder()
-          .data(objectMapper.writeValueAsString(reportData))
-          .caller("gouache/resource")
-          .name(name.toString())
-          .build();
+        .data(objectMapper.writeValueAsString(reportData))
+        .caller("gouache/resource")
+        .name(name.toString())
+        .build();
 
       String serializedMessage = objectMapper.writeValueAsString(report);
-
-      System.out.printf("Writing message %s to queue %s%n", serializedMessage,
-          getReportQueueEndpoint());
 
       return amazonSQSAsync.sendMessage(getReportQueueEndpoint(), serializedMessage);
     } catch (JsonProcessingException ex) {

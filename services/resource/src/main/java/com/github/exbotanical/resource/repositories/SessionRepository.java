@@ -25,7 +25,6 @@ public class SessionRepository {
    */
   public Session getById(String sid) {
     String jsonSession = valueOperations.get(sid);
-    System.out.println(jsonSession);
 
     return Jackson.fromJsonString(jsonSession, Session.class);
   }
