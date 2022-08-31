@@ -26,8 +26,7 @@ func (t UserTable) CreateUser(userModel models.NewUserModel) error {
 		return err
 	}
 
-	fmt.Println(item)
-	// @todo generate id
+	// @todo return id
 	if _, err = t.DynamoDbClient.PutItem(context.TODO(), &dynamodb.PutItemInput{
 		TableName: aws.String(t.TableName),
 		Item:      item,

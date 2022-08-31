@@ -42,21 +42,17 @@ public class SQSConfig {
   @Bean
   public AmazonSQSAsync amazonSQS() {
     return AmazonSQSAsyncClientBuilder
-      .standard()
-      .withEndpointConfiguration(
-        new AwsClientBuilder.EndpointConfiguration(
-          FormatterUtils.toEndpoint(host, port),
-          region)
-      )
-      .withCredentials(
-        new AWSStaticCredentialsProvider(
-          new BasicAWSCredentials(
-            accessKey,
-            secretKey
-          )
-        )
-      )
-      .build();
+        .standard()
+        .withEndpointConfiguration(
+            new AwsClientBuilder.EndpointConfiguration(
+                FormatterUtils.toEndpoint(host, port),
+                region))
+        .withCredentials(
+            new AWSStaticCredentialsProvider(
+                new BasicAWSCredentials(
+                    accessKey,
+                    secretKey)))
+        .build();
   }
 
   @Bean
@@ -70,16 +66,19 @@ public class SQSConfig {
     // Avoid failures given SQS messages don't include a MIME type
     messageConverter.setStrictContentTypeMatch(false);
 
-    // @see https://stackoverflow.com/questions/57613779/aws-sqslistener-deserialize-custom-object-with-jackson
+    // @see
+    // https://stackoverflow.com/questions/57613779/aws-sqslistener-deserialize-custom-object-with-jackson
     queueMessageHandlerFactory.setMessageConverters(Collections.singletonList(messageConverter));
 
     return queueMessageHandlerFactory.createQueueMessageHandler();
   }
 
-  //  pull messages from queues
+  // pull messages from queues
   @Bean
-  public SimpleMessageListenerContainer simpleMessageListenerContainer(QueueMessageHandler queueMessageHandler) {
-    SimpleMessageListenerContainer simpleMessageListenerContainer = new SimpleMessageListenerContainer();
+  public SimpleMessageListenerContainer simpleMessageListenerContainer(
+      QueueMessageHandler queueMessageHandler) {
+    SimpleMessageListenerContainer simpleMessageListenerContainer =
+        new SimpleMessageListenerContainer();
 
     simpleMessageListenerContainer.setAmazonSqs(amazonSQS());
     simpleMessageListenerContainer.setMessageHandler(queueMessageHandler);
