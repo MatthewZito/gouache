@@ -1,9 +1,8 @@
 package com.github.exbotanical.resource.services;
 
-import java.util.ArrayList;
-
 import com.github.exbotanical.resource.entities.Resource;
 import com.github.exbotanical.resource.models.ResourceModel;
+import java.util.ArrayList;
 
 /**
  * Service for Resource data.

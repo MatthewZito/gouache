@@ -1,9 +1,7 @@
 package com.github.exbotanical.resource.config;
 
 import com.github.exbotanical.resource.entities.Session;
-
 import java.util.stream.Stream;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -39,11 +37,17 @@ public class RedisConfig {
     return RedisCacheConfiguration.defaultCacheConfig();
   }
 
+  /**
+   * Create a Redis connection object.
+   *
+   * @return An initialized Redis connection object.
+   */
   @Bean
   public RedisConnectionFactory redisConnectionFactory() {
     RedisStandaloneConfiguration connectionConfig =
         new RedisStandaloneConfiguration(redisHost, Integer.parseInt(redisPort));
 
+    // No password necessary in local mode.
     if (Stream.of(env.getActiveProfiles()).noneMatch(v -> v.equals("local"))) {
       connectionConfig.setPassword(redisPassword);
     }
@@ -51,6 +55,9 @@ public class RedisConfig {
     return new LettuceConnectionFactory(connectionConfig);
   }
 
+  /**
+   * Create and return a Redis configuration.
+   */
   @Bean
   public RedisTemplate<String, Session> redisTemplate() {
     RedisTemplate<String, Session> template = new RedisTemplate<>();

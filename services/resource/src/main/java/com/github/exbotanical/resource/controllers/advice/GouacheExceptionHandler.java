@@ -3,6 +3,7 @@ package com.github.exbotanical.resource.controllers.advice;
 import com.github.exbotanical.resource.errors.GouacheException;
 import com.github.exbotanical.resource.meta.Constants;
 import com.github.exbotanical.resource.models.GouacheResponse;
+import java.util.Objects;
 import org.springframework.beans.ConversionNotSupportedException;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.core.annotation.AnnotationUtils;
@@ -31,8 +32,6 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import java.util.Objects;
-
 /**
  * Global exception handler. Normalizes all exceptions to a GouacheResponse.
  */
@@ -44,19 +43,19 @@ public class GouacheExceptionHandler extends ResponseEntityExceptionHandler {
   /**
    * An application-wide exception handler for GouacheException exceptions and subclasses thereof.
    *
-   * @param ex  The exception.
+   * @param ex The exception.
    * @param req The current request.
    *
    * @return A normalized GouacheResponse.
    */
-  @ExceptionHandler({ GouacheException.class })
+  @ExceptionHandler({GouacheException.class})
   public ResponseEntity<GouacheResponse> gouacheExceptionHandler(GouacheException ex,
-                                                                 WebRequest req) {
+      WebRequest req) {
     // Derive the message data and build a GouacheResponse object.
     GouacheResponse ret = GouacheResponse.builder()
-      .friendly(ex.getFriendly())
-      .internal(ex.getInternal())
-      .build();
+        .friendly(ex.getFriendly())
+        .internal(ex.getInternal())
+        .build();
 
     HttpStatus status;
 
@@ -69,24 +68,24 @@ public class GouacheExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     return ResponseEntity
-      .status(status)
-      .body(ret);
+        .status(status)
+        .body(ret);
   }
 
   /**
    * An application-wide exception handler for uncaught Exception exceptions.
    *
-   * @param ex  The exception.
+   * @param ex The exception.
    * @param req The current request.
    *
    * @return A normalized GouacheResponse.
    *
    * @throws Exception Forwards the Exception to Spring internals.
    */
-  @ExceptionHandler({ Exception.class })
+  @ExceptionHandler({Exception.class})
   public ResponseEntity<GouacheResponse> defaultExceptionHandler(
-    Exception ex,
-    WebRequest req) throws Exception {
+      Exception ex,
+      WebRequest req) throws Exception {
 
     // If the exception is annotated with @ResponseStatus rethrow it and allow the framework to
     // handle it.
@@ -97,16 +96,16 @@ public class GouacheExceptionHandler extends ResponseEntityExceptionHandler {
 
     if (ex instanceof HttpServerErrorException.InternalServerError) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(GouacheResponse.builder()
-        .friendly(Constants.E_INTERNAL_SERVER_ERROR)
-        .internal(ex.getMessage())
-        .build());
+          .friendly(Constants.E_INTERNAL_SERVER_ERROR)
+          .internal(ex.getMessage())
+          .build());
     }
 
     // Build the fallback GouacheResponse object.
     GouacheResponse ret = GouacheResponse.builder()
-      .friendly(Constants.E_GENERIC)
-      .internal(ex.getMessage())
-      .build();
+        .friendly(Constants.E_GENERIC)
+        .internal(ex.getMessage())
+        .build();
 
     return ResponseEntity.status(resolveStatus(ex)).body(ret);
   }
@@ -114,23 +113,23 @@ public class GouacheExceptionHandler extends ResponseEntityExceptionHandler {
   /**
    * Handle 404 NoHandlerFoundException exceptions.
    *
-   * @param ex      The exception.
+   * @param ex The exception.
    * @param headers The headers to be written to the response.
-   * @param status  The selected response status.
-   * @param req     The current request.
+   * @param status The selected response status.
+   * @param req The current request.
    *
    * @return A normalized GouacheResponse.
    */
   @Override
   protected ResponseEntity<Object> handleNoHandlerFoundException(NoHandlerFoundException ex,
-                                                                 HttpHeaders headers, HttpStatus status, WebRequest req) {
+      HttpHeaders headers, HttpStatus status, WebRequest req) {
     String reqPath = ((ServletWebRequest) req).getRequest().getRequestURI().toString();
 
     // Build the fallback GouacheResponse object.
     GouacheResponse ret = GouacheResponse.builder()
-      .friendly(String.format(Constants.E_ROUTE_NOT_FOUND_FMT, reqPath))
-      .internal(ex.getMessage())
-      .build();
+        .friendly(String.format(Constants.E_ROUTE_NOT_FOUND_FMT, reqPath))
+        .internal(ex.getMessage())
+        .build();
 
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ret);
   }
@@ -138,25 +137,25 @@ public class GouacheExceptionHandler extends ResponseEntityExceptionHandler {
   /**
    * Handle 405 HttpRequestMethodNotSupportedException exceptions.
    *
-   * @param ex      The exception.
+   * @param ex The exception.
    * @param headers The headers to be written to the response.
-   * @param status  The selected response status.
-   * @param req     The current request.
+   * @param status The selected response status.
+   * @param req The current request.
    *
    * @return A normalized GouacheResponse.
    */
   @Override
   protected ResponseEntity<Object> handleHttpRequestMethodNotSupported(
-    HttpRequestMethodNotSupportedException ex, HttpHeaders headers, HttpStatus status,
-    WebRequest req) {
+      HttpRequestMethodNotSupportedException ex, HttpHeaders headers, HttpStatus status,
+      WebRequest req) {
     String reqPath = ((ServletWebRequest) req).getRequest().getRequestURI().toString();
     String reqMethod = Objects.toString(((ServletWebRequest) req).getHttpMethod(), "UNKNOWN");
 
     // Build the fallback GouacheResponse object.
     GouacheResponse ret = GouacheResponse.builder()
-      .friendly(String.format(Constants.E_METHOD_NOT_ALLOWED_FMT, reqMethod, reqPath))
-      .internal(ex.getMessage())
-      .build();
+        .friendly(String.format(Constants.E_METHOD_NOT_ALLOWED_FMT, reqMethod, reqPath))
+        .internal(ex.getMessage())
+        .build();
 
     return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(ret);
   }
@@ -164,22 +163,22 @@ public class GouacheExceptionHandler extends ResponseEntityExceptionHandler {
   /**
    * Handle 500 InternalServerError exceptions.
    *
-   * @param ex      The exception.
-   * @param body    The body for the response.
+   * @param ex The exception.
+   * @param body The body for the response.
    * @param headers The headers for the response.
-   * @param status  The response status.
-   * @param req     The current request.
+   * @param status The response status.
+   * @param req The current request.
    *
    * @return A normalized GouacheResponse.
    */
   @Override
   protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body,
-                                                           HttpHeaders headers, HttpStatus status, WebRequest req) {
+      HttpHeaders headers, HttpStatus status, WebRequest req) {
     // Build the fallback GouacheResponse object.
     GouacheResponse ret = GouacheResponse.builder()
-      .friendly(String.format(Constants.E_INTERNAL_SERVER_ERROR))
-      .internal(ex.getMessage())
-      .build();
+        .friendly(String.format(Constants.E_INTERNAL_SERVER_ERROR))
+        .internal(ex.getMessage())
+        .build();
 
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ret);
   }
@@ -208,7 +207,7 @@ public class GouacheExceptionHandler extends ResponseEntityExceptionHandler {
       // Check InternalServerError despite handling it explicitly in case we somehow miss it - at
       // least we'll have the correct status code.
     } else if (ex instanceof ConversionNotSupportedException
-               || ex instanceof HttpServerErrorException.InternalServerError) {
+        || ex instanceof HttpServerErrorException.InternalServerError) {
       return HttpStatus.INTERNAL_SERVER_ERROR;
     } else if (ex instanceof TypeMismatchException) {
       return HttpStatus.BAD_REQUEST;

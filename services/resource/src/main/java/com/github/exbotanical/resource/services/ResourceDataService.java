@@ -3,10 +3,9 @@ package com.github.exbotanical.resource.services;
 import com.github.exbotanical.resource.entities.Resource;
 import com.github.exbotanical.resource.models.ResourceModel;
 import com.github.exbotanical.resource.repositories.ResourceRepository;
+import java.util.ArrayList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
 
 /**
  * An implementation of ResourceService.
@@ -30,9 +29,9 @@ public class ResourceDataService implements ResourceService {
   @Override
   public Resource createResource(ResourceModel resourceModel) {
     Resource newResource = Resource.builder()
-      .title(resourceModel.getTitle())
-      .tags(resourceModel.getTags())
-      .build();
+        .title(resourceModel.getTitle())
+        .tags(resourceModel.getTags())
+        .build();
 
     return resourceRepository.save(newResource);
   }

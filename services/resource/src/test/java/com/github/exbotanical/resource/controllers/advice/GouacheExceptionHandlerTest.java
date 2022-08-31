@@ -1,5 +1,11 @@
 package com.github.exbotanical.resource.controllers.advice;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.github.exbotanical.resource.SessionTestUtils;
 import com.github.exbotanical.resource.controllers.ResourceController;
 import com.github.exbotanical.resource.errors.GouacheException;
@@ -20,10 +26,6 @@ import org.springframework.cloud.aws.messaging.listener.QueueMessageHandler;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.client.HttpServerErrorException.InternalServerError;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ResourceController.class)
 @DisplayName("Test the ResourceController and evaluate its formatted responses")
@@ -52,62 +54,62 @@ class GouacheExceptionHandlerTest {
   @BeforeEach
   void setUp() {
     Mockito
-      .when(sessionService.getSessionBySessionId(ArgumentMatchers.anyString()))
-      .thenReturn(SessionTestUtils.session);
+        .when(sessionService.getSessionBySessionId(ArgumentMatchers.anyString()))
+        .thenReturn(SessionTestUtils.session);
   }
 
   @Test
   @DisplayName("Trigger the exception handler advice with a GouacheException")
   void shouldHandleGouacheException() throws Exception {
     Mockito
-      .when(resourceController.deleteResourceById(ArgumentMatchers.any()))
-      .thenThrow(new GouacheException("x", "y"));
+        .when(resourceController.deleteResourceById(ArgumentMatchers.any()))
+        .thenThrow(new GouacheException("x", "y"));
 
     mockMvc.perform(
         delete("/resource/a66de382-a9df-4fab-9d34-616e01e3e054")
-          .contentType(MediaType.APPLICATION_JSON)
-          .cookie(SessionTestUtils.cookie))
+            .contentType(MediaType.APPLICATION_JSON)
+            .cookie(SessionTestUtils.cookie))
 
-      .andExpect(status().isBadRequest())
-      .andExpect(jsonPath("$.data").isEmpty())
-      .andExpect(jsonPath("$.friendly").value("x"))
-      .andExpect(jsonPath("$.internal").value("y"));
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.data").isEmpty())
+        .andExpect(jsonPath("$.friendly").value("x"))
+        .andExpect(jsonPath("$.internal").value("y"));
   }
 
   @Test
   @DisplayName("Trigger the exception handler advice with a GouacheException subclass")
   void shouldHandleGouacheExceptionSubclass() throws Exception {
     Mockito
-      .when(resourceController.deleteResourceById(ArgumentMatchers.any()))
-      .thenThrow(new OperationFailedException("x", "y"));
+        .when(resourceController.deleteResourceById(ArgumentMatchers.any()))
+        .thenThrow(new OperationFailedException("x", "y"));
 
     mockMvc.perform(
         delete("/resource/a66de382-a9df-4fab-9d34-616e01e3e054")
-          .contentType(MediaType.APPLICATION_JSON)
-          .cookie(SessionTestUtils.cookie))
+            .contentType(MediaType.APPLICATION_JSON)
+            .cookie(SessionTestUtils.cookie))
 
-      .andExpect(status().isBadRequest())
-      .andExpect(jsonPath("$.data").isEmpty())
-      .andExpect(jsonPath("$.friendly").value("x"))
-      .andExpect(jsonPath("$.internal").value("y"));
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.data").isEmpty())
+        .andExpect(jsonPath("$.friendly").value("x"))
+        .andExpect(jsonPath("$.internal").value("y"));
   }
 
   @Test
   @DisplayName("Trigger the exception handler advice with a generic Exception")
   void shouldHandleException() throws Exception {
     Mockito
-      .when(resourceController.getResourceById(ArgumentMatchers.any()))
-      .thenThrow(new RuntimeException("x"));
+        .when(resourceController.getResourceById(ArgumentMatchers.any()))
+        .thenThrow(new RuntimeException("x"));
 
     mockMvc.perform(
         get("/resource/a66de382-a9df-4fab-9d34-616e01e3e054")
-          .contentType(MediaType.APPLICATION_JSON)
-          .cookie(SessionTestUtils.cookie))
+            .contentType(MediaType.APPLICATION_JSON)
+            .cookie(SessionTestUtils.cookie))
 
-      .andExpect(status().isBadRequest())
-      .andExpect(jsonPath("$.data").isEmpty())
-      .andExpect(jsonPath("$.friendly").value(Constants.E_GENERIC))
-      .andExpect(jsonPath("$.internal").value("x"));
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.data").isEmpty())
+        .andExpect(jsonPath("$.friendly").value(Constants.E_GENERIC))
+        .andExpect(jsonPath("$.internal").value("x"));
   }
 
   @Test
@@ -117,13 +119,14 @@ class GouacheExceptionHandlerTest {
 
     mockMvc.perform(
         get(reqPath)
-          .contentType(MediaType.APPLICATION_JSON)
-          .cookie(SessionTestUtils.cookie))
+            .contentType(MediaType.APPLICATION_JSON)
+            .cookie(SessionTestUtils.cookie))
 
-      .andExpect(status().isNotFound())
-      .andExpect(jsonPath("$.data").isEmpty())
-      .andExpect(jsonPath("$.friendly").value(String.format(Constants.E_ROUTE_NOT_FOUND_FMT, reqPath)))
-      .andExpect(jsonPath("$.internal").isString());
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.data").isEmpty())
+        .andExpect(
+            jsonPath("$.friendly").value(String.format(Constants.E_ROUTE_NOT_FOUND_FMT, reqPath)))
+        .andExpect(jsonPath("$.internal").isString());
   }
 
   @Test
@@ -133,30 +136,33 @@ class GouacheExceptionHandlerTest {
 
     mockMvc.perform(
         post(reqPath)
-          .contentType(MediaType.APPLICATION_JSON)
-          .cookie(SessionTestUtils.cookie))
+            .contentType(MediaType.APPLICATION_JSON)
+            .cookie(SessionTestUtils.cookie))
 
-      .andExpect(status().isMethodNotAllowed())
-      .andExpect(jsonPath("$.data").isEmpty())
-      .andExpect(jsonPath("$.friendly").value(String.format(Constants.E_METHOD_NOT_ALLOWED_FMT, "POST", reqPath)))
-      .andExpect(jsonPath("$.internal").isString());
+        .andExpect(status().isMethodNotAllowed())
+        .andExpect(jsonPath("$.data").isEmpty())
+        .andExpect(jsonPath("$.friendly")
+            .value(String.format(Constants.E_METHOD_NOT_ALLOWED_FMT, "POST", reqPath)))
+        .andExpect(jsonPath("$.internal").isString());
   }
 
   @Test
   @DisplayName("Trigger the exception handler advice with an existing route but invalid method")
   void shouldHandleInternalServerError() throws Exception {
     Mockito
-      .when(resourceController.deleteResourceById(ArgumentMatchers.any()))
-      .thenThrow(InternalServerError.class);
+        .when(resourceController.deleteResourceById(ArgumentMatchers.any()))
+        .thenThrow(InternalServerError.class);
 
     mockMvc.perform(
         delete("/resource/a66de382-a9df-4fab-9d34-616e01e3e054")
-          .contentType(MediaType.APPLICATION_JSON)
-          .cookie(SessionTestUtils.cookie))
+            .contentType(MediaType.APPLICATION_JSON)
+            .cookie(SessionTestUtils.cookie))
 
-      .andExpect(status().isInternalServerError())
-      .andExpect(jsonPath("$.data").isEmpty())
-      .andExpect(jsonPath("$.friendly").value(Constants.E_INTERNAL_SERVER_ERROR))
-      .andExpect(jsonPath("$.internal").isEmpty()); // The InternalServerError constructor is private and we are therefore unable to explicitly set a message.
+        .andExpect(status().isInternalServerError())
+        .andExpect(jsonPath("$.data").isEmpty())
+        .andExpect(jsonPath("$.friendly").value(Constants.E_INTERNAL_SERVER_ERROR))
+        // The InternalServerError constructor is private and we are therefore unable to explicitly
+        // set a message.
+        .andExpect(jsonPath("$.internal").isEmpty());
   }
 }

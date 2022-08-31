@@ -2,22 +2,21 @@ package com.github.exbotanical.resource.config;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.AnonymousAWSCredentials;
-import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.sqs.AmazonSQSAsync;
 import com.amazonaws.services.sqs.AmazonSQSAsyncClientBuilder;
 import com.github.exbotanical.resource.utils.FormatterUtils;
+import java.util.Collections;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.aws.messaging.config.QueueMessageHandlerFactory;
 import org.springframework.cloud.aws.messaging.listener.QueueMessageHandler;
-import org.springframework.cloud.aws.messaging.listener.SimpleMessageListenerContainer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-import java.util.Collections;
-
+/**
+ * AWS SQS configurations.
+ */
 @Configuration
 public class SQSConfig {
 
@@ -34,6 +33,11 @@ public class SQSConfig {
 
   private static final int THREAD_POOL_SIZE = 10;
 
+  /**
+   * AWS SQS client builder.
+   *
+   * @return AWS SQS client.
+   */
   @Bean
   public AmazonSQSAsync amazonSQS() {
     return AmazonSQSAsyncClientBuilder
@@ -46,6 +50,11 @@ public class SQSConfig {
         .build();
   }
 
+  /**
+   * An AWS SQS message handler and deserializer.
+   *
+   * @return An initialized QueueMessageHandler.
+   */
   @Bean
   public QueueMessageHandler queueMessageHandler() {
     QueueMessageHandlerFactory queueMessageHandlerFactory = new QueueMessageHandlerFactory();
@@ -62,30 +71,5 @@ public class SQSConfig {
     queueMessageHandlerFactory.setMessageConverters(Collections.singletonList(messageConverter));
 
     return queueMessageHandlerFactory.createQueueMessageHandler();
-  }
-
-  // pull messages from queues
-  @Bean
-  public SimpleMessageListenerContainer simpleMessageListenerContainer(
-      QueueMessageHandler queueMessageHandler) {
-    SimpleMessageListenerContainer simpleMessageListenerContainer =
-        new SimpleMessageListenerContainer();
-
-    simpleMessageListenerContainer.setAmazonSqs(amazonSQS());
-    simpleMessageListenerContainer.setMessageHandler(queueMessageHandler);
-    simpleMessageListenerContainer.setMaxNumberOfMessages(N_MESSAGES);
-    simpleMessageListenerContainer.setTaskExecutor(threadPoolTaskExecutor());
-
-    return simpleMessageListenerContainer;
-  }
-
-  public ThreadPoolTaskExecutor threadPoolTaskExecutor() {
-    ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-
-    executor.setCorePoolSize(THREAD_POOL_SIZE);
-    executor.setMaxPoolSize(THREAD_POOL_SIZE * 2);
-    executor.initialize();
-
-    return executor;
   }
 }

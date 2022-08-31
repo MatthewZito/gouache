@@ -1,9 +1,16 @@
 package com.github.exbotanical.resource.services;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import com.github.exbotanical.resource.SessionTestUtils;
 import com.github.exbotanical.resource.entities.Resource;
 import com.github.exbotanical.resource.models.ResourceModel;
 import com.github.exbotanical.resource.repositories.ResourceRepository;
+import java.time.Instant;
+import java.util.Arrays;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,11 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cloud.aws.messaging.listener.QueueMessageHandler;
-
-import java.time.Instant;
-import java.util.Arrays;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test ResourceService.
@@ -48,20 +50,21 @@ public class ResourceServiceTest {
   @BeforeEach
   void setUp() {
     Mockito.when(sessionService.getSessionBySessionId(ArgumentMatchers.anyString()))
-      .thenReturn(SessionTestUtils.session);
+        .thenReturn(SessionTestUtils.session);
 
     testResource = Resource.builder().id("a66de382-a9df-4fab-9d34-616e01e3e054").title("title")
-      .tags(Arrays.asList("art", "music")).createdAt(Instant.now())
-      .updatedAt(Instant.now()).build();
+        .tags(Arrays.asList("art", "music")).createdAt(Instant.now())
+        .updatedAt(Instant.now()).build();
   }
 
   @Test
   @DisplayName("Create a resource")
   void createResourceSuccess() {
     ResourceModel inputResource =
-      ResourceModel.builder().title("title").tags(Arrays.asList("art", "music")).build();
+        ResourceModel.builder().title("title").tags(Arrays.asList("art", "music")).build();
 
-    Mockito.when(resourceRepository.save(ArgumentMatchers.any(Resource.class))).thenReturn(testResource);
+    Mockito.when(resourceRepository.save(ArgumentMatchers.any(Resource.class)))
+        .thenReturn(testResource);
 
     assertEquals(testResource, resourceService.createResource(inputResource));
   }
@@ -90,7 +93,7 @@ public class ResourceServiceTest {
   @DisplayName("Update a resource by ID")
   void updateResourceById() {
     ResourceModel inputModel =
-      ResourceModel.builder().tags(Arrays.asList("test")).title("test title").build();
+        ResourceModel.builder().tags(Arrays.asList("test")).title("test title").build();
 
     assertDoesNotThrow(() -> resourceService.updateResourceById(testResource.getId(), inputModel));
   }

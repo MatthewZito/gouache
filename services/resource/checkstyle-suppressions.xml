@@ -13,5 +13,17 @@
              lines="25,50"/>
   <suppress checks="AbbreviationAsWordInName"
              files="DynamoDBConfig.java"
-             lines="17"/>
+             lines="20,38"/>
+  <suppress checks="AbbreviationAsWordInName"
+             files="SQSConfig.java"
+             lines="21,42"/>
+  <suppress checks="AbbreviationAsWordInName"
+             files="QueueSenderDataService.java"
+             lines="20"/>
+  <suppress checks="LineLength"
+             files="AuthInterceptorTest.java"
+             lines="28"/>
+  <suppress checks="SummaryJavadoc"
+             files="FormatterUtils.java"
+             lines="37"/>
 </suppressions>

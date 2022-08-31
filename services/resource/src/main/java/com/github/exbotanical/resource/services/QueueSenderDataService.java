@@ -11,6 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+/**
+ * An implementation of QueueSenderService.
+ */
 @Service
 public class QueueSenderDataService implements QueueSenderService {
   @Autowired
@@ -55,10 +58,10 @@ public class QueueSenderDataService implements QueueSenderService {
   private SendMessageResult sendNormalizedMessage(String reportData, ReportName name) {
     try {
       GouacheReport report = GouacheReport.builder()
-        .data(objectMapper.writeValueAsString(reportData))
-        .caller("gouache/resource")
-        .name(name.toString())
-        .build();
+          .data(objectMapper.writeValueAsString(reportData))
+          .caller("gouache/resource")
+          .name(name.toString())
+          .build();
 
       String serializedMessage = objectMapper.writeValueAsString(report);
 

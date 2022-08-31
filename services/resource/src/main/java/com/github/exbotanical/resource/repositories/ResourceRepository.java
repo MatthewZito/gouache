@@ -2,17 +2,16 @@ package com.github.exbotanical.resource.repositories;
 
 import com.github.exbotanical.resource.entities.Resource;
 import com.github.exbotanical.resource.models.ResourceModel;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.Key;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
-
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 /**
  * A repository for managing Resource data via DynamoDB.
@@ -62,7 +61,8 @@ public class ResourceRepository {
    */
   public ArrayList<Resource> getAll() {
     // @todo improve
-    return new ArrayList<>(resourceTable.scan().stream().flatMap(i -> i.items().stream()).collect(Collectors.toList()));
+    return new ArrayList<>(resourceTable.scan().stream().flatMap(i -> i.items().stream())
+        .collect(Collectors.toList()));
   }
 
   /**
@@ -77,16 +77,16 @@ public class ResourceRepository {
   /**
    * Update a Resource by its id.
    *
-   * @param id            A unique Resource id identifying the Resource to update.
+   * @param id A unique Resource id identifying the Resource to update.
    * @param resourceModel A ResourceModel containing the data to patch into the id-resolved
-   *                      Resource.
+   *        Resource.
    */
   public void updateById(String id, ResourceModel resourceModel) {
     Resource updatedResource = Resource.builder()
-      .id(id)
-      .title(resourceModel.getTitle())
-      .tags(resourceModel.getTags())
-      .build();
+        .id(id)
+        .title(resourceModel.getTitle())
+        .tags(resourceModel.getTags())
+        .build();
 
     setTimeStampMutable(updatedResource, false);
 
@@ -99,7 +99,8 @@ public class ResourceRepository {
    * @param resource The Resource on which to write the timestamp(s).
    * @param isCreate Whether the `createdAt` timestamp value should be set.
    *
-   * @apiNote Dynamodb currently does not execute the autogenerate timestamps annotations, and their documentation thereof is very sparse.
+   * @apiNote Dynamodb currently does not execute the autogenerate timestamps annotations, and their
+   *          documentation thereof is very sparse.
    * @todo Leverage auto generation.
    */
   private void setTimeStampMutable(Resource resource, boolean isCreate) {

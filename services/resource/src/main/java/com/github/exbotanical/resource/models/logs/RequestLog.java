@@ -1,10 +1,12 @@
 package com.github.exbotanical.resource.models.logs;
 
+import java.util.Map;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 
-import java.util.Map;
-
+/**
+ * An entity for storing request metadata in a Report.
+ */
 @SuperBuilder
 @Getter
 public class RequestLog {
@@ -14,4 +16,3 @@ public class RequestLog {
 
   Map<String, Object> parameters;
 }
-

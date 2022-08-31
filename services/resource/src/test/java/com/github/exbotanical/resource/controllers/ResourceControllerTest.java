@@ -1,5 +1,12 @@
 package com.github.exbotanical.resource.controllers;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.amazonaws.util.json.Jackson;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.exbotanical.resource.SessionTestUtils;
@@ -9,6 +16,8 @@ import com.github.exbotanical.resource.models.ResourceModel;
 import com.github.exbotanical.resource.services.QueueSenderService;
 import com.github.exbotanical.resource.services.ResourceService;
 import com.github.exbotanical.resource.services.SessionService;
+import java.time.Instant;
+import java.util.Arrays;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,13 +29,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.cloud.aws.messaging.listener.QueueMessageHandler;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.time.Instant;
-import java.util.Arrays;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ResourceController.class)
 @DisplayName("Test the ResourceController and evaluate its formatted responses")
@@ -56,60 +58,60 @@ class ResourceControllerTest {
   @BeforeEach
   void setUp() {
     Mockito
-      .when(sessionService.getSessionBySessionId(ArgumentMatchers.anyString()))
-      .thenReturn(SessionTestUtils.session);
+        .when(sessionService.getSessionBySessionId(ArgumentMatchers.anyString()))
+        .thenReturn(SessionTestUtils.session);
 
     testResource = Resource.builder()
-      .id("a66de382-a9df-4fab-9d34-616e01e3e054")
-      .title("title")
-      .tags(Arrays.asList("art", "music"))
-      .createdAt(Instant.now())
-      .updatedAt(Instant.now())
-      .build();
+        .id("a66de382-a9df-4fab-9d34-616e01e3e054")
+        .title("title")
+        .tags(Arrays.asList("art", "music"))
+        .createdAt(Instant.now())
+        .updatedAt(Instant.now())
+        .build();
   }
 
   @Test
   @DisplayName("Create a resource successfully")
   void createResourceSuccess() throws Exception {
     ResourceModel inputModel = ResourceModel.builder()
-      .title("title")
-      .tags(Arrays.asList("art", "music"))
-      .build();
+        .title("title")
+        .tags(Arrays.asList("art", "music"))
+        .build();
 
     Mockito.when(resourceService.createResource(
-      ArgumentMatchers.any())).thenReturn(testResource);
+        ArgumentMatchers.any())).thenReturn(testResource);
 
     mockMvc.perform(
         post("/resource")
-          .contentType(MediaType.APPLICATION_JSON)
-          .content(Jackson.toJsonString(inputModel))
-          .cookie(SessionTestUtils.cookie))
-      .andExpect(status().isCreated())
-      .andExpect(jsonPath("$.data.id").value(testResource.getId()))
-      .andExpect(jsonPath("$.data.title").value(testResource.getTitle())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(Jackson.toJsonString(inputModel))
+            .cookie(SessionTestUtils.cookie))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.data.id").value(testResource.getId()))
+        .andExpect(jsonPath("$.data.title").value(testResource.getTitle())
 
-      );
+        );
   }
 
   @Test
   @DisplayName("Attempt to create a resource with an invalid input model")
   void createResourceInvalidInput() throws Exception {
     ResourceModel inputModel = ResourceModel.builder()
-      .title("title")
-      .tags(Arrays.asList("art", "music"))
-      .build();
+        .title("title")
+        .tags(Arrays.asList("art", "music"))
+        .build();
 
     Mockito.when(resourceService.createResource(inputModel)).thenReturn(testResource);
 
     mockMvc.perform(
         post("/resource")
-          .contentType(MediaType.APPLICATION_JSON)
-          .content("{\"titl ez\": \"title\", \"tagds\": [\"art\",\"music\"] }")
-          .cookie(SessionTestUtils.cookie))
-      .andExpect(status().isBadRequest())
-      .andExpect(jsonPath("$.internal").isString())
-      .andExpect(jsonPath("$.friendly").value(Constants.E_INVALID_INPUT))
-      .andExpect(jsonPath("$.data").isEmpty());
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("{\"titl ez\": \"title\", \"tagds\": [\"art\",\"music\"] }")
+            .cookie(SessionTestUtils.cookie))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.internal").isString())
+        .andExpect(jsonPath("$.friendly").value(Constants.E_INVALID_INPUT))
+        .andExpect(jsonPath("$.data").isEmpty());
   }
 
   @Test
@@ -122,12 +124,12 @@ class ResourceControllerTest {
     mockMvc.perform(
         get(String.format("/resource/%s", testId))
 
-          .cookie(SessionTestUtils.cookie))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.data.id").value(testResource.getId()))
-      .andExpect(jsonPath("$.data.title").value(testResource.getTitle())
+            .cookie(SessionTestUtils.cookie))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.data.id").value(testResource.getId()))
+        .andExpect(jsonPath("$.data.title").value(testResource.getTitle())
 
-      );
+        );
   }
 
   @Test
@@ -140,27 +142,27 @@ class ResourceControllerTest {
     mockMvc.perform(
         get(String.format("/resource/%s", testId + "1"))
 
-          .cookie(SessionTestUtils.cookie))
-      .andExpect(status().isNotFound())
-      .andExpect(jsonPath("$.data").isEmpty());
+            .cookie(SessionTestUtils.cookie))
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.data").isEmpty());
   }
 
   @Test
   @DisplayName("Update a resource by ID")
   void updateResourceById() throws Exception {
     ResourceModel inputModel = ResourceModel.builder()
-      .tags(Arrays.asList("test"))
-      .title("test title")
-      .build();
+        .tags(Arrays.asList("test"))
+        .title("test title")
+        .build();
 
     mockMvc.perform(
         patch(String.format("/resource/%s", testResource.getId()))
-          .contentType(MediaType.APPLICATION_JSON)
-          .content(Jackson.toJsonString(inputModel))
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(Jackson.toJsonString(inputModel))
 
-          .cookie(SessionTestUtils.cookie))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.data").isEmpty());
+            .cookie(SessionTestUtils.cookie))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.data").isEmpty());
   }
 
   @Test
@@ -170,13 +172,13 @@ class ResourceControllerTest {
 
     mockMvc.perform(
         patch(String.format("/resource/%s", testResource.getId()))
-          .contentType(MediaType.APPLICATION_JSON)
-          .content(Jackson.toJsonString(inputModel))
-          .cookie(SessionTestUtils.cookie))
-      .andExpect(status().isBadRequest())
-      .andExpect(jsonPath("$.internal").isString())
-      .andExpect(jsonPath("$.friendly").value(Constants.E_INVALID_INPUT))
-      .andExpect(jsonPath("$.data").isEmpty());
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(Jackson.toJsonString(inputModel))
+            .cookie(SessionTestUtils.cookie))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.internal").isString())
+        .andExpect(jsonPath("$.friendly").value(Constants.E_INVALID_INPUT))
+        .andExpect(jsonPath("$.data").isEmpty());
   }
 
   @Test
@@ -186,11 +188,11 @@ class ResourceControllerTest {
 
     mockMvc.perform(
         delete(String.format("/resource/%s", testId))
-          .cookie(SessionTestUtils.cookie))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.data").isEmpty())
-      .andExpect(jsonPath("$.friendly").isEmpty())
-      .andExpect(jsonPath("$.internal").isEmpty());
+            .cookie(SessionTestUtils.cookie))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.data").isEmpty())
+        .andExpect(jsonPath("$.friendly").isEmpty())
+        .andExpect(jsonPath("$.internal").isEmpty());
   }
 
   @Test
@@ -202,11 +204,11 @@ class ResourceControllerTest {
 
     mockMvc.perform(
         delete(String.format("/resource/%s", testId))
-          .cookie(SessionTestUtils.cookie))
-      .andExpect(status().isBadRequest())
-      .andExpect(jsonPath("$.data").isEmpty())
-      .andExpect(jsonPath("$.friendly").value(
-        String.format(Constants.E_RESOURCE_DELETE_FMT, testId)))
-      .andExpect(jsonPath("$.internal").value("test"));
+            .cookie(SessionTestUtils.cookie))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.data").isEmpty())
+        .andExpect(jsonPath("$.friendly").value(
+            String.format(Constants.E_RESOURCE_DELETE_FMT, testId)))
+        .andExpect(jsonPath("$.internal").value("test"));
   }
 }

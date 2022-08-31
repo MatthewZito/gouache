@@ -2,10 +2,9 @@ package com.github.exbotanical.resource.repositories;
 
 import com.amazonaws.util.json.Jackson;
 import com.github.exbotanical.resource.entities.Session;
+import javax.annotation.Resource;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Repository;
-
-import javax.annotation.Resource;
 
 /**
  * A repository for managing readonly Session data via Redis.
