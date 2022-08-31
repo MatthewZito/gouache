@@ -26,7 +26,7 @@ func main() {
 
 	port := os.Getenv("PORT")
 	clientPort := os.Getenv("CLIENT_PORT")
-	gouacheHost := os.Getenv("GOUACHE_HOST")
+	gouacheHost := os.Getenv("CLIENT_HOST")
 
 	/* Config */
 	origins := []string{utils.ToEndpoint(gouacheHost, clientPort)}

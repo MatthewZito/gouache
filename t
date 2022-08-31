@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 SESSION='123'
-
+AUTH_PORT=5000
+REPORTING_PORT=6000
+DYNAMO_PORT=8000
 
 # add report
 add_report() {
@@ -8,14 +10,14 @@ add_report() {
   local data="${2:-'y'}"
   local name="${3:-'z'}"
 
-  curl localhost:6000/api/report -d "{\"caller\": \"$caller\", \"data\": \"$data\", \"name\": \"$name\"}" -H 'Content-Type: application/json' --cookie "gouache_session=$SESSION" -v
+  curl localhost:$REPORTING_PORT/api/report -d "{\"caller\": \"$caller\", \"data\": \"$data\", \"name\": \"$name\"}" -H 'Content-Type: application/json' --cookie "gouache_session=$SESSION" -v
 }
 
 # get report
 get_report() {
   local id="$1"
 
-  curl localhost:6000/api/report/$1 --cookie "gouache_session=$SESSION" -v
+  curl localhost:$REPORTING_PORT/api/report/$1 --cookie "gouache_session=$SESSION" -v
 }
 
 # get all reports
@@ -23,9 +25,9 @@ get_all_reports() {
   local last_page_key="$1"
 
   if [[ key -ne "" ]]; then
-    curl localhost:6000/api/report?last_page_key=$last_page_key --cookie "gouache_session=$SESSION" -v
+    curl localhost:$REPORTING_PORT/api/report?last_page_key=$last_page_key --cookie "gouache_session=$SESSION" -v
   else
-    curl localhost:6000/api/report --cookie "gouache_session=$SESSION" -v
+    curl localhost:$REPORTING_PORT/api/report --cookie "gouache_session=$SESSION" -v
   fi
 }
 
@@ -34,7 +36,7 @@ register() {
   local username="${1:-'user'}"
   local password="${2:-'password'}"
 
-  curl localhost:5000/auth/register -d "{\"username\":\"$username\",\"password\":\"$password\"}" -H "Content-Type: application/json"
+  curl localhost:$AUTH_PORT/auth/register -d "{\"username\":\"$username\",\"password\":\"$password\"}" -H "Content-Type: application/json"
 }
 
 # login user
@@ -42,7 +44,7 @@ login() {
   local username="${1:-'user'}"
   local password="${2:-'password'}"
 
-  curl localhost:5000/auth/login -d "{\"username\":\"$username\",\"password\":\"$password\"}" -H "Content-Type: application/json"
+  curl localhost:$AUTH_PORT/auth/login -d "{\"username\":\"$username\",\"password\":\"$password\"}" -H "Content-Type: application/json"
 }
 
 # cleanup resources and services
@@ -53,6 +55,13 @@ cleanup() {
   sudo service redis-server stop
 }
 
+create_table () {
+  local table_name="$1"
+  local hash_key="$2"
+
+  aws dynamodb --endpoint-url http://localhost:$DYNAMO_PORT --region us-east-1 create-table --table-name $table_name --attribute-definitions AttributeName=$hash_key,AttributeType=S --key-schema AttributeName=$hash_key,KeyType=HASH --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5
+}
+
 # initialize resources and services needed for local targeting
 main () {
   # start redis
@@ -61,16 +70,16 @@ main () {
   # set session
   echo "SET "$SESSION" '{\"username\":\"user\",\"expiry\":\"9999-08-26T15:28:03.683Z\"}'" | redis-cli
 
-	# set redis password 
+	# set redis password
 	echo "SET CONFIG requirepass password" | redis-cli
 
   # start local db
-  docker run -p 8000:8000 amazon/dynamodb-local   -jar DynamoDBLocal.jar -sharedDb &
+  docker run -p $DYNAMO_PORT:$DYNAMO_PORT amazon/dynamodb-local -jar DynamoDBLocal.jar -sharedDb &
 
   # create tables
-  aws dynamodb --endpoint-url http://localhost:8000 --region us-east-1 create-table --table-name resource  --attribute-definitions AttributeName=id,AttributeType=S --key-schema AttributeName=id,KeyType=HASH --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5
-  aws dynamodb --endpoint-url http://localhost:8000 --region us-east-1 create-table --table-name report  --attribute-definitions AttributeName=id,AttributeType=S --key-schema AttributeName=id,KeyType=HASH --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5
-  aws dynamodb --endpoint-url http://localhost:8000 --region us-east-1 create-table --table-name user --attribute-definitions AttributeName=username,AttributeType=S --key-schema AttributeName=username,KeyType=HASH --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5
+  create_table resource id
+  create_table report id
+  create_table user username
 }
 
 # stop here if being sourced

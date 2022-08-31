@@ -1,36 +1,6 @@
 version: "3.9"
 
 services:
-  gouache-resource:
-    container_name: gouache-resource
-    restart: always
-    ports:
-      - "4000:4000"
-    build:
-      context: ./services/resource/
-      dockerfile: Dockerfile.dev
-    networks:
-      - gouache-network
-    depends_on:
-      - gouache-dynamodb
-      - gouache-cache
-
-  gouache-auth:
-    container_name: gouache-auth
-    restart: always
-    ports:
-      - "5000:5000"
-    build:
-      context: ./services/auth/
-      dockerfile: Dockerfile.dev
-    env_file: ./services/auth/.env
-    volumes:
-      - ./services/auth/:/app
-    networks:
-      - gouache-network
-    depends_on:
-      - gouache-dynamodb
-      - gouache-cache
 
   gouache-client:
     container_name: gouache-client
@@ -49,6 +19,57 @@ services:
     depends_on:
       - gouache-auth
       - gouache-resource
+      - gouache-reporting
+
+  gouache-resource:
+    container_name: gouache-resource
+    restart: always
+    ports:
+      - "4000:4000"
+    build:
+      context: ./services/resource/
+      dockerfile: Dockerfile.dev
+    networks:
+      - gouache-network
+    depends_on:
+      - gouache-dynamodb
+      - gouache-cache
+      - gouache-queue
+
+  gouache-auth:
+    container_name: gouache-auth
+    restart: always
+    ports:
+      - "5000:5000"
+    build:
+      context: ./services/auth/
+      dockerfile: Dockerfile.dev
+    env_file: ./services/auth/.env
+    volumes:
+      - ./services/auth/:/app
+    networks:
+      - gouache-network
+    depends_on:
+      - gouache-dynamodb
+      - gouache-cache
+
+  gouache-reporting:
+    container_name: gouache-reporting
+    restart: always
+    ports:
+      - "6000:6000"
+    build:
+      context: ./services/reporting/
+      dockerfile: Dockerfile.dev
+    env_file: ./services/reporting/reporting/.env
+    volumes:
+      - ./services/reporting/:/app
+    networks:
+      - gouache-network
+    depends_on:
+      - gouache-dynamodb
+      - gouache-cache
+      - gouache-queue
 
   gouache-dynamodb:
     command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
@@ -74,7 +95,7 @@ services:
       - gouache-network
     command: redis-server --save 20 1 --loglevel warning --requirepass password
 
-  qouache-queue:
+  gouache-queue:
     image: s12v/elasticmq
     container_name: gouache-queue
     restart: always
@@ -83,7 +104,7 @@ services:
     networks:
       - gouache-network
     volumes:
-      - ./src/main/resources/sqs/elasticmq.conf:/etc/elasticmq/elasticmq.conf
+      - ./services/resource/src/main/resources/sqs/elasticmq.conf:/etc/elasticmq/elasticmq.conf
 
 networks:
   gouache-network:
