@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 import boto3
 from botocore.exceptions import ClientError, ParamValidationError
 from botocore.config import Config
+from boto3_type_annotations.dynamodb import Client
 
 
 class ReportRepository:
@@ -27,7 +28,7 @@ class ReportRepository:
             retries={'max_attempts': 3, 'mode': 'standard'},
         )
 
-        self.client = boto3.resource(
+        self.client: Client = boto3.resource(
             'dynamodb', endpoint_url=f"{host}:{port}", config=config
         )
         # we can store this as a field given it is lazy-loaded

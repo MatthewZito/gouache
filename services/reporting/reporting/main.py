@@ -2,6 +2,15 @@
 """
 from flask import Flask, Response
 
+from reporting.services.message_queue_service import (
+    MessageQueueService,
+)
+
+
+def do_side_effects(app: Flask):
+    queue_service = MessageQueueService("report-queue", app)
+    queue_service.init()
+
 
 def create_app():
     """A factory function for creating the main application.
@@ -31,5 +40,7 @@ def create_app():
         """
         response.headers["X-Powered-By"] = "gouache/reporting"
         return response
+
+    do_side_effects(app)
 
     return app
