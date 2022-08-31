@@ -6,8 +6,10 @@ REPORTING_PORT=6000
 DYNAMO_PORT=8000
 SQS_PORT=9324
 
-# add resource
-add_resource () {
+# aws dynamodb --endpoint-url http://localhost:8000 --region us-east-1 --table-name resource put-item --item  '{"Id": { "S": "123" }, "title": {"S": "No One You Know"}, "tags": { "SS": ["music"] } }'
+
+# create resource
+create_resource () {
   local title="${1:-"title"}"
   local tags="${2:-["\"art\""]}"
 
@@ -31,8 +33,8 @@ update_resource () {
   curl -X PATCH localhost:$RESOURCE_PORT/resource/$id -d "{\"title\": \"$title\", \"tags\": $tags}" -H 'Content-Type: application/json' --cookie "gouache_session=$SESSION" -v
 }
 
-# add report
-add_report() {
+# create report
+create_report() {
   local caller="${1:-"x"}"
   local data="${2:-"y"}"
   local name="${3:-"z"}"

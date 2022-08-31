@@ -5,7 +5,6 @@ import com.github.exbotanical.resource.models.ResourceModel;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
@@ -36,6 +35,12 @@ public class ResourceRepository {
     newResource.setId(UUID.randomUUID().toString());
     setTimeStampMutable(newResource, true);
 
+    System.out.println(newResource.getId());
+    System.out.println(newResource.getTitle());
+    System.out.println(newResource.getTags());
+    System.out.println(newResource.getCreatedAt());
+    System.out.println(newResource.getUpdatedAt());
+
     resourceTable.putItem(newResource);
 
     return newResource;
@@ -61,8 +66,15 @@ public class ResourceRepository {
    */
   public ArrayList<Resource> getAll() {
     // @todo improve
-    return new ArrayList<>(resourceTable.scan().stream().flatMap(i -> i.items().stream())
-        .collect(Collectors.toList()));
+    ArrayList<Resource> list = new ArrayList<>();
+
+    resourceTable.scan().stream()
+        .forEach(page -> page.items().stream()
+            .filter(item -> item != null)
+            .forEach(item -> list.add(item)));
+
+
+    return list;
   }
 
   /**

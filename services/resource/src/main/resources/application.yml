@@ -10,12 +10,8 @@ spring:
 
   jackson:
     serialization:
+      # allow us to handle timestamp serialization
       write-dates-as-timestamps: false
-
-restart:
-  include:
-    dynamodb: /dynamodb-[\\w\\d-\.]+\.jar
-
 ---
 # mvn spring-boot:run -Dspring-boot.run.arguments="--spring.profiles.active=local"
 spring:
@@ -70,7 +66,7 @@ aws:
     region: us-east-1
   sqs:
     report_queue: report-queue
-    host: http://qouache-queue
+    host: http://gouache-queue
     port: 9324
     region: elasticmq
 
@@ -107,7 +103,7 @@ aws:
     region: us-east-1
   sqs:
     report_queue: report-queue
-    host: http://qouache-queue
+    host: http://gouache-queue
     port: 9324
     region: elasticmq
 
@@ -137,7 +133,7 @@ aws:
     region: us-east-1
   sqs:
     report_queue: report-queue
-    host: http://qouache-queue
+    host: http://gouache-queue
     port: 9324
     region: elasticmq
 
