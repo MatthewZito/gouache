@@ -12,7 +12,7 @@ class MockSessionRepository:
             key (str): Key = not used.
 
         Returns:
-            dict: Infinite session. @todo type
+            Dict: Infinite session. @todo type
         """
         return '{"username":"user","expiry":"9999-08-26T15:28:03.683Z"}'
 

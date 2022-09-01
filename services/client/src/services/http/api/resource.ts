@@ -3,7 +3,7 @@ import type { UUID } from '@/types/scalar'
 import { HttpClient } from '../client'
 
 const client = new HttpClient({
-  baseUrl: `${import.meta.env.VITE_RESOURCE_API}/resource`,
+  baseUrl: `${import.meta.env.VITE_RESOURCE_API}/api/resource`,
 })
 
 export const resourceApi = {

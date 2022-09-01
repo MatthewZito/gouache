@@ -1,6 +1,8 @@
 package com.github.exbotanical.resource.services;
 
 import com.amazonaws.services.sqs.AmazonSQSAsync;
+import com.amazonaws.services.sqs.model.MessageAttributeValue;
+import com.amazonaws.services.sqs.model.SendMessageRequest;
 import com.amazonaws.services.sqs.model.SendMessageResult;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,6 +12,9 @@ import com.github.exbotanical.resource.utils.FormatterUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * An implementation of QueueSenderService.
@@ -41,31 +46,31 @@ public class QueueSenderDataService implements QueueSenderService {
     return reportQueueEndpoint;
   }
 
-  @Override
-  public SendMessageResult sendMessage(String message, GouacheReportName name) {
-    return sendNormalizedMessage(message, name);
-  }
 
   @Override
   public SendMessageResult sendMessage(Object message, GouacheReportName name) {
-    try {
-      return sendNormalizedMessage(objectMapper.writeValueAsString(message), name);
-    } catch (JsonProcessingException ex) {
-      return null;
-    }
+    return sendNormalizedMessage(message, name);
+
   }
 
-  private SendMessageResult sendNormalizedMessage(String reportData, GouacheReportName name) {
+  private SendMessageResult sendNormalizedMessage(Object reportData, GouacheReportName name) {
     try {
+
       GouacheReport report = GouacheReport.builder()
-        .data(objectMapper.writeValueAsString(reportData))
-        .caller("gouache/resource")
-        .name(name.toString())
-        .build();
+          .name(name)
+          .data(reportData)
+          .build();
 
-      String serializedMessage = objectMapper.writeValueAsString(report);
 
-      return amazonSQSAsync.sendMessage(getReportQueueEndpoint(), serializedMessage);
+      String serializedData = objectMapper.writeValueAsString(report.getData());
+
+      final SendMessageRequest sendMessageRequest = new SendMessageRequest();
+
+      sendMessageRequest.withMessageBody(serializedData);
+      sendMessageRequest.withQueueUrl(getReportQueueEndpoint());
+      sendMessageRequest.withMessageAttributes(deriveMessageAttributes(report));
+
+      return amazonSQSAsync.sendMessage(sendMessageRequest);
     } catch (JsonProcessingException ex) {
       // @todo
       System.out.println(ex);
@@ -73,4 +78,19 @@ public class QueueSenderDataService implements QueueSenderService {
       return null;
     }
   }
+
+  private Map<String, MessageAttributeValue> deriveMessageAttributes(GouacheReport report) {
+    final Map<String, MessageAttributeValue> messageAttributes = new HashMap<>();
+
+    messageAttributes.put("name", new MessageAttributeValue()
+        .withDataType("String")
+        .withStringValue(report.getName().toString()));
+
+    messageAttributes.put("caller", new MessageAttributeValue()
+        .withDataType("String")
+        .withStringValue(report.getCaller()));
+
+    return messageAttributes;
+  }
+
 }

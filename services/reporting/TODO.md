@@ -6,10 +6,10 @@
   - [x] create report
   - [x] get report meta
   - [x] get reports
-  - [ ] reports worker thread
+  - [x] reports worker thread
   - [x] response model
   - [x] auth
-  - [ ] user-specific reports
+  - [ ] ~~user-specific~~ admin-specific reports
   - [ ] logging
   - [ ] expand report model
   - [ ] cors

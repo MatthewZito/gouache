@@ -66,7 +66,7 @@ class GouacheExceptionHandlerTest {
         .thenThrow(new GouacheException("x", "y"));
 
     mockMvc.perform(
-        delete("/resource/a66de382-a9df-4fab-9d34-616e01e3e054")
+        delete("/api/resource/a66de382-a9df-4fab-9d34-616e01e3e054")
             .contentType(MediaType.APPLICATION_JSON)
             .cookie(SessionTestUtils.cookie))
 
@@ -84,7 +84,7 @@ class GouacheExceptionHandlerTest {
         .thenThrow(new OperationFailedException("x", "y"));
 
     mockMvc.perform(
-        delete("/resource/a66de382-a9df-4fab-9d34-616e01e3e054")
+        delete("/api/resource/a66de382-a9df-4fab-9d34-616e01e3e054")
             .contentType(MediaType.APPLICATION_JSON)
             .cookie(SessionTestUtils.cookie))
 
@@ -102,7 +102,7 @@ class GouacheExceptionHandlerTest {
         .thenThrow(new RuntimeException("x"));
 
     mockMvc.perform(
-        get("/resource/a66de382-a9df-4fab-9d34-616e01e3e054")
+        get("/api/resource/a66de382-a9df-4fab-9d34-616e01e3e054")
             .contentType(MediaType.APPLICATION_JSON)
             .cookie(SessionTestUtils.cookie))
 
@@ -115,7 +115,7 @@ class GouacheExceptionHandlerTest {
   @Test
   @DisplayName("Trigger the exception handler advice with a non-existent route")
   void shouldHandleRouteNotFound() throws Exception {
-    String reqPath = "/resourcx";
+    String reqPath = "/api/resourcx";
 
     mockMvc.perform(
         get(reqPath)
@@ -132,7 +132,7 @@ class GouacheExceptionHandlerTest {
   @Test
   @DisplayName("Trigger the exception handler advice with an existing route but invalid method")
   void shouldHandleMethodNotAllowed() throws Exception {
-    String reqPath = "/resource/a66de382-a9df-4fab-9d34-616e01e3e054";
+    String reqPath = "/api/resource/a66de382-a9df-4fab-9d34-616e01e3e054";
 
     mockMvc.perform(
         post(reqPath)
@@ -154,7 +154,7 @@ class GouacheExceptionHandlerTest {
         .thenThrow(InternalServerError.class);
 
     mockMvc.perform(
-        delete("/resource/a66de382-a9df-4fab-9d34-616e01e3e054")
+        delete("/api/resource/a66de382-a9df-4fab-9d34-616e01e3e054")
             .contentType(MediaType.APPLICATION_JSON)
             .cookie(SessionTestUtils.cookie))
 

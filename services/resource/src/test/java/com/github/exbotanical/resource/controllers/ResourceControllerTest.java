@@ -82,7 +82,7 @@ class ResourceControllerTest {
         ArgumentMatchers.any())).thenReturn(testResource);
 
     mockMvc.perform(
-        post("/resource")
+        post("/api/resource")
             .contentType(MediaType.APPLICATION_JSON)
             .content(Jackson.toJsonString(inputModel))
             .cookie(SessionTestUtils.cookie))
@@ -104,7 +104,7 @@ class ResourceControllerTest {
     Mockito.when(resourceService.createResource(inputModel)).thenReturn(testResource);
 
     mockMvc.perform(
-        post("/resource")
+        post("/api/resource")
             .contentType(MediaType.APPLICATION_JSON)
             .content("{\"titl ez\": \"title\", \"tagds\": [\"art\",\"music\"] }")
             .cookie(SessionTestUtils.cookie))
@@ -122,7 +122,7 @@ class ResourceControllerTest {
     Mockito.when(resourceService.getResourceById(testId)).thenReturn(testResource);
 
     mockMvc.perform(
-        get(String.format("/resource/%s", testId))
+        get(String.format("/api/resource/%s", testId))
 
             .cookie(SessionTestUtils.cookie))
         .andExpect(status().isOk())
@@ -140,7 +140,7 @@ class ResourceControllerTest {
     Mockito.when(resourceService.getResourceById(testId)).thenReturn(testResource);
 
     mockMvc.perform(
-        get(String.format("/resource/%s", testId + "1"))
+        get(String.format("/api/resource/%s", testId + "1"))
 
             .cookie(SessionTestUtils.cookie))
         .andExpect(status().isNotFound())
@@ -156,7 +156,7 @@ class ResourceControllerTest {
         .build();
 
     mockMvc.perform(
-        patch(String.format("/resource/%s", testResource.getId()))
+        patch(String.format("/api/resource/%s", testResource.getId()))
             .contentType(MediaType.APPLICATION_JSON)
             .content(Jackson.toJsonString(inputModel))
 
@@ -171,7 +171,7 @@ class ResourceControllerTest {
     ResourceModel inputModel = ResourceModel.builder().build();
 
     mockMvc.perform(
-        patch(String.format("/resource/%s", testResource.getId()))
+        patch(String.format("/api/resource/%s", testResource.getId()))
             .contentType(MediaType.APPLICATION_JSON)
             .content(Jackson.toJsonString(inputModel))
             .cookie(SessionTestUtils.cookie))
@@ -187,7 +187,7 @@ class ResourceControllerTest {
     String testId = "a66de382-a9df-4fab-9d34-616e01e3e054";
 
     mockMvc.perform(
-        delete(String.format("/resource/%s", testId))
+        delete(String.format("/api/resource/%s", testId))
             .cookie(SessionTestUtils.cookie))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.data").isEmpty())
@@ -203,7 +203,7 @@ class ResourceControllerTest {
     Mockito.doThrow(new RuntimeException("test")).when(resourceService).deleteResourceById(testId);
 
     mockMvc.perform(
-        delete(String.format("/resource/%s", testId))
+        delete(String.format("/api/resource/%s", testId))
             .cookie(SessionTestUtils.cookie))
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.data").isEmpty())

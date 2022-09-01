@@ -9,9 +9,9 @@ import lombok.Getter;
 @Builder
 @Getter
 public class GouacheReport {
-  String name;
+  GouacheReportName name;
 
-  String caller;
+  final String caller = "gouache/resource";
 
-  String data;
+  Object data;
 }

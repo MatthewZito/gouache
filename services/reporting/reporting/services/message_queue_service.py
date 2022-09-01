@@ -3,6 +3,7 @@
 import os
 import threading
 from typing import Dict, List
+import uuid
 
 import boto3
 from botocore.config import Config
@@ -50,31 +51,38 @@ class MessageQueueService:
         """
         for message in messages:
 
-            body = message['Body']
+            body = message.get('Body')
             if body is None:
                 continue
 
+            attrs = message.get('MessageAttributes')
+            name = attrs.get('name')
+            caller = attrs.get('caller')
+
             with self.app.app_context():
                 db = LocalProxy(get_report_ctx)
-
                 # @todo parse message, validate success
                 db.put(  # type: ignore
-                    caller="gouache/queue",
+                    caller=caller.get('StringValue') or 'unknown',
                     data=body,
-                    report_id="auto_gen",
-                    name="report_name",
+                    report_id=str(uuid.uuid4()),
+                    name=name.get('StringValue') or 'unknown',
                 )
 
-            self.delete_message(message['ReceiptHandle'])
+            self.delete_message(message.get('ReceiptHandle'))
 
-    def delete_message(self, receipt_handle: str) -> None:
+    def delete_message(self, receipt_handle: str | None) -> None:
         """Delete a given message from the SQS queue.
 
         Args:
             receipt_handle (str): The message receipt handle,
             used to identify the message being deleted from the SQS queue.
         """
-        self.client.delete_message(QueueUrl=self.endpoint, ReceiptHandle=receipt_handle)
+
+        if receipt_handle is not None:
+            self.client.delete_message(
+                QueueUrl=self.endpoint, ReceiptHandle=receipt_handle
+            )
 
     def recv_messages(self):
         """Receive a batch of messages from the SQS queue."""
@@ -88,7 +96,7 @@ class MessageQueueService:
                 WaitTimeSeconds=20,
             )
 
-            self.process_messages(response['Messages'])
+            self.process_messages(response.get('Messages'))
 
         except Exception as ex:
             print(ex)

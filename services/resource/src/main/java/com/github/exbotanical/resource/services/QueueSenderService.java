@@ -7,7 +7,5 @@ import com.github.exbotanical.resource.models.reporting.GouacheReportName;
  * A message sender service for SQS.
  */
 public interface QueueSenderService {
-  SendMessageResult sendMessage(String message, GouacheReportName name);
-
   SendMessageResult sendMessage(Object message, GouacheReportName name);
 }

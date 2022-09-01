@@ -1,11 +1,14 @@
 """Common utilities for resolving nested data"""
 
 
-def resolve_page_key(result: dict) -> str:
+from typing import Dict
+
+
+def resolve_page_key(result: Dict) -> str:
     """Extract the page key from a DynamoDB scan result if extant.
 
     Args:
-        result (dict): A DynamoDB scan result.
+        result (Dict): A DynamoDB scan result.
 
     Returns:
         str: The page key, or an empty string if not extant.

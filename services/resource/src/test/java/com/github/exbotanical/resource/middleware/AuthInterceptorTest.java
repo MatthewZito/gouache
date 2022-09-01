@@ -58,7 +58,7 @@ class AuthInterceptorTest {
         .thenReturn(SessionTestUtils.session);
 
     mockMvc.perform(
-        get("/resource/a66de382-a9df-4fab-9d34-616e01e3e054")
+        get("/api/resource/a66de382-a9df-4fab-9d34-616e01e3e054")
             .contentType(MediaType.APPLICATION_JSON)
             .cookie(sessionCookie))
 
@@ -69,7 +69,7 @@ class AuthInterceptorTest {
   @DisplayName("Test authorization when the request has no cookie")
   void shouldRejectRequestWithNoCookie() throws Exception {
     mockMvc.perform(
-        get("/resource/a66de382-a9df-4fab-9d34-616e01e3e054")
+        get("/api/resource/a66de382-a9df-4fab-9d34-616e01e3e054")
             .contentType(MediaType.APPLICATION_JSON))
 
         .andExpect(status().isUnauthorized())
@@ -82,7 +82,7 @@ class AuthInterceptorTest {
   @DisplayName("Test authorization when the request has a cookie but no session id therein")
   void shouldRejectRequestWithNoSessionId() throws Exception {
     mockMvc.perform(
-        get("/resource/a66de382-a9df-4fab-9d34-616e01e3e054")
+        get("/api/resource/a66de382-a9df-4fab-9d34-616e01e3e054")
             .contentType(MediaType.APPLICATION_JSON)
             .cookie(new Cookie("gouache_session", null)))
 
@@ -102,7 +102,7 @@ class AuthInterceptorTest {
         .thenReturn(null);
 
     mockMvc.perform(
-        get("/resource/a66de382-a9df-4fab-9d34-616e01e3e054")
+        get("/api/resource/a66de382-a9df-4fab-9d34-616e01e3e054")
             .contentType(MediaType.APPLICATION_JSON)
             .cookie(sessionCookie))
 
@@ -130,7 +130,7 @@ class AuthInterceptorTest {
             .build());
 
     mockMvc.perform(
-        get("/resource/a66de382-a9df-4fab-9d34-616e01e3e054")
+        get("/api/resource/a66de382-a9df-4fab-9d34-616e01e3e054")
             .contentType(MediaType.APPLICATION_JSON)
             .cookie(sessionCookie))
 
