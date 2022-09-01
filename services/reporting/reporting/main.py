@@ -1,5 +1,6 @@
 """Flask app initialization logic.
 """
+import os
 from flask import Flask, Response
 
 from reporting.services.message_queue_service import (
@@ -8,7 +9,15 @@ from reporting.services.message_queue_service import (
 
 
 def do_side_effects(app: Flask):
-    queue_service = MessageQueueService("report-queue", app)
+    """Perform startup side effects, such as initializing adjacent services
+    that do not necessarily interact directly with the Flask app instance.
+
+    Args:
+        app (Flask): The Flask app instance.
+    """
+    queue_service = MessageQueueService(
+        os.getenv('SQS_QUEUE_NAME', 'report-queue'), app
+    )
     queue_service.init()
 
 

@@ -106,3 +106,7 @@ class TestGlobalController(unittest.TestCase):
                 self.assertIsNone(res_payload.data)
                 self.assertEqual(res_payload.friendly, E_INTERNAL_SERVER_ERROR)
                 self.assertIsInstance(res_payload.internal, str)
+
+
+if __name__ == '__main__':
+    unittest.main()

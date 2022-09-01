@@ -3,11 +3,11 @@
 import json
 import os
 
-from dateutil.parser import parse
-from datetime import datetime
-from functools import wraps
 from types import SimpleNamespace
 from typing import Callable, TypeVar
+from functools import wraps
+from datetime import datetime
+from dateutil.parser import parse
 
 from flask import abort, request
 from werkzeug.local import LocalProxy

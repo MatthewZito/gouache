@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 import boto3
 from botocore.exceptions import ClientError, ParamValidationError
 from botocore.config import Config
-from boto3_type_annotations.dynamodb import Client
+from boto3_type_annotations.dynamodb import Client  # type: ignore
 
 
 class ReportRepository:

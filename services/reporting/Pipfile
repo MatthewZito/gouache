@@ -7,6 +7,7 @@ name = "pypi"
 flask = "*"
 boto3 = "*"
 redis = "*"
+python-dateutil = "*"
 
 [dev-packages]
 pylint = "*"
@@ -17,12 +18,13 @@ types-redis = "*"
 flake8 = "*"
 boto3-type-annotations = "*"
 boto3-stubs = {extras = ["dynamodb"], version = "*"}
+types-python-dateutil = "*"
 
 [requires]
 python_version = "3.10"
 
 [scripts]
-dev = "flask --app reporting.main run -p 6000"
+dev = "flask --debug --app reporting.main run -p 6000"
 test = "python3 -m unittest discover -s reporting -p \"*_test.py\" -f"
 fmt = "black --skip-string-normalization reporting"
 lint = "bash -c 'pylint reporting && flake8 reporting'"

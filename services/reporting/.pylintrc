@@ -12,7 +12,7 @@ expected-line-ending-format=LF
 
 [BASIC]
 
-good-names=id,ts,db,ex,fn
+good-names=id,ts,db,ex,fn,bg
 
 [SIMILARITIES]
 

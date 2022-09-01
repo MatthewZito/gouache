@@ -1,10 +1,12 @@
+"""A message queue service and related functionality.
+"""
 import os
 import threading
 from typing import Dict, List
 
 import boto3
 from botocore.config import Config
-from boto3_type_annotations.sqs import Client
+from boto3_type_annotations.sqs import Client  # type: ignore
 from flask import Flask
 from werkzeug.local import LocalProxy
 
@@ -13,8 +15,8 @@ from reporting.context.context import get_report_ctx
 
 class MessageQueueService:
     """An SQS message listener service.
-    Polls SQS for new report messages, processes them by generating a new persistent report,
-    then deletes them."""
+    Polls SQS for new report messages, processes them by generating
+    a new persistent report, then deletes them."""
 
     def __init__(self, queue_name: str, app: Flask) -> None:
         host = os.getenv('SQS_HOST', 'http://localhost')
@@ -36,14 +38,20 @@ class MessageQueueService:
         )
 
     def init(self) -> None:
-        bg = threading.Thread(name='bg', target=self.listen)
+        """Initialize the message processing task in a background thread."""
+        bg = threading.Thread(name='bg', target=self.listen, daemon=True)
         bg.start()
 
     def process_messages(self, messages: List[Dict]) -> None:
+        """Process a batch of messages received from the SQS queue.
+
+        Args:
+            messages (List[Dict]): _description_
+        """
         for message in messages:
 
             body = message['Body']
-            if body == None:
+            if body is None:
                 continue
 
             with self.app.app_context():
@@ -60,16 +68,23 @@ class MessageQueueService:
             self.delete_message(message['ReceiptHandle'])
 
     def delete_message(self, receipt_handle: str) -> None:
+        """Delete a given message from the SQS queue.
+
+        Args:
+            receipt_handle (str): The message receipt handle,
+            used to identify the message being deleted from the SQS queue.
+        """
         self.client.delete_message(QueueUrl=self.endpoint, ReceiptHandle=receipt_handle)
 
     def recv_messages(self):
+        """Receive a batch of messages from the SQS queue."""
         try:
             response = self.client.receive_message(
                 QueueUrl=self.endpoint,
                 AttributeNames=['SentTimestamp'],
                 MaxNumberOfMessages=10,
                 MessageAttributeNames=['All'],
-                VisibilityTimeout=0,
+                VisibilityTimeout=20,
                 WaitTimeSeconds=20,
             )
 
@@ -79,5 +94,7 @@ class MessageQueueService:
             print(ex)
 
     def listen(self) -> None:
+        """Listen for new SQS messages.
+        This should be offloaded to a separate thread or process."""
         while True:
             self.recv_messages()

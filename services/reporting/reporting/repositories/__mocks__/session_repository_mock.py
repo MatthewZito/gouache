@@ -1,8 +1,6 @@
 """Repository mocks for testing.
 """
 
-from datetime import datetime
-
 
 class MockSessionRepository:
     """A SessionRepository mock that returns an infinite session."""
