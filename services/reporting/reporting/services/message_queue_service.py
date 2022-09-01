@@ -23,6 +23,8 @@ class MessageQueueService:
         host = os.getenv('SQS_HOST', 'http://localhost')
         port = os.getenv('SQS_PORT', '9324')
         region = os.getenv('SQS_REGION', 'us-east-1')
+        accessKey = os.getenv('AWS_FAKE_ACCESS_KEY')
+        secretKey = os.getenv('AWS_FAKE_SECRET_KEY')
 
         config = Config(
             region_name=region,
@@ -32,7 +34,12 @@ class MessageQueueService:
 
         self.app = app
         self.endpoint = f"{host}:{port}/queue/{queue_name}"
-        self.client: Client = boto3.client(
+        session = boto3.Session(
+            aws_access_key_id=accessKey,
+            aws_secret_access_key=secretKey,
+        )
+
+        self.client: Client = session.client(
             'sqs',
             endpoint_url=self.endpoint,
             config=config,
@@ -95,7 +102,7 @@ class MessageQueueService:
                 VisibilityTimeout=20,
                 WaitTimeSeconds=20,
             )
-
+            print(response.get('Messages'))
             self.process_messages(response.get('Messages'))
 
         except Exception as ex:

@@ -20,7 +20,9 @@ class ReportRepository:
     def __init__(self, table_name: str) -> None:
         host = os.getenv('DYNAMO_HOST', 'http://localhost')
         port = os.getenv('DYNAMO_PORT', '8000')
-        region = os.getenv('DYNAMO_REGION', 'us-east-2')
+        region = os.getenv('DYNAMO_REGION', 'us-east-1')
+        accessKey = os.getenv('AWS_FAKE_ACCESS_KEY')
+        secretKey = os.getenv('AWS_FAKE_SECRET_KEY')
 
         config = Config(
             region_name=region,
@@ -29,8 +31,13 @@ class ReportRepository:
         )
 
         self.client: Client = boto3.resource(
-            'dynamodb', endpoint_url=f"{host}:{port}", config=config
+            'dynamodb',
+            endpoint_url=f"{host}:{port}",
+            config=config,
+            aws_access_key_id=accessKey,
+            aws_secret_access_key=secretKey,
         )
+
         # we can store this as a field given it is lazy-loaded
         self.table = self.client.Table(table_name)
 
@@ -85,7 +92,7 @@ class ReportRepository:
                     'id': report_id,
                 }
             )
-
+            print(response)
             return response
 
         except (ClientError, ParamValidationError, Exception) as ex:

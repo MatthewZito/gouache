@@ -22,8 +22,8 @@ type UserRepository struct {
 
 // NewUserRepository initializes a new dynamodb client connection and `UserRepository` object.
 func NewUserRepository() (*UserRepository, error) {
-	accessKey := os.Getenv("DYNAMO_ACCESS_KEY")
-	secretKey := os.Getenv("DYNAMO_SECRET_KEY")
+	accessKey := os.Getenv("AWS_FAKE_ACCESS_KEY")
+	secretKey := os.Getenv("AWS_FAKE_SECRET_KEY")
 	host := os.Getenv("DYNAMO_HOST")
 	port := os.Getenv("DYNAMO_PORT")
 	region := os.Getenv("DYNAMO_REGION")

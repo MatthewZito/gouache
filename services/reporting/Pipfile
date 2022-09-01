@@ -8,6 +8,7 @@ flask = "*"
 boto3 = "*"
 redis = "*"
 python-dateutil = "*"
+boto3-type-annotations = "*"
 
 [dev-packages]
 pylint = "*"
@@ -16,7 +17,6 @@ mypy = "*"
 black = "*"
 types-redis = "*"
 flake8 = "*"
-boto3-type-annotations = "*"
 boto3-stubs = {extras = ["dynamodb"], version = "*"}
 types-python-dateutil = "*"
 

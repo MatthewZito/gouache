@@ -69,7 +69,9 @@ func (s *ReportServiceProvider) SendControllerErrorReport(r *http.Request, inter
 		Error:  fmt.Sprintf("internal: %s, friendly: %s", internal, friendly),
 	}
 
-	s.SendReport(context.TODO(), entities.HTTP_HANDLER_EX, rl)
+	go func() {
+		s.SendReport(context.TODO(), entities.HTTP_HANDLER_EX, rl)
+	}()
 }
 
 // Derive from the ReportService `Url` and `QueueName` a Queue URL pointer, as required by the SQS client.

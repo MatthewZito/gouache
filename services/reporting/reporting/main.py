@@ -51,5 +51,4 @@ def create_app():
         return response
 
     do_side_effects(app)
-
     return app

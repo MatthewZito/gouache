@@ -55,7 +55,12 @@ func (ctx AuthProvider) ReportRequest(next http.Handler) http.Handler {
 		var p map[string]interface{}
 
 		if method != http.MethodGet {
+			// data, _ := ioutil.ReadAll(r.Body)
+			// @todo restore
 			json.NewDecoder(r.Body).Decode(&p)
+
+			// r.Body.Close()
+			// r.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
 		}
 
 		rl := entities.RequestReport{
@@ -64,7 +69,9 @@ func (ctx AuthProvider) ReportRequest(next http.Handler) http.Handler {
 			Parameters: p,
 		}
 
-		ctx.rs.SendReport(context.TODO(), entities.HTTP_REQUEST_RECV, rl)
+		go func() {
+			ctx.rs.SendReport(context.TODO(), entities.HTTP_REQUEST_RECV, rl)
+		}()
 
 		next.ServeHTTP(w, r)
 	})

@@ -7,6 +7,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
 	"github.com/exbotanical/gouache/utils"
 )
@@ -20,6 +21,8 @@ type ReportRepository struct {
 
 // NewReportRepository initializes a new `ReportRepository` with internal SQS client.
 func NewReportRepository() (*ReportRepository, error) {
+	accessKey := os.Getenv("AWS_FAKE_ACCESS_KEY")
+	secretKey := os.Getenv("AWS_FAKE_SECRET_KEY")
 	host := os.Getenv("SQS_HOST")
 	port := os.Getenv("SQS_PORT")
 	region := os.Getenv("SQS_REGION")
@@ -29,6 +32,8 @@ func NewReportRepository() (*ReportRepository, error) {
 
 	cfg, err := config.LoadDefaultConfig(context.TODO(),
 		config.WithRegion(region),
+
+		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(accessKey, secretKey, "")),
 
 		config.WithEndpointResolverWithOptions(aws.EndpointResolverWithOptionsFunc(
 			func(service, region string, options ...interface{}) (aws.Endpoint, error) {

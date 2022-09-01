@@ -34,13 +34,14 @@ func main() {
 
 	/* Config */
 	origins := []string{utils.ToEndpoint(gouacheHost, clientPort)}
-	methods := []string{http.MethodOptions, http.MethodGet, http.MethodPut, http.MethodPatch}
-	headers := []string{"*"}
+	methods := []string{http.MethodOptions, http.MethodGet, http.MethodPost, http.MethodPut, http.MethodPatch}
+	headers := []string{"content-type"}
 
 	c := corset.NewCorset(corset.CorsetOptions{
 		AllowedOrigins:   origins,
 		AllowedMethods:   methods,
 		AllowedHeaders:   headers,
+		ExposeHeaders:    []string{"X-Powered-By"},
 		AllowCredentials: true,
 	})
 

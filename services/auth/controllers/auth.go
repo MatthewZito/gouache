@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -36,8 +37,11 @@ func NewAuthProvider(ss services.SessionService, us services.UserService, rs ser
 
 // Login authenticates a user given correct `Credentials`.
 func (ctx AuthProvider) Login(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("INVOKE")
 	var credentials Credentials
+
 	if err := json.NewDecoder(r.Body).Decode(&credentials); err != nil {
+		fmt.Println(err)
 		ctx.handleException(w, r, http.StatusBadRequest, err.Error(), "invalid credentials")
 		return
 	}

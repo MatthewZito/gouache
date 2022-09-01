@@ -8,10 +8,14 @@ const client = new HttpClient({
 
 export const authApi = {
   async login({ username, password }: UserCredentials) {
-    return client.post<CredentialsResponse, UserCredentials>('/login', {
-      username,
-      password,
-    })
+    return client.post<CredentialsResponse, UserCredentials>(
+      '/login',
+      {
+        username,
+        password,
+      },
+      true,
+    )
   },
 
   async logout() {

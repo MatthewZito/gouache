@@ -23,6 +23,11 @@ export const useSessionStore = defineStore('session', {
       this.isAuthenticated = true
     },
 
+    purgeUserState() {
+      this.$reset()
+      window.sessionStorage.clear()
+    },
+
     async verifySession() {
       try {
         const { ok, data } = await authApi.renew()
@@ -35,7 +40,7 @@ export const useSessionStore = defineStore('session', {
         this.setUserState(data)
         this.autoRenew()
       } catch (ex) {
-        await this.logout()
+        this.purgeUserState()
       }
     },
 

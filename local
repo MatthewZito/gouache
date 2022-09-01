@@ -146,3 +146,5 @@ main $*
 # curl -v localhost:9324/queue/report-queue -d "Action=SendMessage&Version=2011-10-01&MessageBody=example&MessageAttribute.1.name=&MessageAttribute.1.Name=name&MessageAttribute.1.Value.StringValue=the_name&MessageAttribute.1.Value.DataType=String&MessageAttribute.2.Name=caller&MessageAttribute.2.Value.StringValue=gouache/local&MessageAttribute.2.Value.DataType=String"
 # curl -v localhost:9324/queue/report-queue -d "Action=ReceiveMessage&MessageAttributeName.N=All"
 # mvn spring-boot:run -Dspring-boot.run.arguments="--spring.profiles.active=local"
+# aws dynamodb --endpoint-url http://localhost:8000 --region us-east-1 scan --table-name report
+# aws dynamodb --endpoint-url http://localhost:8000 --region us-east-1 delete-table --table-name report
