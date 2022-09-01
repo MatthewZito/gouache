@@ -8,7 +8,6 @@ import (
 
 	"github.com/exbotanical/gouache/controllers"
 	"github.com/exbotanical/gouache/models"
-	"github.com/exbotanical/gouache/repositories"
 	"github.com/exbotanical/gouache/services"
 	"github.com/exbotanical/gouache/utils"
 
@@ -19,8 +18,14 @@ import (
 
 func main() {
 	/* Environment */
-	if err := godotenv.Load(".env"); err != nil {
-		log.Fatal("Error loading .env file")
+	envFile := ".env"
+
+	if os.Getenv("LOCAL_MODE") != "" {
+		envFile = ".env.local"
+	}
+
+	if err := godotenv.Load(envFile); err != nil {
+		log.Fatal("Error loading .env file", err)
 	}
 
 	port := os.Getenv("PORT")
@@ -41,20 +46,23 @@ func main() {
 
 	bl := services.NewLogger("cmd/serve")
 
-	t, err := repositories.InitUserTable()
+	us, err := services.NewUserService()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	cache, err := repositories.NewRedisStore()
+	ss, err := services.NewSessionService()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	q := repositories.NewReportRepository()
+	rs, err := services.NewReportService()
+	if err != nil {
+		fmt.Printf("unable to initialize report service; see %v\n", err)
+	}
 
 	/* State */
-	ctx := controllers.NewSessionContext(cache, t, q)
+	ctx := controllers.NewAuthProvider(ss, us, rs)
 
 	/* Routers */
 	r := turnpike.NewRouter()
@@ -73,10 +81,25 @@ func main() {
 	r.Handler("/auth/health", http.HandlerFunc(controllers.Health)).WithMethods(http.MethodGet).Use(ctx.ReportRequest).Register()
 
 	/* Auth */
-	r.Handler("/auth/login", http.HandlerFunc(ctx.Login)).WithMethods(http.MethodPost).Register()
-	r.Handler("/auth/register", http.HandlerFunc(ctx.Register)).WithMethods(http.MethodPost).Register()
-	r.Handler("/auth/renew", http.HandlerFunc(ctx.RenewSession)).WithMethods(http.MethodPost).Use(ctx.Authorize).Register()
-	r.Handler("/auth/logout", http.HandlerFunc(ctx.Logout)).WithMethods(http.MethodPost).Use(ctx.Authorize).Register()
+	r.Handler("/auth/login", http.HandlerFunc(ctx.Login)).
+		WithMethods(http.MethodPost).
+		Use(ctx.ReportRequest).
+		Register()
+
+	r.Handler("/auth/register", http.HandlerFunc(ctx.Register)).
+		WithMethods(http.MethodPost).
+		Use(ctx.ReportRequest).
+		Register()
+
+	r.Handler("/auth/renew", http.HandlerFunc(ctx.RenewSession)).
+		WithMethods(http.MethodPost).
+		Use(ctx.ReportRequest, ctx.Authorize).
+		Register()
+
+	r.Handler("/auth/logout", http.HandlerFunc(ctx.Logout)).
+		WithMethods(http.MethodPost).
+		Use(ctx.ReportRequest, ctx.Authorize).
+		Register()
 
 	/* Init */
 	fmt.Printf("Listening on port %s...\n", port)

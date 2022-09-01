@@ -7,7 +7,7 @@ import (
 
 	"github.com/exbotanical/gouache/entities"
 	"github.com/exbotanical/gouache/models"
-	"github.com/exbotanical/gouache/repositories"
+	"github.com/exbotanical/gouache/services"
 	"github.com/exbotanical/gouache/utils"
 
 	"github.com/google/uuid"
@@ -16,11 +16,11 @@ import (
 // COOKIE_ID represents the session identifier.
 const COOKIE_ID = "gouache_session"
 
-// SessionContext holds the auth controller context, including the redis session cache and dynamodb client.
-type SessionContext struct {
-	cache repositories.SessionManager
-	repo  *repositories.UserTable
-	q     *repositories.ReportRepository
+// AuthProvider holds the auth controller context, including the redis session cache and dynamodb client.
+type AuthProvider struct {
+	ss services.SessionService
+	us services.UserService
+	rs services.ReportService
 }
 
 // Credentials represents a user's input credentials.
@@ -29,20 +29,20 @@ type Credentials struct {
 	Password string `json:"password"`
 }
 
-// NewSessionContext initializes a new SessionContext object.
-func NewSessionContext(client repositories.SessionManager, repo *repositories.UserTable, q *repositories.ReportRepository) SessionContext {
-	return SessionContext{cache: client, repo: repo, q: q}
+// NewAuthProvider initializes a new AuthProvider object.
+func NewAuthProvider(ss services.SessionService, us services.UserService, rs services.ReportService) AuthProvider {
+	return AuthProvider{ss: ss, us: us, rs: rs}
 }
 
 // Login authenticates a user given correct `Credentials`.
-func (ctx SessionContext) Login(w http.ResponseWriter, r *http.Request) {
+func (ctx AuthProvider) Login(w http.ResponseWriter, r *http.Request) {
 	var credentials Credentials
 	if err := json.NewDecoder(r.Body).Decode(&credentials); err != nil {
 		ctx.handleException(w, r, http.StatusBadRequest, err.Error(), "invalid credentials")
 		return
 	}
 
-	u, err := ctx.repo.GetUser(credentials.Username)
+	u, err := ctx.us.GetUser(credentials.Username)
 	if err != nil {
 		ctx.handleException(w, r, http.StatusBadRequest, err.Error(), "invalid credentials")
 		return
@@ -56,12 +56,12 @@ func (ctx SessionContext) Login(w http.ResponseWriter, r *http.Request) {
 	sessionToken := uuid.NewString()
 	expiresAt := time.Now().Add(60 * time.Minute)
 
-	session := repositories.Session{
+	session := entities.Session{
 		Username: credentials.Username,
 		Expiry:   expiresAt,
 	}
 
-	if err := ctx.cache.Set(sessionToken, session); err != nil {
+	if err := ctx.ss.SetSession(sessionToken, session); err != nil {
 		ctx.handleException(w, r, http.StatusBadRequest, err.Error(), "an unknown exception occurred @todo const")
 		return
 	}
@@ -84,7 +84,7 @@ func (ctx SessionContext) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 // Logout destroys the user's session and removes their session cookie.
-func (ctx SessionContext) Logout(w http.ResponseWriter, r *http.Request) {
+func (ctx AuthProvider) Logout(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie(COOKIE_ID)
 	if err != nil {
 		ctx.handleException(w, r, http.StatusUnauthorized, err.Error(), "an unknown exception occurred @todo const")
@@ -93,7 +93,7 @@ func (ctx SessionContext) Logout(w http.ResponseWriter, r *http.Request) {
 
 	sessionToken := cookie.Value
 
-	ctx.cache.Delete(sessionToken)
+	ctx.ss.DeleteSession(sessionToken)
 
 	http.SetCookie(w, &http.Cookie{
 		Name:     COOKIE_ID,
@@ -107,7 +107,7 @@ func (ctx SessionContext) Logout(w http.ResponseWriter, r *http.Request) {
 }
 
 // RenewSession renews the user's session cookie.
-func (ctx SessionContext) RenewSession(w http.ResponseWriter, r *http.Request) {
+func (ctx AuthProvider) RenewSession(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie(COOKIE_ID)
 	if err != nil {
 		ctx.handleException(w, r, http.StatusUnauthorized, err.Error(), "unauthorized")
@@ -116,7 +116,7 @@ func (ctx SessionContext) RenewSession(w http.ResponseWriter, r *http.Request) {
 
 	sessionToken := cookie.Value
 
-	session, err := ctx.cache.Get(sessionToken)
+	session, err := ctx.ss.GetSession(sessionToken)
 	if err != nil {
 		ctx.handleException(w, r, http.StatusUnauthorized, err.Error(), "unauthorized")
 		return
@@ -125,7 +125,7 @@ func (ctx SessionContext) RenewSession(w http.ResponseWriter, r *http.Request) {
 	expiresAt := time.Now().Add(60 * time.Minute)
 	session.Expiry = expiresAt
 
-	ctx.cache.Set(sessionToken, *session)
+	ctx.ss.SetSession(sessionToken, *session)
 
 	http.SetCookie(w, &http.Cookie{
 		Name:     COOKIE_ID,
@@ -146,7 +146,7 @@ func (ctx SessionContext) RenewSession(w http.ResponseWriter, r *http.Request) {
 
 // Register creates a new user and corresponding session when provided a `NewUserModel`.
 // @todo Determine when user exists
-func (ctx SessionContext) Register(w http.ResponseWriter, r *http.Request) {
+func (ctx AuthProvider) Register(w http.ResponseWriter, r *http.Request) {
 	u := models.NewUserModel{}
 
 	if err := json.NewDecoder(r.Body).Decode(&u); err != nil {
@@ -162,7 +162,7 @@ func (ctx SessionContext) Register(w http.ResponseWriter, r *http.Request) {
 
 	u.Password = hash
 
-	err = ctx.repo.CreateUser(u)
+	err = ctx.us.CreateUser(u)
 	if err != nil {
 		ctx.handleException(w, r, http.StatusBadRequest, err.Error(), "an unknown exception occurred @todo const")
 		return
@@ -171,12 +171,12 @@ func (ctx SessionContext) Register(w http.ResponseWriter, r *http.Request) {
 	sessionToken := uuid.NewString()
 	expiresAt := time.Now().Add(60 * time.Minute)
 
-	session := repositories.Session{
+	session := entities.Session{
 		Username: u.Username,
 		Expiry:   expiresAt,
 	}
 
-	if err := ctx.cache.Set(sessionToken, session); err != nil {
+	if err := ctx.ss.SetSession(sessionToken, session); err != nil {
 		ctx.handleException(w, r, http.StatusBadRequest, err.Error(), "an unknown exception occurred @todo const")
 		return
 	}

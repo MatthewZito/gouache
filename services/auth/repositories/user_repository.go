@@ -3,62 +3,49 @@ package repositories
 import (
 	"context"
 	"fmt"
+	"os"
+
+	"github.com/exbotanical/gouache/utils"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
+	"github.com/aws/aws-sdk-go-v2/credentials"
+
+	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
-	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
-	"github.com/exbotanical/gouache/entities"
-	"github.com/exbotanical/gouache/models"
-	"github.com/google/uuid"
 )
 
-// GetUser - given a primary key `username` - retrieves a `User` from dynamodb.
-func (t UserTable) GetUser(username string) (*entities.User, error) {
-	response, err := t.DynamoDbClient.GetItem(context.TODO(), &dynamodb.GetItemInput{
-		TableName: aws.String(t.TableName),
-		Key: map[string]types.AttributeValue{
-			"username": &types.AttributeValueMemberS{Value: username},
-		},
-	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	user := &entities.User{}
-
-	if err = attributevalue.UnmarshalMap(response.Item, &user); err != nil {
-		return nil, err
-	}
-
-	if user.Username == "" {
-		return nil, fmt.Errorf("user with username %s not found", username)
-	}
-
-	return user, err
+// UserRepository represents a dynamodb client connection to a given table `TableName`.
+type UserRepository struct {
+	DynamoDbClient *dynamodb.Client
+	TableName      string
 }
 
-// CreateUser creates a new `User` in dynamodb.
-func (t UserTable) CreateUser(userModel models.NewUserModel) error {
-	user := entities.User{
-		Id:       uuid.New().String(),
-		Username: userModel.Username,
-		Password: userModel.Password,
-	}
+// NewUserRepository initializes a new dynamodb client connection and `UserRepository` object.
+func NewUserRepository() (*UserRepository, error) {
+	accessKey := os.Getenv("DYNAMO_ACCESS_KEY")
+	secretKey := os.Getenv("DYNAMO_SECRET_KEY")
+	host := os.Getenv("DYNAMO_HOST")
+	port := os.Getenv("DYNAMO_PORT")
+	region := os.Getenv("DYNAMO_REGION")
+	tableName := os.Getenv("DYNAMO_TABLE_NAME")
 
-	item, err := attributevalue.MarshalMap(user)
+	cfg, err := config.LoadDefaultConfig(context.TODO(),
+		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(accessKey, secretKey, "")),
+
+		config.WithRegion(region),
+
+		config.WithEndpointResolverWithOptions(aws.EndpointResolverWithOptionsFunc(
+			func(service, region string, options ...interface{}) (aws.Endpoint, error) {
+				return aws.Endpoint{URL: utils.ToEndpoint(host, port)}, nil
+			})),
+	)
+
 	if err != nil {
-		return err
+		return nil, fmt.Errorf("cannot connect to dynamodb; see %v", err)
 	}
 
-	// @todo return id
-	if _, err = t.DynamoDbClient.PutItem(context.TODO(), &dynamodb.PutItemInput{
-		TableName: aws.String(t.TableName),
-		Item:      item,
-	}); err != nil {
-		return err
-	}
+	t := UserRepository{TableName: tableName,
+		DynamoDbClient: dynamodb.NewFromConfig(cfg)}
 
-	return nil
+	return &t, nil
 }

@@ -11,7 +11,7 @@ import (
 )
 
 // Authorize is a middleware that checks the user's session cookie to evaluate whether they're authorized to access the system.
-func (ctx SessionContext) Authorize(next http.Handler) http.Handler {
+func (ctx AuthProvider) Authorize(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		cookie, err := r.Cookie(COOKIE_ID)
 
@@ -25,13 +25,13 @@ func (ctx SessionContext) Authorize(next http.Handler) http.Handler {
 			}
 		} else {
 			token := cookie.Value
-			session, err := ctx.cache.Get(token)
+			session, err := ctx.ss.GetSession(token)
 
 			if err != nil {
 				w.WriteHeader(http.StatusUnauthorized)
 				return
 			} else if session.IsExpired() {
-				ctx.cache.Delete(token)
+				ctx.ss.DeleteSession(token)
 				w.WriteHeader(http.StatusUnauthorized)
 				return
 			}
@@ -42,7 +42,7 @@ func (ctx SessionContext) Authorize(next http.Handler) http.Handler {
 }
 
 // ReportRequest is a middleware that sends reports of all inbound requests to the gouache/reporting service.
-func (ctx SessionContext) ReportRequest(next http.Handler) http.Handler {
+func (ctx AuthProvider) ReportRequest(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		method := r.Method
 
@@ -64,14 +64,14 @@ func (ctx SessionContext) ReportRequest(next http.Handler) http.Handler {
 			Parameters: p,
 		}
 
-		ctx.q.SendReport(context.TODO(), entities.HTTP_REQUEST_RECV, rl)
+		ctx.rs.SendReport(context.TODO(), entities.HTTP_REQUEST_RECV, rl)
 
 		next.ServeHTTP(w, r)
 	})
 }
 
 // handleException handles http controller exceptions and reports the error to gouache/reporting.
-func (ctx SessionContext) handleException(w http.ResponseWriter, r *http.Request, status int, internal string, friendly string) {
+func (ctx AuthProvider) handleException(w http.ResponseWriter, r *http.Request, status int, internal string, friendly string) {
 	models.SendGouacheException(w, status, internal, friendly, 0)
-	ctx.q.SendControllerErrorReport(r, internal, friendly)
+	ctx.rs.SendControllerErrorReport(r, internal, friendly)
 }
