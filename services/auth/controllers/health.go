@@ -9,12 +9,11 @@ import (
 
 // Health is a liveness check endpoint that returns the server's current status.
 func Health(w http.ResponseWriter, r *http.Request) {
-
 	if name, err := os.Hostname(); err != nil {
-		models.FormatError(w, http.StatusBadRequest, err.Error(), "Health check failed", 0)
+		models.SendGouacheException(w, http.StatusBadRequest, err.Error(), "Health check failed", 0)
 	} else {
 
-		models.FormatResponse(w, http.StatusOK, models.DefaultOk(map[string]string{"server": name}))
+		models.SendGouacheResponse(w, http.StatusOK, models.ToOk(map[string]string{"server": name}))
 	}
 
 }

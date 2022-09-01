@@ -4,8 +4,8 @@ import com.amazonaws.services.sqs.AmazonSQSAsync;
 import com.amazonaws.services.sqs.model.SendMessageResult;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.exbotanical.resource.models.GouacheReport;
-import com.github.exbotanical.resource.models.ReportName;
+import com.github.exbotanical.resource.models.reporting.GouacheReport;
+import com.github.exbotanical.resource.models.reporting.GouacheReportName;
 import com.github.exbotanical.resource.utils.FormatterUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,12 +42,12 @@ public class QueueSenderDataService implements QueueSenderService {
   }
 
   @Override
-  public SendMessageResult sendMessage(String message, ReportName name) {
+  public SendMessageResult sendMessage(String message, GouacheReportName name) {
     return sendNormalizedMessage(message, name);
   }
 
   @Override
-  public SendMessageResult sendMessage(Object message, ReportName name) {
+  public SendMessageResult sendMessage(Object message, GouacheReportName name) {
     try {
       return sendNormalizedMessage(objectMapper.writeValueAsString(message), name);
     } catch (JsonProcessingException ex) {
@@ -55,13 +55,13 @@ public class QueueSenderDataService implements QueueSenderService {
     }
   }
 
-  private SendMessageResult sendNormalizedMessage(String reportData, ReportName name) {
+  private SendMessageResult sendNormalizedMessage(String reportData, GouacheReportName name) {
     try {
       GouacheReport report = GouacheReport.builder()
-          .data(objectMapper.writeValueAsString(reportData))
-          .caller("gouache/resource")
-          .name(name.toString())
-          .build();
+        .data(objectMapper.writeValueAsString(reportData))
+        .caller("gouache/resource")
+        .name(name.toString())
+        .build();
 
       String serializedMessage = objectMapper.writeValueAsString(report);
 

@@ -144,5 +144,5 @@ main $*
 
 
 # curl -v localhost:9324/queue/report-queue -d "Action=SendMessage&Version=2011-10-01&MessageBody=example"
-# curl -v localhost:9324/queue/report-queue -d "Action=ReceiveMessage"
+# curl -v localhost:9324/queue/report-queue -d "Action=ReceiveMessage&MessageAttributeName.N=All"
 # mvn spring-boot:run -Dspring-boot.run.arguments="--spring.profiles.active=local"

@@ -12,9 +12,12 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class GouacheResponse {
+public class GouacheResponseModel {
   String internal;
+
   String friendly;
+
   Object data;
+
   int flags;
 }

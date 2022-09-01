@@ -21,11 +21,11 @@ func TestHealth(t *testing.T) {
 	var expectedStatus int
 
 	if name, err := os.Hostname(); err != nil {
-		expectedBody = string(models.DefaultError(err.Error(), "Health check failed", 0))
+		expectedBody = string(models.ToException(err.Error(), "Health check failed", 0))
 		expectedStatus = http.StatusBadRequest
 	} else {
 
-		expectedBody = string(models.DefaultOk(map[string]string{"server": name}))
+		expectedBody = string(models.ToOk(map[string]string{"server": name}))
 		expectedStatus = http.StatusOK
 	}
 

@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/exbotanical/gouache/cache"
 	"github.com/exbotanical/gouache/controllers"
 	"github.com/exbotanical/gouache/models"
 	"github.com/exbotanical/gouache/repositories"
@@ -47,29 +46,31 @@ func main() {
 		log.Fatal(err)
 	}
 
-	cache, err := cache.NewRedisStore()
+	cache, err := repositories.NewRedisStore()
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	q := repositories.NewReportRepository()
+
 	/* State */
-	ctx := controllers.NewSessionContext(cache, t)
+	ctx := controllers.NewSessionContext(cache, t, q)
 
 	/* Routers */
 	r := turnpike.NewRouter()
 
 	r.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		bl.Logf("NotFoundHandler - route %s%s\n", r.Host, r.URL.Path)
-		models.FormatError(w, http.StatusNotFound, "invalid route", "", 0)
+		models.SendGouacheException(w, http.StatusNotFound, "invalid route", "", 0)
 	})
 
 	r.MethodNotAllowedHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		bl.Logf("MethodNotAllowedHandler - %s at route %s%s\n", r.Method, r.Host, r.URL.Path)
-		models.FormatError(w, http.StatusMethodNotAllowed, "method not allowed", "", 0)
+		models.SendGouacheException(w, http.StatusMethodNotAllowed, "method not allowed", "", 0)
 	})
 
 	/* Health */
-	r.Handler("/auth/health", http.HandlerFunc(controllers.Health)).WithMethods(http.MethodGet).Register()
+	r.Handler("/auth/health", http.HandlerFunc(controllers.Health)).WithMethods(http.MethodGet).Use(ctx.ReportRequest).Register()
 
 	/* Auth */
 	r.Handler("/auth/login", http.HandlerFunc(ctx.Login)).WithMethods(http.MethodPost).Register()

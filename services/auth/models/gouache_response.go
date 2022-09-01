@@ -13,8 +13,8 @@ type GouacheResponse struct {
 	Flags    int         `json:"flags,omitempty"`
 }
 
-// DefaultOk generates a fallback 200 OK `GouacheResponse`.
-func DefaultOk(data interface{}) []byte {
+// ToOk generates a fallback 200 OK `GouacheResponse`.
+func ToOk(data interface{}) []byte {
 	v, _ := json.Marshal(GouacheResponse{
 		Data:     data,
 		Internal: "",
@@ -25,8 +25,8 @@ func DefaultOk(data interface{}) []byte {
 	return v
 }
 
-// DefaultError generates a fallback erroneous `GouacheResponse`.
-func DefaultError(internal string, friendly string, flags int) []byte {
+// ToException generates a fallback erroneous `GouacheResponse`.
+func ToException(internal string, friendly string, flags int) []byte {
 	v, _ := json.Marshal(GouacheResponse{
 		Data:     nil,
 		Internal: internal,
@@ -37,17 +37,16 @@ func DefaultError(internal string, friendly string, flags int) []byte {
 	return v
 }
 
-// FormatError formats error metadata into an erroneous `GouacheResponse`.
-func FormatError(w http.ResponseWriter, code int, internal string, friendly string, flags int) {
-
+// SendGouacheException formats error metadata into an erroneous `GouacheResponse`.
+func SendGouacheException(w http.ResponseWriter, code int, internal string, friendly string, flags int) {
 	// @todo handle
-	v := DefaultError(internal, friendly, flags)
+	v := ToException(internal, friendly, flags)
 
-	FormatResponse(w, code, v)
+	SendGouacheResponse(w, code, v)
 }
 
-// FormatResponse formats response metadata into a successful `GouacheResponse`.
-func FormatResponse(w http.ResponseWriter, code int, payload []byte) {
+// SendGouacheResponse formats response metadata into a successful `GouacheResponse`.
+func SendGouacheResponse(w http.ResponseWriter, code int, payload []byte) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("X-Powered-By", "gouache/auth")
 	w.WriteHeader(code)

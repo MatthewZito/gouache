@@ -1,4 +1,4 @@
-package com.github.exbotanical.resource.models;
+package com.github.exbotanical.resource.models.reporting;
 
 import lombok.Builder;
 import lombok.Getter;

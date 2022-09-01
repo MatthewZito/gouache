@@ -13,30 +13,6 @@ import (
 	"github.com/google/uuid"
 )
 
-// CreateUser creates a new `User` in dynamodb.
-func (t UserTable) CreateUser(userModel models.NewUserModel) error {
-	user := entities.User{
-		Id:       uuid.New().String(),
-		Username: userModel.Username,
-		Password: userModel.Password,
-	}
-
-	item, err := attributevalue.MarshalMap(user)
-	if err != nil {
-		return err
-	}
-
-	// @todo return id
-	if _, err = t.DynamoDbClient.PutItem(context.TODO(), &dynamodb.PutItemInput{
-		TableName: aws.String(t.TableName),
-		Item:      item,
-	}); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 // GetUser - given a primary key `username` - retrieves a `User` from dynamodb.
 func (t UserTable) GetUser(username string) (*entities.User, error) {
 	response, err := t.DynamoDbClient.GetItem(context.TODO(), &dynamodb.GetItemInput{
@@ -61,4 +37,28 @@ func (t UserTable) GetUser(username string) (*entities.User, error) {
 	}
 
 	return user, err
+}
+
+// CreateUser creates a new `User` in dynamodb.
+func (t UserTable) CreateUser(userModel models.NewUserModel) error {
+	user := entities.User{
+		Id:       uuid.New().String(),
+		Username: userModel.Username,
+		Password: userModel.Password,
+	}
+
+	item, err := attributevalue.MarshalMap(user)
+	if err != nil {
+		return err
+	}
+
+	// @todo return id
+	if _, err = t.DynamoDbClient.PutItem(context.TODO(), &dynamodb.PutItemInput{
+		TableName: aws.String(t.TableName),
+		Item:      item,
+	}); err != nil {
+		return err
+	}
+
+	return nil
 }
