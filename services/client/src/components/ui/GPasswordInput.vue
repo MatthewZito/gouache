@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { required } from '@/utils'
-import { ValidationRule } from 'quasar'
+import type { ValidationRule } from 'quasar'
 import type { PropType } from 'vue'
 
 const props = defineProps({
@@ -30,23 +30,19 @@ const mutableModelValue = computed({
 const showPassword = ref(false)
 </script>
 
-<template>
-  <q-input
-    label="Password"
-    v-model="mutableModelValue"
-    filled
-    :type="showPassword ? 'text' : 'password'"
-    autocomplete="current-password"
-    dense
-    class="q-mb-md"
-    :rules="props.rules"
-  >
-    <template #append>
-      <q-icon
-        :name="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-        class="cursor-pointer"
-        @click="showPassword = !showPassword"
-      ></q-icon>
-    </template>
-  </q-input>
+<template lang="pug">
+q-input.q-mb-md(
+  label="Password"
+  v-model="mutableModelValue"
+  filled
+  :type="showPassword ? 'text' : 'password'"
+  autocomplete="current-password"
+  dense
+  :rules="props.rules"
+)
+  template(#append)
+    q-icon.cursor-pointer(
+      :name="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+      @click="showPassword = !showPassword"
+    )
 </template>

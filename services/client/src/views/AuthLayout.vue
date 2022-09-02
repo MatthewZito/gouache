@@ -16,28 +16,23 @@ onErrorCaptured((ex: any) => {
 })
 </script>
 
-<template>
-  <q-layout view="hHh LpR fFf">
-    <q-header bordered class="bg-primary text-white">
-      <q-toolbar>
-        <q-toolbar-title> Resources </q-toolbar-title>
+<template lang="pug">
+q-layout(view="hHh LpR fFf")
+  q-header.bg-primary.text-white(bordered)
+    q-toolbar
+      q-toolbar-title
+        |Resources
 
-        <q-btn
-          dense
-          flat
-          round
-          :icon="
-            isDarkMode ? `mdi-moon-waxing-crescent` : `mdi-white-balance-sunny`
-          "
-          @click="toggleDarkMode"
-        />
-      </q-toolbar>
-    </q-header>
+      q-btn(
+        dense
+        flat
+        round
+        :icon="isDarkMode ? `mdi-moon-waxing-crescent` : `mdi-white-balance-sunny`"
+        @click="toggleDarkMode"
+      )
 
-    <q-page-container class="q-pa-lg" style="height: 100vh">
-      <div class="row justify-center items-center full-height">
-        <router-view />
-      </div>
-    </q-page-container>
-  </q-layout>
+
+  q-page-container.q-pa-lg(style="height: 100vh")
+    div.row.justify-center.items-center.full-height
+      router-view
 </template>

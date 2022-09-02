@@ -1,4 +1,4 @@
-export * from './BaseError'
+export * from './GouacheError'
 
 export * from './ErroneousResponse'
 

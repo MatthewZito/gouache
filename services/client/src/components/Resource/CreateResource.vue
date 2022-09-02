@@ -63,52 +63,56 @@ async function handleSave() {
 }
 </script>
 
-<template>
-  <q-card style="width: 400px">
-    <q-card-section>
-      <div class="text-h6">Create Resource</div>
-    </q-card-section>
+<template lang="pug">
+q-card(
+  style="width: 400px"
+)
+  q-card-section
+    div.text-h6
+      | Create Resource
 
-    <q-card-section>
-      <!-- @todo reuse -->
-      <q-form class="q-pa-md">
-        <q-input
-          label="Title"
-          v-model="formModel.title"
-          filled
-          dense
-          class="q-mb-md"
-          :rules="titleRules"
-        />
+  q-card-section
+    q-form.q-pa-md
+      q-input.q-mb-md(
+        label="Title"
+        v-model="formModel.title"
+        filled
+        dense
+        :rules="titleRules"
+      )
 
-        <GSelect
-          v-model="formModel.tags"
-          :options="availableTags"
-          label="Tags"
-          :rules="tagsRules"
-        />
-      </q-form>
-    </q-card-section>
+      GSelect(
+        v-model="formModel.tags"
+        :options="availableTags"
+        label="Tags"
+        :rules="tagsRules"
+      )
 
-    <q-card-actions class="justify-between">
-      <q-btn label="Close" flat color="grey-6" @click="$emit('close')" />
-      <div>
-        <q-btn
-          label="Save"
-          unelevated
-          color="primary"
-          :disable="shouldDisable"
-          @click="handleSave"
-        />
-        <q-tooltip v-if="shouldDisable">
-          The form must be complete prior to submitting.
-        </q-tooltip>
-      </div>
-    </q-card-actions>
+  q-card-actions.justify-between
+    q-btn(
+      label="Close"
+      flat
+      color="grey-6"
+      @click="$emit('close')"
+    )
+    div
+      q-btn(
+        label="Save"
+        unelevated
+        color="primary"
+        :disable="shouldDisable"
+        @click="handleSave"
+      )
+      q-tooltip(
+        v-if="shouldDisable"
+      )
+        | The form must be complete prior to submitting.
 
-    <q-inner-loading :showing="isLoading">
-      <q-spinner class="q-mb-sm" size="50px" color="secondary" />
-      <div class="text-secondary text-bold">Creating the resource...</div>
-    </q-inner-loading>
-  </q-card>
+  q-inner-loading(:showing="isLoading")
+    q-spinner.q-mb-sm(
+      size="50px"
+      color="secondary"
+      )
+    div.text-secondary.text-bold
+      | Creating the resource...
 </template>

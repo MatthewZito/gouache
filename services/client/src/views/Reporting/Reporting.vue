@@ -2,5 +2,5 @@
 
 <template lang="pug">
 div
-  | Dashboard
+  | Reporting
 </template>

@@ -1,7 +1,7 @@
 <script lang="ts" setup></script>
 
-<template>
-  <router-view />
+<template lang="pug">
+router-view
 </template>
 
 <style>

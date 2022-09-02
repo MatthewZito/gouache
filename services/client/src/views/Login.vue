@@ -33,51 +33,47 @@ async function handleSubmitLogin() {
 }
 </script>
 
-<template>
-  <q-card style="width: 400px">
-    <q-form class="q-pa-md" @submit.prevent>
-      <q-card-section>
-        <GLogo />
-      </q-card-section>
-      <q-card-section>
-        <div class="text-h6">Login with an existing account</div>
-      </q-card-section>
-      <q-card-section>
-        <q-input
-          label="Username"
-          v-model="formModel.username"
-          filled
-          dense
-          class="q-mb-md"
-          autocomplete="username"
-          :rules="[required('A username is required.')]"
-        />
+<template lang="pug">
+q-card(style="width: 400px")
+  q-form.q-pa-md(@submit.prevent)
+    q-card-section
+      GLogo
 
-        <GPasswordInput v-model="formModel.password" />
-      </q-card-section>
+    q-card-section
+      div.text-h6
+      | Login with an existing account
 
-      <q-card-actions class="justify-between">
-        <q-btn
-          label="Register"
+    q-card-section
+      q-input.q-mb-md(
+        label="Username"
+        v-model="formModel.username"
+        filled
+        dense
+        autocomplete="username"
+        :rules="[required('A username is required.')]"
+      )
+
+      GPasswordInput(v-model="formModel.password")
+
+    q-card-actions.justify-between
+      q-btn(
+        label="Register"
+        unelevated
+        color="primary"
+        outline
+        @click="$router.push({ name: 'Register' })"
+      )
+
+      div
+        q-btn(
+          label="Login"
+          type="submit"
           unelevated
           color="primary"
-          outline
-          @click="$router.push({ name: 'Register' })"
-        />
-        <div>
-          <q-btn
-            label="Login"
-            type="submit"
-            unelevated
-            color="primary"
-            :disable="shouldDisable"
-            @click="handleSubmitLogin"
-          />
-          <q-tooltip v-if="shouldDisable">
-            You must provide a username and password to login.
-          </q-tooltip>
-        </div>
-      </q-card-actions>
-    </q-form>
-  </q-card>
+          :disable="shouldDisable"
+          @click="handleSubmitLogin"
+        )
+
+        q-tooltip(v-if="shouldDisable")
+          | You must provide a username and password to login.
 </template>

@@ -1,4 +1,4 @@
-import { BaseError } from '.'
+import { GouacheError } from '.'
 
 import { showNotification } from '@/plugins/notification'
 import { logger } from '@/services/logger'
@@ -24,8 +24,8 @@ export const useErrorHandler = (
   let ret =
     fallback || 'Uh oh, something went wrong. Please try refreshing the page.'
 
-  // captures any instance of `BaseError`, including all subclasses
-  if (ex instanceof BaseError) {
+  // captures any instance of `GouacheError`, including all subclasses
+  if (ex instanceof GouacheError) {
     const { friendly } = ex.serialize()
 
     ret = friendly

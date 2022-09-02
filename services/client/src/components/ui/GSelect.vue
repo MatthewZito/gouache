@@ -48,35 +48,30 @@ function removeOption(value: string) {
 }
 </script>
 
-<template>
-  <q-select
-    v-model="mutableModelValue"
-    :options="props.options"
-    :rules="props.rules"
-    option-value="value"
-    filled
-    clearable
-    dense
-    emit-value
-    map-options
-    multiple
-    use-chips
-  >
-    <template #selected-item="{ opt }">
-      <q-chip
-        :color="opt.color"
-        text-color="black"
-        removable
-        @remove="_ => removeOption(opt.value)"
-      >
-        <span class="q-mr-sm">
-          {{ opt.label }}
-        </span>
-        <q-icon :name="opt.icon" />
-        <q-tooltip>
-          {{ opt.description }}
-        </q-tooltip>
-      </q-chip>
-    </template>
-  </q-select>
+<template lang="pug">
+q-select(
+  v-model="mutableModelValue"
+  :options="props.options"
+  :rules="props.rules"
+  option-value="value"
+  filled
+  clearable
+  dense
+  emit-value
+  map-options
+  multiple
+  use-chips
+)
+  template(#selected-item="{ opt }")
+    q-chip(
+      :color="opt.color"
+      text-color="black"
+      removable
+      @remove="_ => removeOption(opt.value)"
+    )
+      span.q-mr-sm
+        | {{ opt.label }}
+      q-icon(:name="opt.icon")
+      q-tooltip
+        | {{ opt.description }}
 </template>

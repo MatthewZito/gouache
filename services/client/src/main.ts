@@ -28,10 +28,9 @@ const vm = createApp(App)
 
 useSessionStore()
   .verifySession()
-  .then(() => {
-    return router.replace({ name: 'Dashboard' })
+  .catch(() => {
+    return router.replace({ name: 'Login' })
   })
-  .catch(() => {})
   .finally(() => {
     vm.use(router)
     vm.mount('#app')

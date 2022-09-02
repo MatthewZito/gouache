@@ -2,7 +2,8 @@
 import { useErrorHandler } from '@/services'
 import { useSessionStore } from '@/state'
 import { useQuasar } from 'quasar'
-import UserProfile from '@/components/UserProfile.vue'
+import UserProfile from '@/components/Layout/UserProfile.vue'
+import NavigationDrawer from '@/components/Layout/NavigationDrawer.vue'
 
 const $q = useQuasar()
 const sessionStore = useSessionStore()
@@ -26,40 +27,39 @@ onErrorCaptured((ex: any) => {
 })
 </script>
 
-<template>
-  <q-layout view="hHh LpR fFf">
-    <q-header bordered class="bg-primary text-white">
-      <q-toolbar>
-        <q-btn dense flat round icon="mdi-menu" @click="toggleLeftDrawer" />
+<template lang="pug">
+q-layout(view="hHh LpR fFf")
+  q-header.bg-primary.text-white(bordered)
+    q-toolbar
+      q-btn(
+        dense
+        flat
+        round
+        icon="mdi-menu"
+        @click="toggleLeftDrawer"
+      )
 
-        <q-toolbar-title> Resources </q-toolbar-title>
+      q-toolbar-title
+        | Resources
 
-        <q-btn
-          dense
-          flat
-          round
-          :icon="
-            isDarkMode ? `mdi-moon-waxing-crescent` : `mdi-white-balance-sunny`
-          "
-          @click="toggleDarkMode"
-          class="q-mr-md"
-        />
+      q-btn.q-mr-md(
+        dense
+        flat
+        round
+        :icon="isDarkMode ? `mdi-moon-waxing-crescent` : `mdi-white-balance-sunny`"
+        @click="toggleDarkMode"
+      )
 
-        <q-btn dense flat round icon="mdi-account">
-          <UserProfile
-            :username="sessionStore.username!"
-            :exp="sessionStore.exp!"
-          />
-        </q-btn>
-      </q-toolbar>
-    </q-header>
 
-    <q-drawer show-if-above v-model="leftDrawerOpen" side="left" bordered>
-      <!-- drawer content -->
-    </q-drawer>
+      q-btn(dense flat round icon="mdi-account")
+        UserProfile(
+          :username="sessionStore.username"
+          :exp="sessionStore.exp"
+        )
 
-    <q-page-container class="q-pa-lg">
-      <router-view />
-    </q-page-container>
-  </q-layout>
+
+  NavigationDrawer(v-model="leftDrawerOpen")
+
+  q-page-container.q-pa-lg
+    router-view
 </template>

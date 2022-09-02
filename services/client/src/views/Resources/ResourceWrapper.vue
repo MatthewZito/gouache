@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import Dashboard from './Dashboard.vue'
+import Resource from './Resource.vue'
 import TableSkeleton from '@/components/TableSkeleton.vue'
 import { useErrorHandler } from '@/services'
 
@@ -10,13 +10,10 @@ onErrorCaptured((ex: any) => {
 })
 </script>
 
-<template>
-  <suspense>
-    <template #default>
-      <Dashboard />
-    </template>
-    <template #fallback>
-      <TableSkeleton />
-    </template>
-  </suspense>
+<template lang="pug">
+suspense
+  template(#default)
+    Resource
+  template(#fallback)
+    TableSkeleton
 </template>

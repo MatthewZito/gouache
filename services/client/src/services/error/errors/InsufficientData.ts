@@ -1,6 +1,6 @@
-import { BaseError } from '.'
+import { GouacheError } from '.'
 
-export class InsufficientDataError extends BaseError {
+export class InsufficientDataError extends GouacheError {
   constructor({ field, friendly }: { field: string; friendly: string }) {
     super({ internal: `Missing data for field: ${field}`, friendly })
 

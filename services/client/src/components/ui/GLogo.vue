@@ -1,5 +1,7 @@
-<template>
-  <img src="/assets/gouache_logo.png" />
+<template lang="pug">
+img(
+  src="/assets/gouache_logo.png"
+  )
 </template>
 
 <style scoped>

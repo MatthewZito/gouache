@@ -1,5 +1,6 @@
 {
   "extends": [
-		"@magister_zito/vue"
+		"@magister_zito/vue",
+		"prettier"
 	]
 }

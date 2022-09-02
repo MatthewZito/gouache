@@ -1,6 +1,6 @@
-import { BaseError } from '.'
+import { GouacheError } from '.'
 
-export class UserActionException extends BaseError {
+export class UserActionException extends GouacheError {
   constructor({
     friendly,
     internal = 'View model exception',
