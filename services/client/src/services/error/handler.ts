@@ -1,7 +1,7 @@
-import { GouacheError } from '.'
-
 import { showNotification } from '@/plugins/notification'
 import { logger } from '@/services/logger'
+
+import { GouacheError } from '.'
 
 interface ErrorHandlerOptions {
   notify: boolean
@@ -19,6 +19,7 @@ export const useErrorHandler = (
   ex: any,
   { notify = false, fallback }: ErrorHandlerOptions,
 ) => {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   logger.error({ ex })
 
   let ret =

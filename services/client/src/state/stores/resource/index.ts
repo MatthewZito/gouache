@@ -1,8 +1,10 @@
 import { defineStore } from 'pinia'
-import type { Resource } from '@/types'
-import type { ResourceStoreState } from './types'
+
 import { UserActionException } from '@/services/error'
+import type { Resource } from '@/types'
 import { UUID } from '@/types/scalar'
+
+import type { ResourceStoreState } from './types'
 
 /**
  * The resource store manages app-wide resources state.

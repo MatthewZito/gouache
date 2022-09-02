@@ -9,7 +9,8 @@
     "skipLibCheck": true,
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "noUnusedLocals": true,
+    // @see https://github.com/vuejs/core/issues/4668
+    "noUnusedLocals": false,
     "allowJs":  true,
     "forceConsistentCasingInFileNames": true,
 		"noEmit": true,

@@ -1,3 +1,3 @@
-export * from './errors';
+export * from './errors'
 
-export * from './handler';
+export * from './handler'

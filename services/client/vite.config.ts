@@ -3,20 +3,19 @@ import { resolve } from 'path'
 
 /* Plugins */
 import { quasar, transformAssetUrls } from '@quasar/vite-plugin'
-
 import Vue from '@vitejs/plugin-vue'
 import AutoImport from 'unplugin-auto-import/vite'
 import { defineConfig } from 'vite'
 
 const r = (dir: string) => resolve(__dirname, dir)
 
-export default defineConfig(({ mode }) => {
+export default defineConfig(() =>
   /**
    * Are we running the app in a test harness?
    */
-  const isTestEnv = !!process.env.VITE_CY_TEST || mode === 'test'
+  // const isTestEnv = !!process.env.VITE_CY_TEST || mode === 'test'
 
-  return {
+  ({
     base: '/',
 
     build: {
@@ -61,5 +60,5 @@ export default defineConfig(({ mode }) => {
       globals: true,
       api: false,
     },
-  }
-})
+  }),
+)

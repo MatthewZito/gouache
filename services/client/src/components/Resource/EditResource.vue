@@ -1,19 +1,17 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
 
-import type { UUID } from '@/types/scalar'
-
+import GSelect from '@/components/ui/GSelect.vue'
+import { useMutateResource } from '@/hooks'
+import { availableTags } from '@/mock'
 import { showNotification } from '@/plugins'
 import {
   ErroneousResponseError,
   resourceApi,
   useErrorHandler,
 } from '@/services'
-import { availableTags } from '@/mock'
 import { useResourceStore } from '@/state'
-import { useMutateResource } from '@/hooks'
-
-import GSelect from '@/components/ui/GSelect.vue'
+import type { UUID } from '@/types/scalar'
 
 const props = defineProps({
   resourceId: {
@@ -26,9 +24,9 @@ const $emit = defineEmits<{
   (e: 'close'): void
 }>()
 
-const { ok, data } = await resourceApi.getResource(props.resourceId)
+const { ok: topLevelOk, data } = await resourceApi.getResource(props.resourceId)
 
-if (!ok) {
+if (!topLevelOk) {
   throw new ErroneousResponseError(
     'Something went wrong while loading the details for this resource.',
   )

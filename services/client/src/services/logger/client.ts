@@ -1,6 +1,7 @@
-import pkg from '../../../package.json'
-
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { isLocalRuntime } from '@/utils'
+
+import pkg from '../../../package.json'
 
 export class Logger {
   #transport = console

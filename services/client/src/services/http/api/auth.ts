@@ -1,4 +1,5 @@
 import type { CredentialsResponse, UserCredentials } from '@/types'
+
 import { HttpClient } from '../client'
 
 const client = new HttpClient({

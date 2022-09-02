@@ -1,7 +1,9 @@
 <script lang="ts" setup>
-import { required } from '@/utils'
-import type { ValidationRule } from 'quasar'
 import type { PropType } from 'vue'
+
+import { required } from '@/utils'
+
+import type { ValidationRule } from 'quasar'
 
 const props = defineProps({
   modelValue: {

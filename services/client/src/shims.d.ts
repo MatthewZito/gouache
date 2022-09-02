@@ -9,3 +9,11 @@ declare module '*.vue' {
   >
   export default component
 }
+
+interface ImportMeta {
+  env: {
+    VITE_RESOURCE_API?: string
+    VITE_AUTH_API?: string
+    VITE_CY_TEST?: string
+  }
+}

@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { useErrorHandler } from '@/services'
 import { useQuasar } from 'quasar'
+
+import { useErrorHandler } from '@/services'
 const $q = useQuasar()
 
 const isDarkMode = computed(() => $q.dark.isActive)
@@ -30,7 +31,6 @@ q-layout(view="hHh LpR fFf")
         :icon="isDarkMode ? `mdi-moon-waxing-crescent` : `mdi-white-balance-sunny`"
         @click="toggleDarkMode"
       )
-
 
   q-page-container.q-pa-lg(style="height: 100vh")
     div.row.justify-center.items-center.full-height

@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import { useQuasar } from 'quasar'
+
+import NavigationDrawer from '@/components/Layout/NavigationDrawer.vue'
+import UserProfile from '@/components/Layout/UserProfile.vue'
 import { useErrorHandler } from '@/services'
 import { useSessionStore } from '@/state'
-import { useQuasar } from 'quasar'
-import UserProfile from '@/components/Layout/UserProfile.vue'
-import NavigationDrawer from '@/components/Layout/NavigationDrawer.vue'
 
 const $q = useQuasar()
 const sessionStore = useSessionStore()
@@ -50,13 +51,11 @@ q-layout(view="hHh LpR fFf")
         @click="toggleDarkMode"
       )
 
-
       q-btn(dense flat round icon="mdi-account")
         UserProfile(
           :username="sessionStore.username"
           :exp="sessionStore.exp"
         )
-
 
   NavigationDrawer(v-model="leftDrawerOpen")
 

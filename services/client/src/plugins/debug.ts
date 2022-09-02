@@ -1,4 +1,5 @@
 import type { App, Plugin } from 'vue'
+
 import { logger } from '@/services'
 
 function debug(this: App) {

@@ -1,13 +1,13 @@
 <script lang="ts" setup>
-import EditResource from '@/components/Resource/EditResource.vue'
-import type { Resource } from '@/types'
-import { useErrorHandler } from '@/services'
 import CreateResource from '@/components/Resource/CreateResource.vue'
-import { resourceApi } from '@/services'
-import { toReadableDate } from '@/utils'
-import { headers } from './templates'
-import { useResourceStore } from '@/state'
+import EditResource from '@/components/Resource/EditResource.vue'
 import { showNotification } from '@/plugins'
+import { useErrorHandler, resourceApi } from '@/services'
+import { useResourceStore } from '@/state'
+import type { Resource } from '@/types'
+import { toReadableDate } from '@/utils'
+
+import { headers } from './templates'
 
 const resourceStore = useResourceStore()
 
@@ -53,6 +53,7 @@ async function fetchResources() {
 
   try {
     const { ok, data } = await resourceApi.getResources()
+
     if (!ok) {
       throw Error()
     }
@@ -182,8 +183,8 @@ Teleport(to="#portal")
 }
 
 .sticky-table {
-  overflow-y: auto;
   height: 100%;
+  overflow-y: auto;
 
   thead tr th {
     position: sticky;

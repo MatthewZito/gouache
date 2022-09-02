@@ -1,6 +1,7 @@
 <script lang="ts" setup>
-import type { ValidationRule } from 'quasar'
 import type { PropType } from 'vue'
+
+import type { ValidationRule } from 'quasar'
 
 interface SelectOption {
   value: string
@@ -42,6 +43,7 @@ const mutableModelValue = computed({
 
 function removeOption(value: string) {
   const foundIdx = props.modelValue.findIndex(tag => tag === value)
+
   if (foundIdx !== -1) {
     props.modelValue.splice(foundIdx, 1)
   }

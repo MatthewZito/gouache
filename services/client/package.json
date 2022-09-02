@@ -2,6 +2,9 @@
   "name": "client",
   "version": "1.0.0",
   "description": "",
+  "keywords": [],
+  "license": "MIT",
+  "author": "Matthew Zito <exbotanical@protonmail.com>",
   "main": "index.js",
   "scripts": {
     "build": "rimraf dist && vite build",
@@ -16,9 +19,18 @@
     "lint:css:ci": "stylelint \"src/**/*.{css,scss,vue}\" --no-fix",
     "typecheck": "vue-tsc -p tsconfig.json"
   },
-  "keywords": [],
-  "author": "Matthew Zito <exbotanical@protonmail.com>",
-  "license": "MIT",
+  "dependencies": {
+    "@magister_zito/vue3-styled-components": "^2.0.0",
+    "@quasar/extras": "^1.15.0",
+    "@typescript-eslint/eslint-plugin": "^5.36.1",
+    "pinia": "^2.0.17",
+    "pug": "^3.0.2",
+    "quasar": "^2.7.7",
+    "sass": "^1.54.0",
+    "uuid": "^8.3.2",
+    "vue": "^3.2.37",
+    "vue-router": "^4.1.2"
+  },
   "devDependencies": {
     "@magister_zito/eslint-config-vue": "^0.14.1",
     "@magister_zito/prettier-config": "^0.0.4",
@@ -40,17 +52,5 @@
     "unplugin-auto-import": "^0.10.1",
     "vite": "^3.0.3",
     "vue-tsc": "^0.39.0"
-  },
-  "dependencies": {
-    "@magister_zito/vue3-styled-components": "^2.0.0",
-    "@quasar/extras": "^1.15.0",
-    "@typescript-eslint/eslint-plugin": "^5.36.1",
-    "pinia": "^2.0.17",
-    "pug": "^3.0.2",
-    "quasar": "^2.7.7",
-    "sass": "^1.54.0",
-    "uuid": "^8.3.2",
-    "vue": "^3.2.37",
-    "vue-router": "^4.1.2"
   }
 }

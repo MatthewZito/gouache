@@ -1,11 +1,12 @@
 <script lang="ts" setup>
+import { Loading } from 'quasar'
+
+import GLogo from '@/components/ui/GLogo.vue'
+import GPasswordInput from '@/components/ui/GPasswordInput.vue'
 import { useCredentials } from '@/hooks'
 import { authApi, ErroneousResponseError, useErrorHandler } from '@/services'
 import { useSessionStore } from '@/state'
 import { required } from '@/utils'
-import { Loading } from 'quasar'
-import GPasswordInput from '@/components/ui/GPasswordInput.vue'
-import GLogo from '@/components/ui/GLogo.vue'
 
 const $router = useRouter()
 const sessionStore = useSessionStore()

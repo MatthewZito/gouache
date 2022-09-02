@@ -55,7 +55,7 @@ export function optionalWithRule<T = string | null>(
   rule: GouacheValidationRule<T>,
 ) {
   return function validate(val: T) {
-    return val !== '' && val !== null ? rule(val) : true
+    return val !== null ? rule(val) : true
   }
 }
 

@@ -1,7 +1,8 @@
 <script lang="ts" setup>
-import Resource from './Resource.vue'
 import TableSkeleton from '@/components/TableSkeleton.vue'
 import { useErrorHandler } from '@/services'
+
+import Resource from './Resource.vue'
 
 onErrorCaptured((ex: any) => {
   useErrorHandler(ex, { notify: true })

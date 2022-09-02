@@ -1,11 +1,11 @@
 <script lang="ts" setup>
-import { showNotification } from '@/plugins'
-import { InsufficientDataError, resourceApi, useErrorHandler } from '@/services'
-import type { AllNullable, MutableResource } from '@/types'
-import { availableTags } from '@/mock'
-import { useResourceStore } from '@/state'
 import GSelect from '@/components/ui/GSelect.vue'
 import { useMutateResource } from '@/hooks'
+import { availableTags } from '@/mock'
+import { showNotification } from '@/plugins'
+import { InsufficientDataError, resourceApi, useErrorHandler } from '@/services'
+import { useResourceStore } from '@/state'
+import type { AllNullable, MutableResource } from '@/types'
 
 const E_CANT_CREATE =
   'Something went wrong while creating this resource. Please try again or contact support.'

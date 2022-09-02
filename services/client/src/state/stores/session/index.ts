@@ -1,8 +1,10 @@
-import { authApi, logger } from '@/services'
 import { defineStore } from 'pinia'
+
 import router from '@/router'
-import type { SessionStoreState } from './types'
+import { authApi, logger } from '@/services'
 import type { CredentialsResponse } from '@/types'
+
+import type { SessionStoreState } from './types'
 
 /**
  * The session store manages app-wide user session state.
@@ -74,7 +76,10 @@ export const useSessionStore = defineStore('session', {
       )
 
       // set timeout to renewal time in ms
-      this.renewalTask = setTimeout(this.verifySession, timeUntilRenewal * 1000)
+      this.renewalTask = setTimeout(
+        async () => this.verifySession(),
+        timeUntilRenewal * 1000,
+      )
     },
   },
 })

@@ -1,9 +1,9 @@
+import { logger } from '@/services/logger'
+import { useSessionStore } from '@/state'
+
 import { predicate } from './utils'
 
 import type { Router } from 'vue-router'
-
-import { logger } from '@/services/logger'
-import { useSessionStore } from '@/state'
 
 let attemptedEntryPoint: string | null = null
 
@@ -18,25 +18,28 @@ export function guards(this: Router) {
 
     if (isAuthenticated) {
       if (to.path === '/login') {
-        return next({ name: 'Dashboard' })
+        next({ name: 'Dashboard' })
+        return
       }
     }
 
     if (!routeHas('authRequired')) {
-      return next()
+      next()
+      return
     }
 
     logger.info('matched an `authRequired` route')
 
     if (!isAuthenticated) {
       attemptedEntryPoint = to.path
-      return next({ name: 'Login' })
+      next({ name: 'Login' })
+      return
     }
 
     const redirect = attemptedEntryPoint
     attemptedEntryPoint = null
 
-    return redirect ? next({ path: redirect }) : next()
+    redirect ? next({ path: redirect }) : next()
   })
 
   return this

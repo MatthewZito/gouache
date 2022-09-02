@@ -1,5 +1,8 @@
-import type { Logger } from 'vite'
 import type { App, Plugin } from 'vue'
+
+import { logger } from '.'
+
+import type { Logger } from './client'
 
 function debug(this: App, logger: Logger) {
   /* Runtime Exceptions */
@@ -32,7 +35,7 @@ function debug(this: App, logger: Logger) {
 /* Register globally accessible logger service */
 export const debugPlugin: Plugin = {
   install(app) {
-    debug.apply(app)
+    debug.call(app, logger)
 
     app.config.globalProperties.$logger = logger
     app.provide('$logger', logger)

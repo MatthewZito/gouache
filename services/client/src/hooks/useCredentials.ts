@@ -19,9 +19,7 @@ export function useCredentials(withConstraints?: Constraint[]) {
     const areCredsIncomplete = !formModel.username || !formModel.password
 
     if (!areCredsIncomplete && withConstraints?.length) {
-      return withConstraints.some(constraint => {
-        return !constraint(formModel)
-      })
+      return withConstraints.some(constraint => !constraint(formModel))
     }
 
     return areCredsIncomplete

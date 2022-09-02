@@ -1,5 +1,6 @@
 import type { MutableResource, Resource } from '@/types'
 import type { UUID } from '@/types/scalar'
+
 import { HttpClient } from '../client'
 
 const client = new HttpClient({
@@ -12,7 +13,7 @@ export const resourceApi = {
   },
 
   async getResources() {
-    return client.get<Resource[]>()
+    return client.get<Resource[]>('/')
   },
 
   async createResource<R = UUID, D = MutableResource>(payload: D) {

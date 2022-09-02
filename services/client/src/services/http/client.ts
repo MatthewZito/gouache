@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 type NormalizedResponse<T> = Promise<
-  NormalizedOkResponse<T> | NormalizedErrorResponse
+  NormalizedErrorResponse | NormalizedOkResponse<T>
 >
 
 interface NormalizedOkResponse<T> extends GouacheResponse<T> {
@@ -21,7 +22,9 @@ interface GouacheResponse<T> {
 
 export class HttpClient {
   baseUrl: string
+
   withCredentials: boolean
+
   cors: boolean
 
   constructor({
@@ -38,15 +41,7 @@ export class HttpClient {
     this.cors = cors
   }
 
-  private request(url = '/', opts: RequestInit) {
-    return fetch(this.baseUrl + url, {
-      mode: this.cors ? 'cors' : 'no-cors',
-      ...(this.withCredentials ? { credentials: 'include' } : {}),
-      ...opts,
-    })
-  }
-
-  async get<T>(url = '/'): NormalizedResponse<T> {
+  async get<T>(url: string): NormalizedResponse<T> {
     const response = await this.request(url, {
       method: 'GET',
     })
@@ -55,7 +50,7 @@ export class HttpClient {
   }
 
   async post<T, D>(
-    url = '/',
+    url: string,
     payload?: D,
     json = false,
   ): NormalizedResponse<T> {
@@ -69,7 +64,7 @@ export class HttpClient {
   }
 
   async patch<T, D>(
-    url = '/',
+    url: string,
     payload: D,
     json = false,
   ): NormalizedResponse<T> {
@@ -82,12 +77,20 @@ export class HttpClient {
     return normalize(response, [200])
   }
 
-  async delete<T>(url = '/'): NormalizedResponse<T> {
+  async delete<T>(url: string): NormalizedResponse<T> {
     const response = await this.request(url, {
       method: 'DELETE',
     })
 
     return normalize(response, [200])
+  }
+
+  private async request(url: string, opts: RequestInit) {
+    return fetch(this.baseUrl + url, {
+      mode: this.cors ? 'cors' : 'no-cors',
+      ...(this.withCredentials ? { credentials: 'include' } : {}),
+      ...opts,
+    })
   }
 }
 
@@ -98,6 +101,7 @@ async function normalize<T>(
   try {
     const d = await response.json()
 
+    // @todo validate
     const { data, internal, friendly, flags } = d
 
     if (!successCodes.includes(response.status)) {
