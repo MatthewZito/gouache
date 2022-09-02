@@ -34,6 +34,9 @@ def get_all_reports() -> Tuple[Response, int]:
     Returns:
         Tuple[Response, int]: A normalized response object potentially
         containing the retrieved Reports or page thereof; an HTTP status code.
+
+    @todo Limit fields returned
+    @todo limit page size
     """
     last_page_key: str | None = request.args.get('last_page_key')
     db = LocalProxy(get_report_ctx)

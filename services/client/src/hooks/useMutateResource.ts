@@ -1,5 +1,5 @@
 import { RESOURCE_TITLE_MAX_CHARS } from '@/meta'
-import type { MutableResource, Resource } from '@/types'
+import type { MutableResource } from '@/types'
 import { generateValidator, listRequired, maxLength, required } from '@/utils'
 
 /**
@@ -7,7 +7,7 @@ import { generateValidator, listRequired, maxLength, required } from '@/utils'
  *
  * @param data The initial form model data.
  */
-export function useMutateResource(data: Pick<Resource, 'tags' | 'title'>) {
+export function useMutateResource(data: MutableResource) {
   /**
    * Rules for validating the Resource tags.
    */

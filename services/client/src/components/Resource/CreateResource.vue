@@ -72,7 +72,7 @@ q-card(
       | Create Resource
 
   q-card-section
-    q-form.q-pa-md
+    q-form.q-pa-sm
       q-input.q-mb-md(
         label="Title"
         v-model="formModel.title"
@@ -88,7 +88,7 @@ q-card(
         :rules="tagsRules"
       )
 
-  q-card-actions.justify-between
+  q-card-actions.q-pa-none.q-pt-sm.justify-between
     q-btn(
       label="Close"
       flat

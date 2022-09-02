@@ -57,7 +57,7 @@ services:
     container_name: gouache-reporting
     restart: always
     ports:
-      - "6000:6000"
+      - "6001:6001"
     build:
       context: ./services/reporting/
       dockerfile: Dockerfile.dev

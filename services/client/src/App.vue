@@ -1,4 +1,6 @@
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+import '@/styles/global.scss'
+</script>
 
 <template lang="pug">
 router-view

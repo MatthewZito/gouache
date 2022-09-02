@@ -74,7 +74,7 @@ const handleError = console.error
 q-card(
   style="width: 400px"
 )
-  q-form.q-pa-md(
+  q-form.q-pa-sm(
     @submit.prevent
     @validation-error="handleError"
     greedy
@@ -98,7 +98,7 @@ q-card(
         :rules="tagsRules"
       )
 
-    q-card-actions.justify-between
+    q-card-actions.q-pa-none.q-pt-sm.justify-between
       q-btn(
         label="Close"
         flat

@@ -36,7 +36,7 @@ async function handleSubmitLogin() {
 
 <template lang="pug">
 q-card(style="width: 400px")
-  q-form.q-pa-md(@submit.prevent)
+  q-form.q-pa-sm(@submit.prevent)
     q-card-section
       GLogo
 
@@ -56,7 +56,7 @@ q-card(style="width: 400px")
 
       GPasswordInput(v-model="formModel.password")
 
-    q-card-actions.justify-between
+    q-card-actions.q-pa-none.q-pt-sm.justify-between
       q-btn(
         label="Register"
         unelevated

@@ -79,7 +79,7 @@ func main() {
 	})
 
 	/* Health */
-	r.Handler("/auth/health", http.HandlerFunc(controllers.Health)).WithMethods(http.MethodGet).Use(ctx.ReportRequest).Register()
+	r.Handler("/health", http.HandlerFunc(controllers.Health)).WithMethods(http.MethodGet).Use(ctx.ReportRequest).Register()
 
 	/* Auth */
 	r.Handler("/auth/login", http.HandlerFunc(ctx.Login)).

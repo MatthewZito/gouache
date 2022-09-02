@@ -55,7 +55,7 @@ async function fetchResources() {
     const { ok, data } = await resourceApi.getResources()
 
     if (!ok) {
-      throw Error()
+      throw Error('@todo')
     }
 
     resourceStore.setResources(data ?? [])

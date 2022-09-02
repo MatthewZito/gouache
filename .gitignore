@@ -45,3 +45,4 @@ db-data
 target
 docker
 .mypy_cache
+.tmp

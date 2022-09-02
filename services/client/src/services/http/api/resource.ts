@@ -13,7 +13,7 @@ export const resourceApi = {
   },
 
   async getResources() {
-    return client.get<Resource[]>('/')
+    return client.get<Resource[]>('')
   },
 
   async createResource<R = UUID, D = MutableResource>(payload: D) {

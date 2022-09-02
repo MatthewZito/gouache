@@ -15,6 +15,7 @@ def deserialize(class_: Type):
     def wrap(fn: Callable):
         def decorator(*args):  # pylint: disable=W0613
             try:
+
                 obj = class_(**request.get_json())
                 return fn(obj)
             except Exception:

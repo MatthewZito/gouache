@@ -99,11 +99,17 @@ class MessageQueueService:
                 AttributeNames=['SentTimestamp'],
                 MaxNumberOfMessages=10,
                 MessageAttributeNames=['All'],
-                VisibilityTimeout=20,
-                WaitTimeSeconds=20,
+                VisibilityTimeout=0,
+                WaitTimeSeconds=0,
             )
-            print(response.get('Messages'))
-            self.process_messages(response.get('Messages'))
+
+            messages = response.get('Messages')
+            if messages is None:
+                return
+
+            print(messages)
+
+            self.process_messages(messages)
 
         except Exception as ex:
             print(ex)

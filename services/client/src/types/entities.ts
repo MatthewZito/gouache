@@ -8,10 +8,17 @@ export interface Resource {
   tags: string[]
 }
 
-export interface MutableResource {
-  title: string
-  tags: string[]
+export type MutableResource = Pick<Resource, 'tags' | 'title'>
+
+export interface Report {
+  id: UUID
+  name: string
+  caller: string
+  data: string
+  ts: UNIXTimestamp
 }
+
+export type MutableReport = Pick<Report, 'name' | 'caller' | 'data'>
 
 export interface UserCredentials {
   username: string

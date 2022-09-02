@@ -9,6 +9,8 @@ boto3 = "*"
 redis = "*"
 python-dateutil = "*"
 boto3-type-annotations = "*"
+flask-cors = "*"
+pytz = "*"
 
 [dev-packages]
 pylint = "*"
@@ -24,7 +26,8 @@ types-python-dateutil = "*"
 python_version = "3.10"
 
 [scripts]
-dev = "flask --debug --app reporting.main run -p 6000"
+dev = "flask --debug --app reporting.main run -p 6001"
+docker = "flask --debug --app reporting.main run -p 6001 --host 0.0.0.0"
 test = "python3 -m unittest discover -s reporting -p \"*_test.py\" -f"
 fmt = "black --skip-string-normalization reporting"
 lint = "bash -c 'pylint reporting && flake8 reporting'"

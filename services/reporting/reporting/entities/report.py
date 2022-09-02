@@ -3,6 +3,7 @@ This module exposes datatypes for the system's omnipresent "reports".
 """
 from datetime import datetime, timezone
 import uuid
+import pytz
 
 
 class Report:
@@ -18,7 +19,8 @@ class Report:
         self.name = name
         self.caller = caller
         self.data = data
-        self.ts = datetime.now(timezone.utc).timestamp() * 1000
+        # @todo why are we doing this again?
+        self.ts = datetime.now(tz=pytz.UTC)
         self.id = str(uuid.uuid4())
 
     def __str__(self) -> str:

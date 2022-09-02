@@ -6,7 +6,8 @@ from datetime import datetime, timezone
 import boto3
 from botocore.exceptions import ClientError, ParamValidationError
 from botocore.config import Config
-from boto3_type_annotations.dynamodb import Client  # type: ignore
+from boto3_type_annotations.dynamodb import Client
+import pytz  # type: ignore
 
 
 class ReportRepository:
@@ -88,11 +89,11 @@ class ReportRepository:
                     'name': name,
                     'caller': caller,
                     'data': data,
-                    'ts': str(datetime.now(timezone.utc).timestamp() * 1000),
+                    'ts': str(datetime.now(tz=pytz.UTC)),
                     'id': report_id,
                 }
             )
-            print(response)
+
             return response
 
         except (ClientError, ParamValidationError, Exception) as ex:

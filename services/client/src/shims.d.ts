@@ -12,8 +12,9 @@ declare module '*.vue' {
 
 interface ImportMeta {
   env: {
-    VITE_RESOURCE_API?: string
     VITE_AUTH_API?: string
+    VITE_REPORTING_API?: string
+    VITE_RESOURCE_API?: string
     VITE_CY_TEST?: string
   }
 }

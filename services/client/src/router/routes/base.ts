@@ -18,7 +18,7 @@ export default [
   {
     name: 'Reporting',
     path: '/reporting',
-    component: async () => import('@/views/Reporting/Reporting.vue'),
+    component: async () => import('@/views/Reporting/ReportingWrapper.vue'),
     meta: {
       authRequired: true,
     },

@@ -2,6 +2,7 @@ import { showNotification } from '@/plugins/notification'
 import { logger } from '@/services/logger'
 
 import { GouacheError } from '.'
+import { reportingApi } from '../http'
 
 interface ErrorHandlerOptions {
   notify: boolean
@@ -22,6 +23,11 @@ export const useErrorHandler = (
   // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
   logger.error({ ex })
 
+  reportingApi.createReport({
+    name: 'TEST',
+    data: JSON.stringify(ex),
+  })
+
   let ret =
     fallback || 'Uh oh, something went wrong. Please try refreshing the page.'
 
@@ -37,4 +43,16 @@ export const useErrorHandler = (
   }
 
   return ret
+}
+
+function serializeError(ex: any) {
+  if (typeof ex === 'string') {
+    return ex
+  }
+
+  try {
+    return JSON.stringify(ex)
+  } catch (ex2) {
+    return 'n/a'
+  }
 }
