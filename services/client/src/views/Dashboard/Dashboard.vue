@@ -1,12 +1,13 @@
 <script lang="ts" setup>
-import EditResource from '@/components/EditResource.vue'
+import EditResource from '@/components/Resource/EditResource.vue'
 import type { Resource } from '@/types'
 import { useErrorHandler } from '@/services'
-import CreateResource from '@/components/CreateResource.vue'
+import CreateResource from '@/components/Resource/CreateResource.vue'
 import { resourceApi } from '@/services'
 import { toReadableDate } from '@/utils'
 import { headers } from './templates'
 import { useResourceStore } from '@/state'
+import { showNotification } from '@/plugins'
 
 const resourceStore = useResourceStore()
 
@@ -23,6 +24,28 @@ const paginationConfig = computed(() => ({
 function handleRowClick(e: Event, row: Resource, idx: number) {
   selectedResource.value = row
   showEditResourceDialog.value = true
+}
+
+async function handleDeleteResource(e: Event, row: Resource) {
+  isLoading.value = true
+  try {
+    const { ok } = await resourceApi.deleteResource(row.id)
+
+    if (!ok) {
+      throw Error('failed to delete resource')
+    }
+
+    showNotification('success', 'Successfully deleted resource.')
+
+    resourceStore.removeResource(row.id)
+  } catch (ex) {
+    useErrorHandler(ex, {
+      notify: true,
+      fallback: 'Something went wrong while deleting this resource.',
+    })
+  } finally {
+    isLoading.value = false
+  }
 }
 
 async function fetchResources() {
@@ -70,6 +93,7 @@ onErrorCaptured((ex: any) => {
     :columns="headers"
     :rows="resourceStore.resources"
     @row-click="handleRowClick"
+    :loading="isLoading"
   >
     <template #top-right>
       <q-btn
@@ -101,9 +125,22 @@ onErrorCaptured((ex: any) => {
       </q-td>
     </template>
 
+    <template #body-cell-action="slotProps: { row: Resource }">
+      <q-td key="action" :props="slotProps">
+        <q-btn
+          icon="mdi-delete"
+          size="sm"
+          flat
+          round
+          color="negative"
+          @click.prevent.stop="e => handleDeleteResource(e, slotProps.row)"
+        />
+      </q-td>
+    </template>
+
     <template #loading>
-      <q-inner-loading :showing="isLoading">
-        <q-spinner class="q-mb-sm" size="50px" color="secondary" />
+      <q-inner-loading showing>
+        <!-- <q-spinner class="q-mb-sm" size="50px" color="secondary" /> -->
         <div class="text-secondary text-bold">Loading...</div>
       </q-inner-loading>
     </template>

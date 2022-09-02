@@ -22,4 +22,8 @@ export const resourceApi = {
   async updateResource<D = MutableResource>(resourceId: UUID, payload: D) {
     return client.patch<null, D>(`/${resourceId}`, payload, true)
   },
+
+  async deleteResource(resourceId: UUID) {
+    return client.delete<null>(`/${resourceId}`)
+  },
 }

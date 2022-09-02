@@ -35,3 +35,22 @@ export function epochToReadableTime(maybeEpoch: number | null) {
     hour12: true,
   })
 }
+
+export function secondsToMinutes(nSeconds: number | null) {
+  if (!nSeconds || nSeconds < 0) {
+    return 0
+  }
+
+  return (nSeconds / 60).toFixed(1)
+}
+
+export function nowPlusNSeconds(nSeconds: number | null) {
+  if (!nSeconds || nSeconds < 0) {
+    return null
+  }
+
+  return new Date(new Date().getTime() + nSeconds * 1000).toLocaleTimeString(
+    [],
+    { hour: '2-digit', minute: '2-digit' },
+  )
+}

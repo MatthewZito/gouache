@@ -41,6 +41,7 @@ export const useSessionStore = defineStore('session', {
         this.autoRenew()
       } catch (ex) {
         this.purgeUserState()
+        throw Error('@todo')
       }
     },
 

@@ -2,6 +2,8 @@
 Form validation rules. Compatible with vee-validate & Quasar.
 */
 
+import { GouacheValidationRule } from '@/types/scalar'
+
 /**
  * Create a required value validation rule.
  * @param message A message to display when invalid.
@@ -49,8 +51,35 @@ export function maxLength(message: string, max: number) {
  *
  * @param rule The return value of any `rule` creator function, as above.
  */
-export function optionalWithRule(rule: (val: string | null) => string | true) {
-  return function validate(val: string | null) {
+export function optionalWithRule<T = string | null>(
+  rule: GouacheValidationRule<T>,
+) {
+  return function validate(val: T) {
     return val !== '' && val !== null ? rule(val) : true
   }
+}
+
+/**
+ * Generate a validator function given a list of rules. The returned validator function `validate`
+ * evaluates a given input against each of the rules in the order in which they were passed to the generator,
+ * and returns a boolean indicating whether any of the rules were violated.
+ *
+ * Each rule is invoked lazily - if a rule is violated, the validator immediately returns.
+ * @param rules A list of rules to validate against.
+ * @returns A validator function.
+ */
+export function generateValidator<T = string | null>(
+  rules: GouacheValidationRule<T>[],
+) {
+  function validate(val: T) {
+    return rules.reduce<boolean>((acc, rule) => {
+      if (!acc) {
+        return false
+      }
+
+      return rule(val) === true
+    }, true)
+  }
+
+  return validate
 }

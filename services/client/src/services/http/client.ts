@@ -81,6 +81,14 @@ export class HttpClient {
 
     return normalize(response, [200])
   }
+
+  async delete<T>(url = '/'): NormalizedResponse<T> {
+    const response = await this.request(url, {
+      method: 'DELETE',
+    })
+
+    return normalize(response, [200])
+  }
 }
 
 async function normalize<T>(
@@ -110,7 +118,6 @@ async function normalize<T>(
       flags: null,
     }
   } catch (ex) {
-    console.log({ ex })
     return {
       ok: false,
       data: null,

@@ -4,6 +4,8 @@ import { authApi, ErroneousResponseError, useErrorHandler } from '@/services'
 import { useSessionStore } from '@/state'
 import { required } from '@/utils'
 import { Loading } from 'quasar'
+import GPasswordInput from '@/components/ui/GPasswordInput.vue'
+import GLogo from '@/components/ui/GLogo.vue'
 
 const $router = useRouter()
 const sessionStore = useSessionStore()
@@ -35,9 +37,11 @@ async function handleSubmitLogin() {
   <q-card style="width: 400px">
     <q-form class="q-pa-md" @submit.prevent>
       <q-card-section>
-        <div class="text-h6">@todo logo</div>
+        <GLogo />
       </q-card-section>
-
+      <q-card-section>
+        <div class="text-h6">Login with an existing account</div>
+      </q-card-section>
       <q-card-section>
         <q-input
           label="Username"
@@ -48,16 +52,8 @@ async function handleSubmitLogin() {
           autocomplete="username"
           :rules="[required('A username is required.')]"
         />
-        <q-input
-          label="Password"
-          v-model="formModel.password"
-          filled
-          type="password"
-          autocomplete="current-password"
-          dense
-          class="q-mb-md"
-          :rules="[required('A password is required.')]"
-        />
+
+        <GPasswordInput v-model="formModel.password" />
       </q-card-section>
 
       <q-card-actions class="justify-between">

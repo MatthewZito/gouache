@@ -4,9 +4,9 @@ import { authApi, ErroneousResponseError, useErrorHandler } from '@/services'
 import { maxLength, minLength, required } from '@/utils'
 import { Loading } from 'quasar'
 import { useSessionStore } from '@/state'
-
-const PASSWORD_MIN_CHARS = 6
-const PASSWORD_MAX_CHARS = 32
+import GPasswordInput from '@/components/ui/GPasswordInput.vue'
+import GLogo from '../components/ui/GLogo.vue'
+import { PASSWORD_MAX_CHARS, PASSWORD_MIN_CHARS } from '@/meta'
 
 const $router = useRouter()
 const sessionStore = useSessionStore()
@@ -25,7 +25,7 @@ async function handleSubmitRegister() {
         'Something went wrong while registering this username.',
       )
     }
-    console.log({ data })
+
     sessionStore.setUserState(data)
     $router.push({ name: 'Dashboard' })
   } catch (ex) {
@@ -37,6 +37,8 @@ async function handleSubmitRegister() {
     Loading.hide()
   }
 }
+
+// @todo
 const handleError = console.error
 </script>
 
@@ -50,7 +52,10 @@ const handleError = console.error
         greedy
       >
         <q-card-section>
-          <div class="text-h6">@todo logo</div>
+          <GLogo />
+        </q-card-section>
+        <q-card-section>
+          <div class="text-h6">Register a new account</div>
         </q-card-section>
         <q-card-section>
           <q-input
@@ -62,14 +67,8 @@ const handleError = console.error
             autocomplete="username"
             :rules="[required('A username is required.')]"
           />
-          <q-input
-            label="Password"
+          <GPasswordInput
             v-model="formModel.password"
-            filled
-            dense
-            class="q-mb-md"
-            type="password"
-            autocomplete="current-password"
             :rules="[
               required('A password is required.'),
               minLength(

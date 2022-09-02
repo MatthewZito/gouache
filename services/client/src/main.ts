@@ -31,6 +31,7 @@ useSessionStore()
   .then(() => {
     return router.replace({ name: 'Dashboard' })
   })
+  .catch(() => {})
   .finally(() => {
     vm.use(router)
     vm.mount('#app')

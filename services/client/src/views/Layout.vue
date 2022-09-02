@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { useErrorHandler } from '@/services'
 import { useSessionStore } from '@/state'
-import { epochToReadableTime, normalizeNullish } from '@/utils'
 import { useQuasar } from 'quasar'
+import UserProfile from '@/components/UserProfile.vue'
 
 const $q = useQuasar()
 const sessionStore = useSessionStore()
@@ -46,50 +46,10 @@ onErrorCaptured((ex: any) => {
         />
 
         <q-btn dense flat round icon="mdi-account">
-          <q-menu class="q-pa-xs">
-            <q-list>
-              <q-item>
-                <q-item-section avatar>
-                  <q-icon name="mdi-account" size="md" color="secondary" />
-                </q-item-section>
-
-                <q-item-section class="text-subtitle1">
-                  <q-item-label>
-                    Logged in as
-                    <span class="text-weight-bold">
-                      {{ sessionStore.username }}
-                    </span>
-                  </q-item-label>
-                </q-item-section>
-              </q-item>
-
-              <q-item>
-                <q-item-section avatar>
-                  <q-icon name="mdi-clock" size="md" color="secondary" />
-                </q-item-section>
-
-                <q-item-section class="text-subtitle1">
-                  <q-item-label>
-                    Next session renewal
-                    <span class="text-weight-bold">
-                      {{
-                        normalizeNullish(epochToReadableTime(sessionStore.exp))
-                      }}
-                    </span>
-                  </q-item-label>
-                </q-item-section>
-              </q-item>
-
-              <q-item clickable @click="sessionStore.logout">
-                <q-item-section avatar>
-                  <q-icon name="mdi-logout" size="md" color="secondary" />
-                </q-item-section>
-                <q-item-section class="text-subtitle1">
-                  <q-item-label>Logout</q-item-label>
-                </q-item-section>
-              </q-item>
-            </q-list>
-          </q-menu>
+          <UserProfile
+            :username="sessionStore.username!"
+            :exp="sessionStore.exp!"
+          />
         </q-btn>
       </q-toolbar>
     </q-header>

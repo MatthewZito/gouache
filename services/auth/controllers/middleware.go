@@ -1,8 +1,11 @@
 package controllers
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
+	"io"
+	"io/ioutil"
 	"net/http"
 
 	entities "github.com/exbotanical/gouache/entities/reporting"
@@ -55,21 +58,32 @@ func (ctx AuthProvider) ReportRequest(next http.Handler) http.Handler {
 		var p map[string]interface{}
 
 		if method != http.MethodGet {
-			// data, _ := ioutil.ReadAll(r.Body)
-			// @todo restore
-			json.NewDecoder(r.Body).Decode(&p)
+			// We need to ensure the request body remains readable in the subsequent handler,
+			// so we'll initialize a new buffer `b`...
+			b := bytes.NewBuffer(make([]byte, 0))
 
-			// r.Body.Close()
-			// r.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
+			// TeeReader returns a Reader that writes to `b` what it reads from r.Body.
+			reader := io.TeeReader(r.Body, b)
+
+			// Deserialize the reader data into `p`
+			json.NewDecoder(reader).Decode(&p)
+
+			// We're done with the original body...
+			defer r.Body.Close()
+
+			// NopCloser returns a ReadCloser with a no-op Close method wrapping the provided Reader `r`.
+			// We set this to the request and forward it to the subsequent handler.
+			r.Body = ioutil.NopCloser(b)
 		}
 
-		rl := entities.RequestReport{
-			Path:       r.RequestURI,
-			Method:     method,
-			Parameters: p,
-		}
-
+		// Send the report in the background.
 		go func() {
+			rl := entities.RequestReport{
+				Path:       r.RequestURI,
+				Method:     method,
+				Parameters: p,
+			}
+
 			ctx.rs.SendReport(context.TODO(), entities.HTTP_REQUEST_RECV, rl)
 		}()
 

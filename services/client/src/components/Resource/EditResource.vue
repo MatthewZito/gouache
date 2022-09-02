@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import type { PropType } from 'vue'
-import type { MutableResource } from '@/types'
-import { listRequired, required } from '@/utils'
+
+import type { UUID } from '@/types/scalar'
+
 import { showNotification } from '@/plugins'
 import {
   ErroneousResponseError,
@@ -10,7 +11,8 @@ import {
 } from '@/services'
 import { availableTags } from '@/mock'
 import { useResourceStore } from '@/state'
-import { UUID } from '@/types/scalar'
+import { useMutateResource } from '@/hooks'
+
 import GSelect from '@/components/ui/GSelect.vue'
 
 const props = defineProps({
@@ -34,20 +36,9 @@ if (!ok) {
 
 const resourceStore = useResourceStore()
 
+const { tagsRules, titleRules, formModel, shouldDisable } =
+  useMutateResource(data)
 const isLoading = ref(false)
-const formModel = reactive<MutableResource>({
-  title: data.title,
-  tags: data.tags,
-})
-
-const shouldDisable = computed(
-  () =>
-    !Object.values(formModel).every(
-      value =>
-        (value != null && typeof value === 'string' && value !== '') ||
-        (value?.length && value.length > 0),
-    ),
-)
 
 async function handleSave() {
   isLoading.value = true
@@ -76,52 +67,61 @@ async function handleSave() {
     isLoading.value = false
   }
 }
+
+// @todo
+const handleError = console.error
 </script>
 
 <template>
   <q-card style="width: 400px">
-    <q-card-section>
-      <div class="text-h6">Edit Resource</div>
-    </q-card-section>
+    <q-form
+      class="q-pa-md"
+      @submit.prevent
+      @validation-error="handleError"
+      greedy
+    >
+      <q-card-section>
+        <div class="text-h6">Edit Resource</div>
+      </q-card-section>
 
-    <q-card-section>
-      <q-form class="q-pa-md">
+      <q-card-section>
         <q-input
           label="Title"
           v-model="formModel.title"
           filled
           dense
           class="q-mb-md"
-          :rules="[required('A title is required.')]"
+          :rules="titleRules"
         />
         <GSelect
           v-model="formModel.tags"
           :options="availableTags"
           label="Tags"
-          :rules="[listRequired('At least one tag is required.')]"
+          :rules="tagsRules"
         />
-      </q-form>
-    </q-card-section>
+      </q-card-section>
 
-    <q-card-actions class="justify-between">
-      <q-btn label="Close" flat color="grey-6" @click="$emit('close')" />
-      <div>
-        <q-btn
-          label="Save"
-          unelevated
-          color="primary"
-          :disable="shouldDisable"
-          @click="handleSave"
-        />
-        <q-tooltip v-if="shouldDisable">
-          The form must be complete prior to submitting.
-        </q-tooltip>
-      </div>
-    </q-card-actions>
+      <q-card-actions class="justify-between">
+        <q-btn label="Close" flat color="grey-6" @click="$emit('close')" />
+        <div>
+          <q-btn
+            label="Save"
+            type="submit"
+            unelevated
+            color="primary"
+            :disable="shouldDisable"
+            @click="handleSave"
+          />
+          <q-tooltip v-if="shouldDisable">
+            The form must be complete prior to submitting.
+          </q-tooltip>
+        </div>
+      </q-card-actions>
 
-    <q-inner-loading :showing="isLoading">
-      <q-spinner class="q-mb-sm" size="50px" color="secondary" />
-      <div class="text-secondary text-bold">Updating the resource...</div>
-    </q-inner-loading>
+      <q-inner-loading :showing="isLoading">
+        <q-spinner class="q-mb-sm" size="50px" color="secondary" />
+        <div class="text-secondary text-bold">Updating the resource...</div>
+      </q-inner-loading>
+    </q-form>
   </q-card>
 </template>

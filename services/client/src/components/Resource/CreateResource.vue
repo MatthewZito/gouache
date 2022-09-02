@@ -2,10 +2,10 @@
 import { showNotification } from '@/plugins'
 import { InsufficientDataError, resourceApi, useErrorHandler } from '@/services'
 import type { AllNullable, MutableResource } from '@/types'
-import { required, listRequired } from '@/utils'
 import { availableTags } from '@/mock'
 import { useResourceStore } from '@/state'
 import GSelect from '@/components/ui/GSelect.vue'
+import { useMutateResource } from '@/hooks'
 
 const E_CANT_CREATE =
   'Something went wrong while creating this resource. Please try again or contact support.'
@@ -16,20 +16,11 @@ const $emit = defineEmits<{
 
 const resourceStore = useResourceStore()
 
-const isLoading = ref(false)
-const formModel = reactive<MutableResource>({
+const { tagsRules, titleRules, formModel, shouldDisable } = useMutateResource({
   title: '',
   tags: [],
 })
-
-const shouldDisable = computed(
-  () =>
-    !Object.values(formModel).every(
-      value =>
-        (value != null && typeof value === 'string' && value !== '') ||
-        (value?.length && value.length > 0),
-    ),
-)
+const isLoading = ref(false)
 
 function validateFormModel(
   model: AllNullable<MutableResource>,
@@ -87,14 +78,14 @@ async function handleSave() {
           filled
           dense
           class="q-mb-md"
-          :rules="[required('A title is required.')]"
+          :rules="titleRules"
         />
 
         <GSelect
           v-model="formModel.tags"
           :options="availableTags"
           label="Tags"
-          :rules="[listRequired('At least one tag is required.')]"
+          :rules="tagsRules"
         />
       </q-form>
     </q-card-section>

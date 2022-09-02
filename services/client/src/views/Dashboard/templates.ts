@@ -23,10 +23,16 @@ export const headers = [
     field: 'tags',
     align: 'left' as const,
   },
+
   {
     field: 'spacer',
     label: '',
     name: 'spacer',
     style: 'width: 99%',
+  },
+  {
+    field: 'action',
+    label: '',
+    name: 'action',
   },
 ]
