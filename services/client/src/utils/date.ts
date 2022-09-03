@@ -38,7 +38,7 @@ export function epochToReadableTime(maybeEpoch: number | null) {
 
 export function secondsToMinutes(nSeconds: number | null) {
   if (!nSeconds || nSeconds < 0) {
-    return 0
+    return null
   }
 
   return (nSeconds / 60).toFixed(1)

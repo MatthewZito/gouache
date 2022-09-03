@@ -16,6 +16,7 @@
 		"noEmit": true,
     "types": [
       "vite/client",
+      "vitest/globals",
 			"node"
     ],
 		"typeRoots": ["src/types/**/*.d.ts","node_modules/@types"],

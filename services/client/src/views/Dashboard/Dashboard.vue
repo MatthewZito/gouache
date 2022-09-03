@@ -1,6 +1,8 @@
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+import GLogo from '@/components/ui/GLogo.vue'
+</script>
 
 <template lang="pug">
-div
-  | Dashboard
+div.flex
+  GLogo
 </template>

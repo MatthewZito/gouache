@@ -36,7 +36,7 @@ q-menu.q-pa-xs
 
       q-item-section.text-subtitle1
         q-item-label
-          | Next session renewal at
+          | Next session renewal at&nbsp;
           span.text-weight-bold
             | {{ nowPlusNSeconds(props.exp) }}
 
